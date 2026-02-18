@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Compilacion C/C++
+Codigo/Binarios/
+*.o
+*.obj
+
+# LaTeX (basura de compilacion)
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.toc
+*.out
+*.synctex.gz
+*.nav
+*.snm
+*.vrb
+Manuscrito/Temporal/
+
+# Temporales y legado
+Temporal/
+
+# Config del sistema/editor
+.DS_Store
+Thumbs.db

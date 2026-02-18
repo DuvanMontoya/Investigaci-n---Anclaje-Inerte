@@ -1,0 +1,2362 @@
+% !TeX program = pdflatex
+\documentclass[11pt]{article}
+
+% ---------------------------------------------------------------
+% Paquetes
+% ---------------------------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[final]{microtype}
+\usepackage[a4paper,margin=1.12in]{geometry}
+
+\usepackage{mathtools,amssymb,amsmath,amsthm}
+\usepackage{bm}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{siunitx}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,decorations.pathreplacing}
+\graphicspath{{../../Figuras/Articulo/}{../../Figuras/Articulo/Extra/}{../../Figuras/Articulo/Diagnosticos/}}
+\usepackage{ifthen}
+\usepackage{float}
+\usepackage[section]{placeins}
+\usepackage{flafter}
+\usepackage{titlesec}
+\usepackage[font=small,labelfont=bf,labelsep=period,justification=justified,singlelinecheck=false]{caption}
+
+% --- Robust Figure Handling ---
+\newboolean{draftfigs}
+\setboolean{draftfigs}{false} % Set to true if figures are missing
+
+\newcommand{\incfig}[2][]{%
+    \ifthenelse{\boolean{draftfigs}}%
+    {\fbox{\begin{minipage}{0.8\linewidth}\centering\texttt{FIGURA NO ENCONTRADA: #2}\\ \small(Modo Draft Activado)\end{minipage}}}%
+    {\IfFileExists{#2}%
+        {\includegraphics[#1]{#2}}%
+        {\fbox{\begin{minipage}{0.8\linewidth}\centering\texttt{ARCHIVO FALTANTE: #2}\end{minipage}}}%
+    }%
+}
+\usepackage{subcaption}
+\usepackage[bookmarks=false]{hyperref}
+\usepackage[nameinlink,noabbrev]{cleveref}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  citecolor=black,
+  urlcolor=black,
+  pdftitle={De la esfera x2+y2+z2=R2 al anclaje inerte: densidades p-adicas explicitas para R2-c2},
+  pdfauthor={Robert Duan Montoya Cardona}
+}
+\sisetup{round-mode=places,round-precision=6}
+\setlist[itemize]{itemsep=2pt,topsep=4pt,parsep=0pt,leftmargin=2em}
+\setlength{\jot}{6pt}
+\renewcommand{\arraystretch}{1.08}
+\linespread{1.03}
+\captionsetup{width=0.96\linewidth}
+\titleformat{\section}{\normalfont\large\bfseries}{\thesection}{0.65em}{}
+\titleformat{\subsection}{\normalfont\normalsize\bfseries}{\thesubsection}{0.60em}{}
+\titleformat{\subsubsection}{\normalfont\normalsize\bfseries\itshape}{\thesubsubsection}{0.60em}{}
+\titlespacing*{\section}{0pt}{1.2\baselineskip}{0.55\baselineskip}
+\titlespacing*{\subsection}{0pt}{0.95\baselineskip}{0.45\baselineskip}
+\titlespacing*{\subsubsection}{0pt}{0.80\baselineskip}{0.35\baselineskip}
+\raggedbottom
+
+% ---------------------------------------------------------------
+% Ajustes de maquetación profesional (floats + espaciados)
+% ---------------------------------------------------------------
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{5}
+\renewcommand{\topfraction}{0.92}
+\renewcommand{\bottomfraction}{0.80}
+\renewcommand{\textfraction}{0.07}
+\renewcommand{\floatpagefraction}{0.82}
+\setlength{\textfloatsep}{10pt plus 2pt minus 2pt}
+\setlength{\intextsep}{10pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{6pt}
+\setlength{\belowcaptionskip}{2pt}
+\makeatletter
+\def\fps@figure{htbp}
+\def\fps@table{htbp}
+\makeatother
+
+% ---------------------------------------------------------------
+% Entornos de teorema
+% ---------------------------------------------------------------
+\theoremstyle{plain}
+\newtheorem{theorem}{Teorema}[section]
+\newtheorem{proposition}[theorem]{Proposición}
+\newtheorem{lemma}[theorem]{Lema}
+\newtheorem{corollary}[theorem]{Corolario}
+\newtheorem{conjecture}[theorem]{Conjetura}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definición}
+\newtheorem{example}[theorem]{Ejemplo}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Observación}
+\numberwithin{equation}{section}
+\allowdisplaybreaks[2]
+
+% ---------------------------------------------------------------
+% Notación y macros
+% ---------------------------------------------------------------
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\F}{\mathbb{F}}
+
+\newcommand{\vp}{v_p}
+\newcommand{\Zp}{\Z_p}
+\newcommand{\euler}{\gamma}
+
+\newcommand{\Csbase}{C_{\mathrm{base}}}
+\newcommand{\Csinf}{C_{\infty}}
+\newcommand{\Cobs}{C_{\sigma,\Delta}}
+\newcommand{\Ssing}{\mathfrak{S}_\Delta}
+\newcommand{\Sodd}{\mathfrak{S}_{\Delta,\mathrm{odd}}}
+
+\newcommand{\MR}[2]{M_{#1}(#2)}
+\newcommand{\Prob}{\mathbb{P}}
+\newcommand{\E}{\mathbb{E}}
+
+% ---------------------------------------------------------------
+% Título (RECOMENDADO)
+% ---------------------------------------------------------------
+\title{\textbf{De la esfera \(x^2+y^2+z^2=R^2\) al anclaje inerte:\\
+densidades \(p\)-ádicas explícitas para la familia \(R^2-c^2\)}\\[2pt]
+\large Renormalización determinista y serie singular en campos cuadráticos imaginarios}
+\author{Robert Duan Montoya Cardona}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+% ================================================================
+\begin{abstract}
+Sea $\Delta<0$ un discriminante fundamental, $K=\Q(\sqrt{\Delta})$ y
+\[
+x^2+y^2+z^2=R^2,\qquad z=c\ \Longrightarrow\ x^2+y^2=R^2-c^2.
+\]
+Esta identidad geométrica es el origen conceptual del trabajo: al cortar la esfera a altura $c$, el radio cuadrado del paralelo es
+$R^2-c^2$. En el caso gaussiano ($\Delta=-4$), decidir si $R^2-c^2$ es norma equivale a decidir si se representa como suma de dos cuadrados;
+en general, reemplazamos ``suma de dos cuadrados'' por pertenencia al conjunto de normas $N_{K/\Q}(\mathcal O_K)$.
+\[
+N_\Delta(R)=\#\{\,1\le c\le R-1:\ M_R(c)=R^2-c^2\in N_{K/\Q}(\mathcal O_K)\,\}.
+\]
+Mostramos que la dependencia de $N_\Delta(R)$ respecto de la factorización de $R$ en primos \emph{inertes} no es un efecto estadístico,
+sino una oscilación local determinista originada en la estructura $p$-ádica de $M_R(c)=(R-c)(R+c)$.
+
+El resultado central es local y es completamente explícito: para todo primo impar $p\ge 3$ calculamos en forma cerrada la probabilidad de que
+$v_p(M_R(c))$ sea impar cuando $c$ es Haar-uniforme en $\Z_p$ y $m=v_p(R)$,
+\[
+\Prob\big(v_p(M_R(c))\ \mathrm{impar}\big)=\frac{2}{p^m(p+1)},
+\qquad
+\sigma_p^{(m)}=\Prob\big(v_p(M_R(c))\ \mathrm{par}\big)=1-\frac{2}{p^m(p+1)}.
+\]
+Además, cuando $2$ es inerte ($\Delta\equiv 5\!\!\pmod 8$), aparece un \emph{interruptor} racional $2$-ádico:
+\[
+\sigma_{2,\Delta}^{(m)}=1-\frac{1}{3\cdot 2^{m}},\qquad \sigma_{2,\Delta}^{(0)}=\frac{2}{3}.
+\]
+Estas identidades se explican por un principio estructural: fuera de la \emph{capa crítica} $v_p(c)=v_p(R)$ la paridad de $v_p(M_R(c))$
+es forzosamente par.
+
+Definimos un normalizador determinista $H_\Delta(R)$ como producto finito de cocientes $\sigma_{p,\Delta}^{(m)}/\sigma_{p,\Delta}^{(0)}$
+sobre los primos inertes que dividen $R$ (incluyendo $p=2$ solo cuando es inerte y divide $R$) y consideramos el observable
+\[
+C_{\sigma,\Delta}(R)=\frac{N_\Delta(R)\log R}{H_\Delta(R)\,R}.
+\]
+Identificamos el baseline arquimediano canónico
+\[
+\Csbase(\Delta)=2e^{-\euler}L(1,\chi_\Delta)=2e^{-\euler}\mathrm{Res}_{s=1}\zeta_K(s),
+\]
+y en discriminantes de Heegner una forma cerrada en términos de $\sqrt{|\Delta|}$. Además, presentamos evidencia computacional
+hasta $R\le 10^7$ de que $C_{\sigma,\Delta}(R)$ se estabiliza hacia un límite $\Csinf(\Delta)$ compatible con la descomposición
+$\Csinf(\Delta)=\Csbase(\Delta)\,\mathfrak{S}_\Delta$, donde $\mathfrak{S}_\Delta$ es una serie singular local dominada por primos pequeños.
+Finalmente formulamos un teorema global \emph{condicional}: bajo una hipótesis estándar de nivel de distribución para
+$M_R(c)=R^2-c^2$ en progresiones aritméticas, se obtiene
+\[
+N_\Delta(R)=\Csinf(\Delta)\,H_\Delta(R)\,\frac{R}{\log R}+O\!\left(\frac{R}{(\log R)^{1+\delta}}\right)
+\]
+para algún $\delta>0$.
+\end{abstract}
+
+\tableofcontents
+
+% ================================================================
+\section{Introducción y resumen de resultados}
+\label{sec:intro}
+% ================================================================
+
+\subsection{Origen geométrico: de la esfera a la secuencia \(R^2-c^2\)}
+El punto de partida es estrictamente geométrico:
+\[
+x^2+y^2+z^2=R^2.
+\]
+Al fijar una altura $z=c$, el paralelo cumple
+\[
+x^2+y^2=R^2-c^2.
+\]
+Por tanto, para cada $c$ aparece un escalar natural, $R^2-c^2$, que codifica el radio de la sección horizontal.
+La pregunta aritmética nace al pedir que ese escalar pertenezca a un conjunto de normas.
+La \Cref{fig:sphere-origin} resume este puente geométrico con una visualización directa.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=0.95,>=Latex]
+\pgfmathsetmacro{\Rs}{2.7}
+\pgfmathsetmacro{\zc}{1.1}
+\pgfmathsetmacro{\rc}{sqrt(\Rs*\Rs-\zc*\zc)}
+
+\begin{scope}[xshift=-3.6cm]
+  \draw[thick] (0,0) circle (\Rs);
+  \draw[thick,->] (0,-3.1)--(0,3.3) node[above] {$z$};
+  \draw[thick,->] (-3.1,0)--(3.2,0) node[right] {$x$};
+  \draw[densely dashed,gray!70] (-\rc,\zc)--(\rc,\zc);
+  \draw[blue!75!black,very thick] (-\rc,\zc)--(\rc,\zc);
+  \fill[blue!70] (0,\zc) circle (1.4pt) node[left=2pt] {$c$};
+  \draw[decorate,decoration={brace,amplitude=4pt}] (-\rc,\zc-0.25) -- (\rc,\zc-0.25)
+    node[midway,below=6pt] {$2\sqrt{R^2-c^2}$};
+  \node at (0,-3.55) {\small Corte meridional};
+  \node[align=center] at (0,3.75) {$x^2+z^2=R^2$};
+\end{scope}
+
+\begin{scope}[xshift=4.2cm]
+  \draw[thick] (0,0) circle (1.8);
+  \draw[thick,->] (-2.2,0)--(2.4,0) node[right] {$x$};
+  \draw[thick,->] (0,-2.2)--(0,2.3) node[above] {$y$};
+  \draw[orange!85!black,very thick] (0,0) circle (1.8);
+  \draw[<->,orange!85!black] (0,0)--(1.8,0)
+    node[midway,above=2pt] {$\sqrt{R^2-c^2}$};
+  \node[align=center] at (0,2.95) {$x^2+y^2=R^2-c^2$};
+  \node at (0,-2.9) {\small Paralelo a altura $z=c$};
+\end{scope}
+
+\draw[->,line width=0.9pt] (-0.2,1.55) .. controls (0.9,2.3) and (2.2,2.1) .. (2.9,1.45);
+\end{tikzpicture}
+\caption{Origen geométrico de la familia. Cada corte horizontal de la esfera a altura $z=c$ produce un círculo de radio $\sqrt{R^2-c^2}$. El escalar $R^2-c^2$ es el objeto aritmético filtrado por normas.}
+\label{fig:sphere-origin}
+\end{figure}
+
+\subsection{Por qué importa (lectura técnica y no técnica)}
+\begin{itemize}[leftmargin=2em]
+\item \textbf{Lectura no técnica.} El problema conecta geometría elemental (cortes de una esfera) con estructura fina de primos:
+no es un promedio difuso, sino un patrón determinista gobernado por valuaciones.
+\item \textbf{Lectura técnica.} La familia $M_R(c)=R^2-c^2$ permite escribir fórmulas locales exactas y aislar la dependencia en $v_p(R)$
+mediante un normalizador explícito $H_\Delta(R)$; esto separa el bloque local del bloque global en la constante final.
+\item \textbf{Impacto conceptual.} El caso gaussiano ($\Delta=-4$) es la puerta de entrada geométrica, y el formalismo de normas en
+$K=\Q(\sqrt{\Delta})$ extiende esa puerta a toda una familia cuadrática con control local cerrado.
+\end{itemize}
+
+\subsection{Mapa lógico del artículo}
+La \Cref{fig:roadmap-main} compacta la arquitectura completa: origen geométrico, filtros locales, renormalización y constante final.
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  >=Latex,
+  box/.style={
+    draw=black!70,
+    rounded corners=2.5pt,
+    align=center,
+    minimum height=1.2cm,
+    text width=2.85cm,
+    inner sep=4pt,
+    font=\small
+  }
+]
+\node[box,fill=cyan!8]   (a) at (-5.1,0) {Geometría\\$x^2+y^2+z^2=R^2$\\$z=c$};
+\node[box,fill=cyan!8]   (b) at (-1.7,0) {Secuencia\\$n_c=R^2-c^2$};
+\node[box,fill=orange!12](c) at (1.7,0)  {Filtro de norma\\$n_c\in N_{K/\Q}(\mathcal O_K)$};
+\node[box,fill=orange!12](d) at (5.1,0)  {Densidades locales\\$\sigma_{p,\Delta}^{(m)}$};
+\node[box,fill=green!10] (e) at (5.1,-2.0) {$H_\Delta(R)$\\(normalizador)};
+\node[box,fill=green!10] (f) at (1.7,-2.0) {$C_{\sigma,\Delta}(R)$\\observable estable};
+\node[box,fill=violet!10](g) at (-1.7,-2.0) {$\Csinf(\Delta)$\\$=\Csbase(\Delta)\Ssing$};
+
+\draw[->,line width=0.85pt] (a)--(b);
+\draw[->,line width=0.85pt] (b)--(c);
+\draw[->,line width=0.85pt] (c)--(d);
+\draw[->,line width=0.85pt] (d)--(e);
+\draw[->,line width=0.85pt] (e)--(f);
+\draw[->,line width=0.85pt] (f)--(g);
+\end{tikzpicture}
+\caption{Flujo conceptual completo: del origen geométrico de $R^2-c^2$ a la descomposición final de la constante global.}
+\label{fig:roadmap-main}
+\end{figure}
+
+\subsection{El problema en una línea}
+Sea $\Delta<0$ un discriminante fundamental y $K=\Q(\sqrt{\Delta})$.
+Para cada $R\in\N$ consideramos la familia
+\[
+M_R(c)=R^2-c^2=(R-c)(R+c),\qquad 1\le c\le R-1,
+\]
+y contamos cuántos valores son normas enteras:
+\[
+N_\Delta(R)=\#\{\,1\le c\le R-1:\ M_R(c)\in N_{K/\Q}(\mathcal O_K)\,\}.
+\]
+El objetivo es describir con precisión \emph{cómo} depende $N_\Delta(R)$ de la aritmética de $R$ y del tipo de descomposición de primos en $K$.
+
+\subsection{El fenómeno: oscilaciones locales deterministas (``anclaje inerte'')}
+En un primo $p$ \emph{inerte} en $K$ (i.e.\ $\chi_\Delta(p)=-1$), una condición necesaria para que un entero positivo sea norma es que
+$v_p(\,\cdot\,)$ sea \emph{par}. Lo sorprendente en la familia $M_R(c)$ es que, al variar $c$,
+la paridad de $v_p(M_R(c))$ no se comporta como un ruido: queda rígidamente controlada por la relación aditiva
+\[
+(R-c)+(R+c)=2R.
+\]
+En particular, el defecto de paridad se concentra en una única capa $p$-ádica:
+
+\medskip
+\noindent\textbf{Principio de la capa crítica.}
+\emph{Para $p$ impar, fuera del evento $v_p(c)=v_p(R)$ se tiene automáticamente que $v_p(M_R(c))$ es par.}
+Por tanto, toda la probabilidad de fallo de paridad vive en un subconjunto de medida $\asymp p^{-v_p(R)}$.
+
+\medskip
+Este pegado del defecto a la valuación de $R$ (y no a fluctuaciones ``aleatorias'' de $c$) es lo que llamamos
+\emph{anclaje inerte}. Es un mecanismo estructural, y por eso admite fórmulas cerradas.
+
+\subsection{Resultados principales (locales, incondicionales)}
+El núcleo del trabajo es local y completamente riguroso: calculamos densidades $p$-ádicas exactas asociadas a la paridad de $v_p(M_R(c))$
+con $c$ Haar-uniforme en $\Z_p$.
+
+\begin{itemize}[leftmargin=2em]
+\item \textbf{Primos impares ($p\ge 3$).}
+Para $m=v_p(R)$ obtenemos la identidad cerrada
+\[
+\Prob\big(v_p(M_R(c))\ \mathrm{impar}\big)=\frac{2}{p^m(p+1)},
+\qquad
+\sigma_p^{(m)}=\Prob\big(v_p(M_R(c))\ \mathrm{par}\big)=1-\frac{2}{p^m(p+1)}.
+\]
+En primos inertes, $\sigma_p^{(m)}$ es exactamente la densidad del filtro local de norma (Teorema~\ref{thm:local-odd}).
+
+\item \textbf{Lugar $2$ cuando es inerte.}
+Si $\Delta\equiv 5\pmod 8$, entonces $K_2/\Q_2$ es no ramificada y la condición local de norma es pura paridad.
+En este régimen aparece un factor racional explícito:
+\[
+\sigma_{2,\Delta}^{(m)}=1-\frac{1}{3\cdot 2^{m}},\qquad \sigma_{2,\Delta}^{(0)}=\frac{2}{3}
+\]
+(Teorema~\ref{thm:sigma2-inerte}). Este \emph{interruptor $2$-ádico} domina varios de los regímenes observados numéricamente.
+\end{itemize}
+
+\subsection{El normalizador inercial \(H_\Delta(R)\) y el observable estable}
+Las fórmulas anteriores muestran que las densidades dependen explícitamente de $m=v_p(R)$.
+Por tanto, el cociente crudo $N_\Delta(R)\log R/R$ oscila multiplicativamente cuando $R$ acumula potencias de primos inertes.
+Esto obliga a renormalizar por un corrector determinista construido desde las densidades locales.
+
+Definimos el factor inercial finitista
+\[
+H_\Delta(R):=\prod_{\substack{p\mid R\\ p\ \mathrm{inerte}}}\frac{\sigma_{p,\Delta}^{(v_p(R))}}{\sigma_{p,\Delta}^{(0)}}
+\]
+y consideramos el observable
+\[
+C_{\sigma,\Delta}(R)=\frac{N_\Delta(R)\log R}{H_\Delta(R)\,R}.
+\]
+La razón conceptual para introducir $H_\Delta(R)$ es simple: extrae \emph{exactamente} la dependencia local explícita en $v_p(R)$,
+devolviendo cada factor al régimen base $m=0$.
+
+\subsection{Baseline canónico y serie singular}
+En una criba de dimensión $1$ el escalamiento $R/\log R$ es el esperado, y el factor arquimediano queda forzado por Mertens.
+En particular, identificamos el baseline canónico del campo:
+\[
+\Csbase(\Delta)=2e^{-\euler}L(1,\chi_\Delta)=2e^{-\euler}\operatorname{Res}_{s=1}\zeta_K(s),
+\]
+y en el caso Heegner ($h(\Delta)=1$) obtenemos la forma cerrada
+\[
+\Csbase(\Delta)=\frac{4\pi e^{-\euler}}{w(\Delta)\sqrt{|\Delta|}}
+\]
+(Teorema~\ref{thm:arch}).
+
+La constante final esperada para el conteo renormalizado adopta la descomposición canónica
+\[
+\Csinf(\Delta)=\Csbase(\Delta)\,\mathfrak{S}_\Delta,
+\]
+donde $\mathfrak{S}_\Delta$ es una serie singular local que captura correlaciones finas (de orden $\ge p^{-2}$) propias de la familia
+$M_R(c)$ y del conjunto de normas.
+
+\subsection{Qué es teorema y qué es conjetura}
+\begin{itemize}[leftmargin=2em]
+\item \textbf{Teorema (incondicional).}
+Todo el aparato local: principio de capa crítica, densidades cerradas para $p\ge 3$ y para $p=2$ inerte,
+y la identificación del baseline $\Csbase(\Delta)$ vía $\zeta_K$.
+\item \textbf{Teorema (global condicional).}
+Bajo una hipótesis explícita de distribución en progresiones para $M_R(c)$, se deduce la asintótica global
+con término de error con ahorro logarítmico (Teorema~\ref{thm:global-conditional}).
+\item \textbf{Conjetura (global incondicional).}
+El asintótico
+\[
+N_\Delta(R)\sim \frac{\Csinf(\Delta)\,H_\Delta(R)\,R}{\log R}
+\qquad (R\to\infty)
+\]
+requiere un input global de distribución en progresiones para la secuencia $M_R(c)$, suficiente para alimentar una criba asintótica
+(Conjetura~\ref{conj:global}).
+\end{itemize}
+
+\subsection{Evidencia computacional y el rol de inertes pequeños}
+Para los nueve discriminantes de Heegner se computa $N_\Delta(R)$ hasta $R\le 10^7$ y se observa que $C_{\sigma,\Delta}(R)$ se estabiliza
+hacia un límite $\Csinf(\Delta)$.
+El caso $\Delta=-7$ actúa como diagnóstico: su valor atípico se explica casi por completo por el producto de primer orden de inertes pequeños
+($p=3,5$), mostrando que la variación entre discriminantes es estructural y dominada por primos chicos (Sección~\ref{sec:ejemplo7}).
+
+\subsection{Convención de parametrización}
+\begin{remark}[Convención de escala y compatibilidad con la notación ``$2R$'']
+\label{rem:convencion-escala}
+En todo el manuscrito fijamos \emph{una única} parametrización:
+\[
+M_R(c)=R^2-c^2=(R-c)(R+c),\qquad 1\le c\le R-1.
+\]
+Si en algún contexto geométrico se prefiere escribir la familia como $(2r)^2-c^2$ (simetría alrededor de $2r$),
+basta sustituir $R:=2r$. Para todo primo impar $p$ no cambia $v_p(R)$; en $p=2$ sí cambia:
+\[
+v_2(R)=v_2(2r)=v_2(r)+1.
+\]
+Esta observación es \emph{exactamente} el punto donde un cambio de convención puede alterar los ``casos base'' 2-ádicos.
+La presente redacción fija la convención $R^2-c^2$ y usa $v_p(R)$ coherentemente en todo el texto.
+\end{remark}
+
+\subsection{Organización del manuscrito}
+Las Secciones~\ref{sec:prelim-padic}--\ref{sec:local-2} prueban los resultados locales (impares y lugar $2$).
+La Sección~\ref{sec:definiciones} formaliza $H_\Delta(R)$ y el observable $C_{\sigma,\Delta}(R)$.
+Las Secciones~\ref{sec:global}--\ref{sec:renorm} discuten el baseline canónico, la renormalización tipo Mertens y la estructura Euleriana
+de la serie singular. La evidencia numérica y los diagnósticos se presentan en la Sección~\ref{sec:computo} y apéndices.
+
+% ================================================================
+\section{Normas en $K=\Q(\sqrt{\Delta})$ y el rol de los primos inertes}
+\label{sec:normas}
+% ================================================================
+
+\subsection{Caracteres cuadráticos y tipos de primos}
+Sea $\Delta<0$ fundamental y $\chi_\Delta$ el carácter cuadrático de Kronecker. Para $p\nmid \Delta$,
+\[
+\chi_\Delta(p)=
+\begin{cases}
++1 & (p\ \text{split}),\\
+-1 & (p\ \text{inerte}).
+\end{cases}
+\]
+Si $p\mid\Delta$, entonces $\chi_\Delta(p)=0$ y $p$ es ramificado.
+
+\subsection{Criterio local simplificado: paridad en primos inertes}
+Un principio estándar (interpretado vía factorización de ideales) es:
+\begin{quote}
+\emph{Si $p$ es inerte, entonces para que $n$ sea norma es necesario que $\vp(n)$ sea par.}
+\end{quote}
+Esto se debe a que, si $p$ es inerte, el ideal $(p)$ permanece primo en $\mathcal{O}_K$ y
+\[
+(v_p(n)\ \text{impar})\ \Longrightarrow\ (p)\ \text{aparece con exponente impar en $(n)$},
+\]
+lo cual no puede suceder para normas principales, donde los exponentes vienen en pares conjugados.
+
+Para los discriminantes de Heegner ($h(\Delta)=1$), esta descripción se vuelve especialmente operativa:
+la representabilidad por la forma principal coincide con la condición global de norma principal, y la estructura local
+captura con gran fidelidad la constante.
+
+\begin{remark}[Por qué restringirse a Heegner en la evidencia]
+Cuando $h(\Delta)>1$, un entero puede ser norma de algún ideal pero no necesariamente norma de un elemento, y aparecen clases.
+La restricción a Heegner evita esas sutilezas y permite que el indicador de norma sea computable de manera directa
+mediante criterios de factorización/representación.
+\end{remark}
+
+\begin{proposition}[Principio local--global para normas en extensiones cuadráticas]
+\label{prop:hasse-norm}
+Sea $K/\Q$ una extensión cuadrática (en particular, cíclica). Entonces un racional $x\in\Q^\times$ es una norma global
+$x\in N_{K/\Q}(K^\times)$ si y solo si $x$ es una norma local en todo completamiento:
+\[
+x\in N_{K/\Q}(K^\times)\quad\Longleftrightarrow\quad
+x\in N_{K_v/\Q_v}(K_v^\times)\ \ \text{para todo lugar $v$ de $\Q$}.
+\]
+\end{proposition}
+
+\begin{remark}[Principio de Hasse no es suficiente: Normas Integrales]
+\label{rem:hasse-vs-integral}
+El Teorema de Normas de Hasse garantiza que $x\in\mathbb{Q}^\times$ es norma global en $K^\times$ si y solo si es norma local en todo completamiento $K_p^\times$.
+Sin embargo, nuestro conteo $N_\Delta(R)$ requiere que $M_R(c)$ sea norma de un \emph{entero} algebraico ($\beta\in\mathcal{O}_K$).
+Para $h(\Delta)=1$ (dominios de ideales principales), esto equivale a pedir que $M_R(c)$ sea generado por la norma de un elemento, lo cual impone condiciones más fuertes que la mera norma racional: se requiere que la valuación local sea par en inertes y que las unidades locales satisfagan congruencias cuadráticas en los ramificados (ver \Cref{subsec:ramificado}) y en $p=2$.
+\end{remark}
+
+% ================================================================
+\section{Definiciones: conteo, densidades locales y el normalizador inercial}
+\label{sec:definiciones}
+% ================================================================
+
+\subsection{Conteo}
+\begin{definition}[Conteo de normas en la familia]
+\label{def:N}
+Para $\Delta<0$ fundamental definimos
+\[
+N_\Delta(R)=\#\{\,1\le c\le R-1:\ M_R(c)=R^2-c^2\in N_{K/\Q}(\mathcal{O}_K)\,\}.
+\]
+\end{definition}
+
+\begin{remark}[Nota técnica sobre el borde $c=0$]
+Formalmente, el valor $c=0$ produce $M_R(0)=R^2$, que es siempre norma (pues es un cuadrado racional).
+Aunque su contribución es asintóticamente despreciable ($O(1)$ frente a $R$), incluir $c=0$ simplificaría ciertas sumas de caracteres en un tratamiento analítico puro.
+Mantenemos la restricción $c\ge 1$ por coherencia con la intuición geométrica del problema.
+\end{remark}
+
+\subsection{Densidades $p$-ádicas}
+El mecanismo central del artículo es local. Sea $p$ primo. Consideramos $c$ uniforme en $\Z_p$ con medida de Haar.
+Definimos la densidad local (en el régimen relevante para inertes):
+\[
+\sigma_{p,\Delta}^{(m)}:=\Prob_{c\in\Z_p}\big(\vp(M_R(c))\ \text{par}\big),
+\qquad m=\vp(R).
+\]
+Cuando $p$ es inerte, esta paridad modela la condición local de norma.
+
+\subsection{Por qué $H_\Delta(R)$ es el normalizador natural}
+El punto crucial es que $\sigma_{p,\Delta}^{(m)}$ depende de $m=\vp(R)$ de manera explícita.
+Por tanto, si $R$ tiene potencias grandes de primos inertes, el conteo $N_\Delta(R)$ cambia por un factor determinista.
+Esto obliga a definir un corrector multiplicativo.
+
+\begin{definition}[Factor inercial determinista finitista]
+\label{def:H}
+Sea $\Delta<0$ fundamental. Definimos el factor corrector como el producto finito restringido a los primos relevantes:
+\[
+H_\Delta(R):=\prod_{\substack{p\mid R\\ p\ \mathrm{inerte}}} \frac{\sigma_{p,\Delta}^{(m)}}{\sigma_{p,\Delta}^{(0)}},
+\qquad m=v_p(R).
+\]
+Si $2$ es inerte, el producto incluye también el factor $p=2$ cuando $v_2(R)>0$.
+Para primos split, y para inertes con $v_p(R)=0$, el cociente es $1$ (o se absorbe en la constante global para correcciones de orden $O(p^{-2})$).
+Esta definición operacional garantiza que $H_\Delta(R)$ es una cantidad finita y computable que aísla la dependencia en la geometría de $R$. Los términos no triviales provienen de:
+\begin{enumerate}
+    \item Primos \textbf{inertes} ($p\mid R, \chi(p)=-1$), donde la paridad se ve alterada por $m>0$.
+    \item El primo $p=2$ cuando es \textbf{inerte} y divide a $R$.
+\end{enumerate}
+\end{definition}
+
+\begin{remark}[Lectura probabilística]
+Si los eventos locales fueran aproximadamente independientes, entonces
+\[
+\Prob(M_R(c)\ \text{pasa todos los filtros locales})\ \approx\ \prod_{p} \sigma_{p,\Delta}^{(m)},
+\]
+y al variar $v_p(R)$ cambias exactamente las $\sigma_{p,\Delta}^{(m)}$ correspondientes. $H_\Delta(R)$ es
+el cociente que ``devuelve'' esos factores a su valor base $m=0$.
+\end{remark}
+
+\begin{remark}[Refinamiento ramificado opcional]
+Para estudiar explícitamente la contribución de primos impares ramificados, usamos la normalización post-procesada
+\[
+H_\Delta^\star(R):=H_\Delta(R)\prod_{\substack{p\mid \Delta\\ p\ \text{impar}}}p^{-v_p(R)}.
+\]
+Este refinamiento no altera la definición operativa principal de los CSV (inerte-only), pero permite separar con claridad el bloque inerte del bloque ramificado.
+\end{remark}
+
+\subsection{El observable estable}
+\begin{definition}[Observable normalizado]
+\label{def:Cobs}
+Definimos
+\[
+C_{\sigma,\Delta}(R):=\frac{N_\Delta(R)\log R}{H_\Delta(R)\,R}.
+\]
+\end{definition}
+
+\begin{remark}[Qué esperamos en un modelo de dimensión 1]
+En una criba de dimensión $1$, el conteo típico tiene forma $\sim \mathrm{const}\cdot R/\log R$.
+La función $H_\Delta(R)$ corrige las oscilaciones locales y $C_{\sigma,\Delta}(R)$ debería tender a un límite.
+\end{remark}
+
+\begin{remark}[Convención de escala logarítmica]
+En un modelo de criba de dimensión $1$ aplicado a valores de tamaño $\asymp R^2$, el denominador natural es $\log(R^2)=2\log R$.
+Al normalizar por $\log R$, absorbemos ese factor $2$ en la constante $\Csbase(\Delta)$, justificando su prefactor.
+\end{remark}
+
+\begin{figure}[H]
+\centering
+\incfig[width=\linewidth]{../../Figuras/Articulo/D-43_raw_vs_norm.pdf}
+\caption{Demostración visual del anclaje inerte para $\Delta=-43$. \textbf{Arriba:} $C_{\rm raw}(R)=N_\Delta(R)\log R/R$ oscila multiplicativamente. \textbf{Abajo:} al normalizar por $H_\Delta(R)$, el observable $C_{\sigma,\Delta}(R)$ se estabiliza, evidenciando que $H_\Delta$ captura la oscilación determinista inducida por primos inertes.}
+\label{fig:D43-raw-vs-norm}
+\end{figure}
+
+% ================================================================
+\section{Preliminares $p$-ádicos: capas de valuación y el principio de la capa crítica}
+\label{sec:prelim-padic}
+% ================================================================
+
+\subsection{Puente: de lo discreto a lo continuo}
+\begin{lemma}[Densidad discreta vs Haar]
+\label{lem:haar-bridge}
+Sea $\sigma_{p}^{(m)}$ la probabilidad respecto a la medida de Haar en $\Z_p$ definida previamente (densidad intrínseca).
+Definimos la \emph{densidad discreta} para el nivel $R$ como:
+\[
+\sigma_{p,\text{disc}}^{(m)}(R):=\frac{1}{R-1}\#\{\,1\le c\le R-1:\ v_p(M_R(c))\ \text{es par}\,\}.
+\]
+Entonces, para todo $q=p^k$ fijo (o creciendo lentamente con $R$), la equidistribución de $c$ módulo $q$ implica:
+\[
+\sigma_{p,\text{disc}}^{(m)}(R)=\sigma_{p}^{(m)}+O\Big(\frac{p^{m+1}}{R}\Big).
+\]
+\end{lemma}
+\begin{remark}
+La corrección inercial $H_\Delta(R)$ se construye usando las densidades límite $\sigma_{p}^{(m)}$.
+Esta aproximación es válida y robusta siempre que las ``capas'' relevantes del espacio $p$-ádico (hasta valuación $m$) tengan representantes en el intervalo discreto, lo cual se cumple ampliamente si $p^m \ll R$.
+Para $R$ extremadamente $p$-suave (ej. $R=p^m$), la discretización introduce efectos de borde finito que el modelo de Haar suaviza.
+\end{remark}
+
+\subsection{Capas de valuación en $\Z_p$}
+Usaremos repetidamente la descomposición de $\Z_p$ por valuaciones.
+
+\begin{lemma}[Distribución de $\vp$ bajo Haar]
+\label{lem:geom-vp}
+Sea $X$ uniforme en $\Z_p$. Entonces para $k\ge 0$,
+\[
+\Prob(\vp(X)=k)=(1-1/p)p^{-k},
+\qquad
+\Prob(\vp(X)\ge k)=p^{-k}.
+\]
+\end{lemma}
+\begin{proof}
+$\Prob(\vp(X)\ge k)=\mu(p^k\Z_p)=p^{-k}$. Restando $k$ y $k+1$ se obtiene la masa puntual.
+\end{proof}
+
+\subsection{El principio estructural: todo el defecto vive en $\vp(c)=\vp(R)$}
+El polinomio
+\[
+M_R(c)=(R-c)(R+c)
+\]
+tiene la propiedad de que las valuaciones $\vp(R\pm c)$ se estabilizan fuera de la capa crítica.
+
+\begin{lemma}[Fuera de la capa crítica la paridad es automáticamente par]
+\label{lem:structure-vp}
+Sea $p$ primo impar. Escriba $R=p^mR_0$ con $p\nmid R_0$ y sea $c\in\Z_p$ con $t=\vp(c)$.
+Si $t\neq m$, entonces
+\[
+\vp(R-c)=\vp(R+c)=\min\{t,m\},
+\quad\Rightarrow\quad
+\vp(M_R(c))=2\min\{t,m\}\ \text{es par}.
+\]
+\end{lemma}
+\begin{proof}
+Si $t<m$, escriba $c=p^tu$ con $u\in\Z_p^\times$ y note que
+$R\pm c=p^t(p^{m-t}R_0\pm u)$ con paréntesis unidad. Si $t>m$, escriba
+$c=p^m p^{t-m}u$ con $p^{t-m}u\in p\Z_p$ y observe que $R\pm c=p^m(R_0\pm p^{t-m}u)$ con paréntesis unidad.
+\end{proof}
+
+\begin{lemma}[Reducción en la capa crítica]
+\label{lem:critical-reduction}
+Sea $p$ impar. Si $\vp(c)=m$ escribimos $c=p^m u$ con $u\in\Z_p^\times$. Entonces
+\[
+\vp(M_R(c))=2m+\vp\big(R_0^2-u^2\big).
+\]
+En particular, la paridad de $\vp(M_R(c))$ coincide con la de $\vp(R_0^2-u^2)$.
+\end{lemma}
+\begin{proof}
+Factorizando $M_R(c)=R^2-c^2=p^{2m}(R_0^2-u^2)$.
+\end{proof}
+
+\begin{remark}[Consecuencia conceptual]
+Esta es la razón de fondo por la que $H_\Delta(R)$ existe y es simple: la dependencia de $\sigma_{p,\Delta}^{(m)}$ respecto de $\vp(R)$
+se concentra en una capa de masa $\asymp p^{-m}$.
+\end{remark}
+La \Cref{fig:critical-layer} lo visualiza en un solo diagrama: todo el defecto de paridad entra por $t=\vp(c)=m$.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  >=Latex,
+  zone/.style={draw=black!70,rounded corners=2pt,minimum width=3.7cm,minimum height=1.15cm,align=center,font=\small}
+]
+\node[zone,fill=green!12]  (left)   at (0,0) {$t=\vp(c)<m$\\$\vp(M_R(c))=2t$\\\textbf{par siempre}};
+\node[zone,fill=orange!18] (middle) at (4.7,0) {$t=\vp(c)=m$\\\textbf{capa crítica}\\puede aparecer impar};
+\node[zone,fill=green!12]  (right)  at (9.4,0) {$t=\vp(c)>m$\\$\vp(M_R(c))=2m$\\\textbf{par siempre}};
+
+\draw[->,line width=0.9pt] (left)--(middle);
+\draw[->,line width=0.9pt] (middle)--(right);
+
+\draw[decorate,decoration={brace,amplitude=4pt},gray!70]
+  (3.0,1.0) -- (6.4,1.0)
+  node[midway,above=5pt,font=\small] {masa $\asymp p^{-m}$};
+
+\node[draw=black!70,rounded corners=2pt,fill=white,align=center,font=\small,inner sep=3pt] at (4.7,-1.35)
+{Defecto de paridad concentrado\\en una sola capa de valuación.};
+\end{tikzpicture}
+\caption{Visualización del principio de capa crítica para $p$ impar: fuera de $t=\vp(c)=m$ la paridad de $\vp(M_R(c))$ es forzosamente par.}
+\label{fig:critical-layer}
+\end{figure}
+
+% ================================================================
+\section{Teoremas locales en primos impares ($p\ge 3$)}
+\label{sec:local-impar}
+% ================================================================
+
+\subsection{Caso Inerte: Paridad de Valuación}
+El siguiente hecho encapsula el conteo de soluciones $p$-ádicas cerca de raíces simples.
+
+\begin{lemma}[Conteo de levantamientos para raíces simples en unidades]
+\label{lem:hensel-units}
+Sea $p$ primo impar y $h(T)\in\Z_p[T]$. Suponga que $\bar h(T)\in(\Z/p\Z)[T]$ tiene exactamente $r$ raíces simples en
+$(\Z/p\Z)^\times$. Sea $U$ uniforme en $\Z_p^\times$.
+Entonces para $t\ge 1$:
+\[
+\Prob\big(h(U)\equiv 0\!\!\pmod{p^t}\big)=\frac{r}{\varphi(p^t)}=\frac{r}{(p-1)p^{t-1}},
+\qquad
+\Prob\big(\vp(h(U))=t\big)=\frac{r}{p^t}.
+\]
+\end{lemma}
+\begin{proof}
+Cada raíz simple módulo $p$ levanta de manera única a una raíz módulo $p^t$ (Hensel).
+Por tanto hay exactamente $r$ soluciones módulo $p^t$ dentro de $(\Z/p^t\Z)^\times$.
+Como $U\bmod p^t$ es uniforme en ese grupo (de tamaño $\varphi(p^t)=(p-1)p^{t-1}$), obtenemos la primera fórmula.
+Para la segunda, restamos probabilidades:
+\[
+\Prob(\vp(h(U))=t)=\Prob(\vp(h(U))\ge t)-\Prob(\vp(h(U))\ge t+1)
+=\frac{r}{(p-1)p^{t-1}}-\frac{r}{(p-1)p^{t}}=\frac{r}{p^t}.
+\]
+\end{proof}
+
+\begin{remark}
+En \Cref{lem:hensel-units} sólo usamos $t\ge 1$ porque la paridad de $\vp(h(U))$ difiere de $0$
+únicamente cuando $p\mid h(U)$.
+\end{remark}
+
+\subsection{Densidad local cerrada}
+\begin{theorem}[Densidad local para $p\ge 3$]
+\label{thm:local-odd}
+Sea $p\ge 3$ primo impar y $R=p^mR_0$ con $p\nmid R_0$. Entonces
+\[
+\boxed{
+\Prob_{c\in\Z_p}\big(\vp(M_R(c))\ \mathrm{impar}\big)=\frac{2}{p^m(p+1)}
+}
+\]
+\[
+\boxed{
+\sigma_{p}^{(m)}=\Prob(\vp(M_R(c))\ \mathrm{par})=1-\frac{2}{p^m(p+1)}.
+}
+\]
+En particular, para $m=0$:
+\[
+\boxed{\sigma_{p}^{(0)}=\frac{p-1}{p+1}.}
+\]
+\noindent (Cuando $p$ es inerte, esta densidad es exactamente el filtro local de norma).
+\end{theorem}
+
+\begin{proof}
+Por \Cref{lem:structure-vp}, fuera de la capa crítica $\vp(c)=m$ la valuación $\vp(M_R(c))$ es par.
+Así,
+\[
+\Prob(\vp(M_R(c))\ \mathrm{impar})
+=\Prob(\vp(c)=m)\cdot \Prob(\vp(M_R(c))\ \mathrm{impar}\mid \vp(c)=m).
+\]
+Por \Cref{lem:geom-vp}, $\Prob(\vp(c)=m)=(1-1/p)p^{-m}=(p-1)/p^{m+1}$.
+
+Condicionando a $\vp(c)=m$ escribimos $c=p^mu$ con $u\in\Z_p^\times$ uniforme.
+Por \Cref{lem:critical-reduction},
+\[
+\vp(M_R(c))=2m+\vp\big(R_0^2-u^2\big),
+\]
+luego la paridad es la de $\vp(h(u))$ con $h(T)=R_0^2-T^2$.
+
+Módulo $p$, $\bar h(T)=\bar A^2-T^2$ con $\bar A\neq 0$ tiene exactamente $r=2$ raíces simples en $(\Z/p\Z)^\times$:
+$T\equiv \pm \bar A$. Por \Cref{lem:hensel-units}, para $t\ge 1$ (el caso $t=0$ no contribuye a sumas de valuación):
+\[
+\Prob(\vp(h(u))=t)=\frac{2}{p^t}.
+\]
+Por tanto,
+\[
+\Prob(\vp(h(u))\ \mathrm{impar})=\sum_{j\ge 0}\Prob(\vp(h(u))=2j+1)
+=\sum_{j\ge 0}\frac{2}{p^{2j+1}}
+=\frac{2/p}{1-1/p^2}
+=\frac{2p}{p^2-1}.
+\]
+Finalmente,
+\[
+\Prob(\vp(M_R(c))\ \mathrm{impar})
+=\frac{p-1}{p^{m+1}}\cdot \frac{2p}{p^2-1}
+=\frac{2}{p^m(p+1)}.
+\]
+Esto concluye.
+\end{proof}
+
+\begin{remark}[Lectura intuitiva]
+En $m=0$, la probabilidad de fallo en un inerte impar es $2/(p+1)$ y por tanto la probabilidad de pasar el filtro es $(p-1)/(p+1)$.
+Esto explica por qué unos pocos inertes pequeños pueden dominar la constante (p.ej. $p=3,5$ para $\Delta=-7$).
+\end{remark}
+
+\subsection{Primos ramificados impares en Heegner: caso explícito ($\Delta=-3$, $p=3$)}
+\label{subsec:ramificado}
+
+En la lista de discriminantes de Heegner $h(\Delta)=1$, cada primo impar $p\mid\Delta$ puede afectar el conteo cuando $v_p(R)>0$.
+El caso que desarrollamos de forma completamente explícita en el cuerpo del texto es $(\Delta,p)=(-3,3)$.
+El análisis completo (incluyendo la caracterización del grupo de normas de unidades módulo $3$ y el conteo en la capa crítica)
+se presenta en el Apéndice, \Cref{subsec:sigma3-minus3}, donde se prueba la fórmula cerrada
+\[
+\sigma_{3,-3}^{(m)}=\frac{2}{3^{m+1}}.
+\]
+Para otros Heegner impares ($\Delta=-7,-11,-19,-43,-67,-163$), el primo $|\Delta|$ también induce oscilación visible al variar $v_p(R)$;
+esto se refleja en el refinamiento $H_\Delta^\star$ de la Sección~\ref{sec:computo}.
+
+% ================================================================
+\section{Capítulo 2-ádico: el interruptor racional en el caso inerte}
+\label{sec:local-2}
+% ================================================================
+
+\subsection{Clasificación de $2$ (incluida para no depender de folklore)}
+\begin{lemma}[Clasificación de $2$ por congruencia módulo $8$]
+\label{lem:clasif-2}
+Sea $\Delta<0$ discriminante fundamental.
+\begin{enumerate}
+    \item Si $\Delta$ es \textbf{par} fundamental (ej. $\Delta=-4,-8$), entonces $2$ es \textbf{ramificado}.
+    \item Si $\Delta$ es \textbf{impar} fundamental, entonces $\Delta\equiv 1\pmod 4$.
+    \begin{itemize}
+        \item $\Delta\equiv 1\pmod 8 \implies 2$ \textbf{split}.
+        \item $\Delta\equiv 5\pmod 8 \implies 2$ \textbf{inerte}.
+    \end{itemize}
+\end{enumerate}
+\end{lemma}
+
+\subsection{Un lema 2-ádico auxiliar (para que la prueba no ``salte'')}
+\begin{lemma}[Suma y diferencia de impares en $\Z_2$]
+\label{lem:odd-sum-diff}
+Si $a,b\in\Z_2$ son impares, entonces $a\pm b$ son pares y exactamente uno de ellos tiene valuación $1$.
+Más precisamente, uno de $a\pm b$ es $\equiv 2\pmod 4$ y el otro es $\equiv 0\pmod 4$.
+\end{lemma}
+\begin{proof}
+Si $a\equiv b\pmod 4$, entonces $a-b\equiv 0\pmod 4$ y $a+b\equiv 2\pmod 4$.
+Si $a\equiv -b\pmod 4$, se invierte el rol. En cualquier caso, ambos son pares y sólo uno es múltiplo de $4$.
+\end{proof}
+
+\subsection{Teorema 2-ádico en el caso inerte}
+Antes de probar el teorema principal, aislamos una propiedad geométrica elemental de la medida de Haar que se usa implícitamente al ``contar potencias de 2 adicionales''.
+
+\begin{lemma}[Valuación geométrica condicionada]
+\label{lem:geom-shift}
+Si $X$ es una variable aleatoria uniforme en $\Z_2$ (Haar), entonces la valuación de $X$ condicionada a estar en un subgrupo $2^k\Z_2$ sigue una ley geométrica desplazada:
+\[
+\Prob(v_2(X)=j \mid X\in 2^k\Z_2) = \frac{1}{2^{j-k+1}},\qquad \forall j\ge k.
+\]
+En particular, si sabemos que $X\in 4\Z_2$, entonces $\Prob(v_2(X)=j)=2^{-(j-1)}$ para $j\ge 2$.
+\end{lemma}
+
+Para el lugar $2$ usamos la misma notación $M_R(c)$ (o $F_R(c)$ si se quiere enfatizar la variable muda) consistente con el resto del texto.
+
+\begin{theorem}[Densidad local 2-ádica en el caso inerte]
+\label{thm:sigma2-inerte}
+Supongamos que $2$ es inerte en $K$ (impar fundamental con $\Delta\equiv 5\pmod 8$).
+Sea $m=v_2(R)$ y sea $c$ uniforme en $\Z_2$ (Haar). Entonces
+\[
+\sigma_{2,\Delta}^{(m)}:=\Prob\big(v_2(M_R(c))\ \mathrm{par}\big)
+\]
+satisface la fórmula cerrada
+\[
+\boxed{\;\sigma_{2,\Delta}^{(m)}=1-\frac{1}{3\cdot 2^{m}}.\;}
+\]
+En particular, para $R$ impar ($m=0$),
+\[
+\boxed{\;\sigma_{2,\Delta}^{(0)}=\frac{2}{3}.\;}
+\]
+\end{theorem}
+
+\begin{corollary}[Fórmula cerrada para $H_\Delta(R)$]
+\label{cor:H-formula}
+El factor inercial toma la forma explícita:
+\[
+H_\Delta(R)=\prod_{\substack{p\mid R \\ p\ \mathrm{inerte}}} h_p(v_p(R)),
+\]
+donde el multiplicador local $h_p(m)=\sigma_{p,\Delta}^{(m)}/\sigma_{p,\Delta}^{(0)}$ es:
+\begin{itemize}
+    \item Para $p\ge 3$ inerte:
+    \[
+    h_p(m)=\frac{p^m(p+1)-2}{p^m(p-1)}.
+    \]
+    \item Para $p=2$ inerte (si aplica):
+    \[
+    h_2(m)=\frac{3\cdot 2^m - 1}{2^{m+1}}.
+    \]
+\end{itemize}
+\end{corollary}
+
+\begin{proof}
+Escribimos $R=2^m r$ con $r$ impar y descomponemos por capas $t=v_2(c)$.
+
+\medskip
+\noindent\textbf{Paso 1: fuera de la capa crítica $t\neq m$ no hay defecto.}
+Si $t<m$, escribimos $c=2^t c'$ con $c'$ impar. Entonces
+\[
+R\pm c=2^t(2^{m-t}r\pm c'),
+\]
+y como $2^{m-t}r$ es par y $c'$ impar, el paréntesis es impar, luego $v_2(R\pm c)=t$.
+Si $t>m$, escribimos $c=2^m\cdot 2^{t-m}c'$ con $2^{t-m}c'$ par y
+\[
+R\pm c=2^m(r\pm 2^{t-m}c'),
+\]
+con paréntesis impar; por tanto $v_2(R\pm c)=m$.
+En ambos casos
+\[
+v_2(M_R(c))=v_2(R-c)+v_2(R+c)=2\min\{t,m\},
+\]
+que es par.
+
+\medskip
+\noindent\textbf{Paso 2: masa de la capa crítica.}
+La probabilidad de $v_2(c)=m$ en $\Z_2$ es
+\[
+\Prob(v_2(c)=m)=2^{-(m+1)}.
+\]
+
+\medskip
+\noindent\textbf{Paso 3: defecto condicionado a $v_2(c)=m$.}
+Condicionamos a $v_2(c)=m$ y escribimos $c=2^m c'$ con $c'$ impar uniforme entre impares 2-ádicos. Entonces
+\[
+v_2(M_R(c))=2m+v_2(r-c')+v_2(r+c').
+\]
+Por \Cref{lem:odd-sum-diff}, como $r$ y $c'$ son impares, exactamente uno de $r\pm c'$ tiene valuación $1$ y el otro tiene valuación $\ge 2$.
+Luego existe $k\ge 2$ tal que
+\[
+\{v_2(r-c'),v_2(r+c')\}=\{1,k\},
+\quad\Rightarrow\quad
+v_2(r-c')+v_2(r+c')=1+k.
+\]
+Así, la paridad de $v_2(M_R(c))$ es par si y sólo si $k$ es impar.
+
+Nos queda calcular $\Prob(k\ \text{impar})$. Partimos en dos ramas equiprobables según clases módulo $4$:
+\[
+\mathcal A_+:=\{c'\equiv r\!\!\!\pmod 4\},\qquad
+\mathcal A_-:=\{c'\equiv -r\!\!\!\pmod 4\},
+\]
+cada una de masa $1/2$ dentro de las unidades impares.
+
+En $\mathcal A_+$ se tiene $v_2(r-c')\ge 2$ y $v_2(r+c')=1$. Definiendo $X_+=(r-c')/2$, resulta $X_+\in 2\Z_2$ y
+\[
+k=v_2(r-c')=1+v_2(X_+).
+\]
+Por \Cref{lem:geom-shift}, condicionado a $X_+\in 2\Z_2$:
+\[
+\Prob(v_2(X_+)=j)=2^{-j}\qquad (j\ge 1).
+\]
+Entonces
+\[
+\Prob(k\ \text{impar}\mid \mathcal A_+)
+=\Prob(1+v_2(X_+)\ \text{impar})
+=\sum_{\substack{j\ge 1\\ j\ \mathrm{par}}}2^{-j}
+=\frac{1}{3}.
+\]
+
+En $\mathcal A_-$ se intercambian los papeles de $r-c'$ y $r+c'$. Definiendo $X_-=(r+c')/2\in 2\Z_2$, el mismo argumento da
+\[
+\Prob(k\ \text{impar}\mid \mathcal A_-)=\frac{1}{3}.
+\]
+Por la ley de probabilidad total:
+\[
+\Prob(k\ \text{impar})
+=\frac12\cdot\frac13+\frac12\cdot\frac13
+=\frac13.
+\]
+Luego, condicionado a $v_2(c)=m$, el \emph{éxito} (paridad par) ocurre con probabilidad $1/3$
+y el \emph{fallo} con probabilidad $2/3$.
+
+\medskip
+\noindent\textbf{Paso 4: combinar.}
+\[
+\Prob(\text{fallo})=\Prob(v_2(c)=m)\cdot \Prob(\text{fallo}\mid v_2(c)=m)
+=2^{-(m+1)}\cdot \frac{2}{3}=\frac{1}{3\cdot 2^m}.
+\]
+Por complemento,
+\[
+\sigma_{2,\Delta}^{(m)}=1-\frac{1}{3\cdot 2^m}.
+\]
+\end{proof}
+
+\begin{corollary}[Contraste: caso gaussiano $\Delta=-4$ (2 ramificado)]
+\label{cor:gauss2}
+En $K=\Q(i)$ el primo $2$ es ramificado. La condición clásica para ser suma de dos cuadrados
+impone paridad en exponentes de primos $p\equiv 3\pmod 4$, pero no introduce una obstrucción específica en $v_2$ del tipo “paridad forzada”.
+En el lenguaje de este trabajo: $2$ no pertenece al conjunto de primos inertes y, por tanto, no contribuye un factor del tipo
+$\sigma_{2,\Delta}^{(m)}$ al filtro inerte. En particular, el ``interruptor'' 2-ádico que aparece cuando $2$ es inerte está ausente en $\Delta=-4$.
+\end{corollary}
+
+\begin{remark}[Lectura del factor racional en el caso $2$-inerte]
+En discriminantes con $2$ inerte, el Teorema~\ref{thm:sigma2-inerte} fija un factor racional explícito en función de $m=v_2(R)$.
+En particular, para $R$ impar es exactamente $2/3$.
+Cuando se adopta la convención alternativa $R=2r$ (ver \Cref{rem:convencion-escala}), el caso base cambia porque $v_2(R)=v_2(2r)=v_2(r)+1$.
+\end{remark}
+
+% ================================================================
+\section{Modelo global y baseline canónico: por qué aparece $\zeta$ y por qué aparece $e^{-\euler}$}
+\label{sec:global}
+% ================================================================
+
+\subsection{La conjetura global en forma canónica}
+\begin{conjecture}[Ley global (criba de dimensión 1 con factor inercial)]
+\label{conj:global}
+Para cada $\Delta<0$ fundamental existe una constante $\Csinf(\Delta)>0$ tal que
+\[
+\boxed{
+N_\Delta(R)\ \sim\ \frac{\Csinf(\Delta)\,H_\Delta(R)\,R}{\log R}
+\qquad (R\to\infty).
+}
+\]
+Equivalente:
+\[
+\boxed{
+C_{\sigma,\Delta}(R)=\frac{N_\Delta(R)\log R}{H_\Delta(R)\,R}\ \longrightarrow\ \Csinf(\Delta).
+}
+\]
+\end{conjecture}
+
+\begin{remark}[Input necesario: nivel de distribución]
+Para convertir esta conjetura en teorema (vía criba asintótica), no basta con las densidades locales.
+Se requiere probar un resultado de ``nivel de distribución'' para la secuencia $M_R(c)=R^2-c^2$: demostrar que el término de error en el conteo de soluciones módulo $d$ es controlable en promedio para $d$ hasta $R^\theta$ con algún $\theta>0$ (idealmente $\theta$ grande).
+Sin este input global analítico, las densidades $p$-ádicas sólo describen la estructura local, no la distribución asintótica del conteo.
+\end{remark}
+
+\subsection{La identidad madre: $\zeta_K=\zeta\,L$}
+El campo cuadrático $K$ tiene zeta de Dedekind $\zeta_K(s)$. Para extensiones cuadráticas:
+\[
+\boxed{\zeta_K(s)=\zeta(s)\,L(s,\chi_\Delta).}
+\]
+Esta identidad codifica splitting primo a primo y explica por qué el término natural del campo es $L(1,\chi_\Delta)$:
+como $\zeta(s)\sim 1/(s-1)$ y $L(s,\chi_\Delta)$ es holomorfa y no nula en $s=1$ para $\Delta<0$,
+\[
+\boxed{\operatorname{Res}_{s=1}\zeta_K(s)=L(1,\chi_\Delta).}
+\]
+
+\subsection{El baseline arquimediano y la fórmula de clase}
+\begin{theorem}[Baseline canónico: residuo de $\zeta_K$ y fórmula de clase]
+\label{thm:arch}
+Sea $\Delta<0$ fundamental y $K=\Q(\sqrt{\Delta})$. Definimos
+\[
+\boxed{\Csbase(\Delta):=2e^{-\euler}L(1,\chi_\Delta)=2e^{-\euler}\operatorname{Res}_{s=1}\zeta_K(s).}
+\]
+Si $\Delta$ es de Heegner ($h(\Delta)=1$), entonces
+\[
+\boxed{\Csbase(\Delta)=\frac{4\pi e^{-\euler}}{w(\Delta)\sqrt{|\Delta|}}.}
+\]
+\end{theorem}
+\begin{proof}
+La primera igualdad se sigue de $\operatorname{Res}_{s=1}\zeta_K(s)=L(1,\chi_\Delta)$.
+La fórmula analítica del número de clases para campos cuadráticos imaginarios da
+\[
+L(1,\chi_\Delta)=\frac{2\pi\,h(\Delta)}{w(\Delta)\sqrt{|\Delta|}}.
+\]
+Para Heegner, $h(\Delta)=1$.
+\end{proof}
+
+\subsection{Por qué aparece $e^{-\euler}$ (y por qué esto es inevitable)}
+La constante $e^{-\euler}$ aparece como renormalización natural de la divergencia armónica
+$\sum_{p\le x}\frac{1}{p}$: el teorema de Mertens implica
+\[
+\prod_{p\le x}\Big(1-\frac{1}{p}\Big)\sim \frac{e^{-\euler}}{\log x}.
+\]
+Toda criba de dimensión $1$ produce un factor $e^{-\euler}$ al convertir ``producto sobre primos'' en ``escala $1/\log$''.
+En nuestro caso, la parte del campo se canaliza por $L(1,\chi_\Delta)$; el resto pertenece a la geometría aritmética de la familia $M_R(c)$.
+
+\subsection{Descomposición canónica}
+La forma natural de la constante final es
+\[
+\boxed{
+\Csinf(\Delta)
+=
+\underbrace{2e^{-\euler}L(1,\chi_\Delta)}_{\Csbase(\Delta)}
+\times
+\underbrace{\kappa_2(\Delta)\prod_{p\ge 3}\kappa_p(\Delta)}_{\Ssing}.
+}
+\]
+Equivalentemente,
+\[
+\Ssing=\kappa_2(\Delta)\,\Sodd,
+\qquad
+\Sodd:=\prod_{p\ge 3}\kappa_p(\Delta).
+\]
+Formalmente, los factores $\kappa_p(\Delta)$ se definen como límites de densidades locales normalizadas
+por el cociente de primer orden
+\[
+(1-1/p)\bigl(1-\chi_\Delta(p)/p\bigr)^{-1},
+\]
+de modo que la contribución residual empieza en orden $p^{-2}$:
+\[
+\kappa_p(\Delta) = \lim_{k\to\infty} \frac{\Prob_{c\in \Z/p^k\Z}(M_R(c)\in N(\mathcal{O}_{K,p}))}{(1-1/p)(1-\chi_\Delta(p)/p)^{-1}}.
+\]
+Este límite estabiliza en cuanto $p^k$ supera la ramificación y la capa crítica (que es $m=0$ para $\Ssing$).
+En \Cref{sec:renorm} mostramos que, con esta normalización, el producto infinito queda absolutamente convergente.
+Si definimos la parte impar
+\[
+\Sodd := \prod_{p\ge 3}\kappa_p(\Delta),
+\]
+entonces $\Ssing=\kappa_2(\Delta)\Sodd$ (cuando $\Delta$ tiene $2$ inerte o ramificado).
+donde $\kappa_p(\Delta)$ es un factor local (serie singular) capturando la interacción específica del evento
+``$M_R(c)$ es norma'' con la estructura $p$-ádica del polinomio y con el tipo del primo (inerte/split/ramificado).
+
+% ================================================================
+\section{Estructura Euleriana: aparición forzada de $\zeta$, $L$ y expansión a orden $p^{-2}$}
+\label{sec:zetaL}
+% ================================================================
+
+\subsection{Factores locales $\kappa_p(\Delta)$: definición operacional}
+En este trabajo distinguimos dos niveles:
+
+\begin{itemize}[leftmargin=2em]
+\item \emph{Filtro inerte de primer orden:} para primos inertes (incluido $p=2$ cuando es inerte), la condición local
+``$M_R(c)$ es norma'' reduce a una restricción explícita sobre $v_p(M_R(c))$ (paridad), cuya densidad es $\sigma_{p,\Delta}^{(m)}$.
+
+\item \emph{Serie singular fina:} incluso si todas las densidades marginales $\sigma_{p,\Delta}^{(0)}$ están dadas,
+los eventos locales no son independientes porque $M_R(c)$ tiene forma cuadrática rígida; esto introduce un producto convergente
+de correcciones de orden $p^{-2}$.
+\end{itemize}
+
+Para fijar notación, definimos \emph{heurísticamente} un factor local de primer orden como el límite (o valor base):
+\[
+\kappa_p^{(0)}(\Delta):=
+\begin{cases}
+\sigma_{p,\Delta}^{(0)}, & p\ \text{inerte (incl. $p=2$ si aplica)},\\
+1, & p\ \text{split},\\
+\kappa_p^{\mathrm{ram}}(\Delta), & p\mid \Delta\ \text{(ramificado)}.
+\end{cases}
+\]
+Para $p\ge 3$ inerte, el Teorema~\ref{thm:local-odd} da $\kappa_p^{(0)}(\Delta)=(p-1)/(p+1)$.
+Para $p=2$ inerte, el Teorema~\ref{thm:sigma2-inerte} da $\kappa_2^{(0)}(\Delta)=2/3$.
+Para la teoría completa, $\kappa_p$ sería la densidad del evento ``$M_R(c)$ es localmente norma'' normalizada por el factor de criba standard.
+Los ramificados son finitos y su contribución se absorbe en un factor finito.
+
+\begin{lemma}[Renormalización correcta y convergencia de la parte singular]
+\label{lem:kappa-conv}
+Sea $\chi=\chi_\Delta$ el carácter de Kronecker. Para todo primo impar $p\nmid \Delta$ definimos el factor de primer orden
+\[
+\kappa_p^{(0)}(\Delta):=
+\begin{cases}
+1, & \chi(p)=+1\ (\text{split}),\\[4pt]
+\sigma_{p,\Delta}^{(0)}=\dfrac{p-1}{p+1}, & \chi(p)=-1\ (\text{inerte}).
+\end{cases}
+\]
+Entonces vale la identidad exacta
+\[
+\kappa_p^{(0)}(\Delta)=\frac{1-\frac{1}{p}}{1-\frac{\chi(p)}{p}}
+\qquad (p\ge 3,\ p\nmid\Delta).
+\]
+En particular, el producto impar truncado
+\[
+P_\Delta^{\mathrm{odd}}(x):=\prod_{3\le p\le x}\frac{1-\frac{1}{p}}{1-\frac{\chi(p)}{p}}
+\]
+incorpora \emph{exactamente} el primer orden de todos los primos impares no ramificados; toda discrepancia restante en la serie singular
+proviene únicamente del conjunto finito $p\mid 2\Delta$ y de correcciones finas de orden $\ge p^{-2}$.
+\end{lemma}
+
+\begin{proof}
+Para $p\nmid\Delta$ tenemos $\chi(p)=\pm 1$ y por cálculo directo:
+si $\chi(p)=+1$ entonces $\frac{1-\frac{1}{p}}{1-\frac{1}{p}}=1$; si $\chi(p)=-1$ entonces
+\[
+\frac{1-\frac{1}{p}}{1+\frac{1}{p}}=\frac{p-1}{p+1}=\sigma_{p,\Delta}^{(0)}.
+\]
+Esto prueba la identidad. Como el conjunto de primos $p\mid 2\Delta$ es finito, sus factores contribuyen un multiplicador finito.
+Las correcciones verdaderamente ``locales finas'' empiezan en orden $p^{-2}$ (véase \eqref{eq:odd-k-only} y el Teorema~\ref{thm:renorm}),
+por lo que el producto residual converge absolutamente.
+\end{proof}
+
+\subsection{Una identidad de Euler que selecciona exactamente a los inertes}
+Sea $\chi=\chi_\Delta$ el carácter cuadrático de Kronecker. Para $p\nmid\Delta$ tenemos $\chi(p)=\pm 1$.
+Obsérvese que para $p\nmid\Delta$ se cumple la identidad exacta
+\begin{equation}
+\label{eq:local-ratio}
+\frac{1-\frac{1}{p}}{1-\frac{\chi(p)}{p}}
+=
+\begin{cases}
+1, & \chi(p)=+1\ \text{(split)},\\[4pt]
+\frac{p-1}{p+1}, & \chi(p)=-1\ \text{(inerte)}.
+\end{cases}
+\end{equation}
+Es decir: para primos impares (donde la identidad es exacta con la densidad local), el cociente $(1-1/p)/(1-\chi(p)/p)$ \emph{no ve} a los split y multiplica exactamente el factor $(p-1)/(p+1)$ sobre los inertes.
+\begin{remark}[Advertencia sobre el lugar $2$]
+Si $p=2$ es inerte, la fórmula \eqref{eq:local-ratio} daría $\frac{1/2}{1+1/2}=1/3$, mientras que la densidad local correcta es $\sigma_{2,\Delta}^{(0)}=2/3$ (Teorema~\ref{thm:sigma2-inerte}).
+Por esta razón, la identidad Euleriana debe restringirse a la parte impar, dejando el lugar $2$ como un factor separado (tratado en el capítulo $2$-ádico).
+\end{remark}
+
+\subsection{Producto truncado y corrección ramificada (arreglo canónico)}
+Para evitar ambigüedades con $p\mid\Delta$ y separar la anomalía en $p=2$, definimos el producto \textbf{impar}:
+\[
+P_\Delta^{\mathrm{odd}}(x):=\prod_{\substack{3\le p\le x}}\frac{1-\frac{1}{p}}{1-\frac{\chi_\Delta(p)}{p}}.
+\]
+Cuando $p\mid\Delta$ ($p\ge 3$) se tiene $\chi_\Delta(p)=0$ y el factor correspondiente es simplemente $(1-1/p)$.
+Esta definición captura la ``física'' de todos los primos impares. El factor $2$-ádico se inserta explícitamente a posteriori.
+
+\subsection{Aparición inevitable de $e^{-\gamma}$ y del residuo $L(1,\chi_\Delta)$}
+Usando productos de Euler,
+\[
+\prod_{p\le x} \Big(1-\frac{\chi_\Delta(p)}{p}\Big)^{-1}
+\longrightarrow L(1,\chi_\Delta)
+\qquad (x\to\infty),
+\]
+mientras que por Mertens
+\[
+\prod_{p\le x}\Big(1-\frac{1}{p}\Big)\sim \frac{e^{-\gamma}}{\log x}.
+\]
+Combinando, se obtiene el límite canónico (sin factores finitos extra):
+\[
+P_\Delta(x):=\prod_{p\le x}\frac{1-\frac{1}{p}}{1-\frac{\chi_\Delta(p)}{p}},
+\qquad
+P_\Delta^{\mathrm{odd}}(x):=\prod_{3\le p\le x}\frac{1-\frac{1}{p}}{1-\frac{\chi_\Delta(p)}{p}}.
+\]
+Entonces
+\[
+P_\Delta(x)=P_\Delta^{\mathrm{odd}}(x)\cdot \frac{1-\frac12}{1-\frac{\chi_\Delta(2)}{2}}
+= P_\Delta^{\mathrm{odd}}(x)\cdot \frac{\frac12}{1-\frac{\chi_\Delta(2)}{2}}.
+\]
+
+\begin{equation}
+\label{eq:lim-mertens-chi}
+\boxed{
+\lim_{x\to\infty} \log x \cdot P_\Delta(x)= e^{-\gamma}L(1,\chi_\Delta).
+}
+\end{equation}
+Este es exactamente el mecanismo por el cual, en dimensión $1$, el renormalizador $e^{-\gamma}$ es forzado,
+y el campo entra únicamente vía $L(1,\chi_\Delta)$ (equivalentemente, vía $\mathrm{Res}_{s=1}\zeta_K(s)$).
+
+\subsection{Expansión logarítmica: por qué emergen $\sum \chi(p)/p^2$ y valores $L(2m,\chi)$}
+La identidad \eqref{eq:local-ratio} también permite una expansión uniforme.
+Para $p\nmid\Delta$,
+\[
+\log\frac{1-\frac{1}{p}}{1-\frac{\chi(p)}{p}}
+=
+\log(1-\tfrac{1}{p})-\log(1-\tfrac{\chi(p)}{p})
+=
+-\sum_{k\ge 1}\frac{1-\chi(p)^k}{k\,p^k}.
+\]
+Como $\chi(p)^2=1$ para $p\nmid\Delta$, se tiene $1-\chi(p)^k=0$ si $k$ es par y $1-\chi(p)$ si $k$ es impar.
+Luego
+\begin{equation}
+\label{eq:odd-k-only}
+\log\frac{1-\frac{1}{p}}{1-\frac{\chi(p)}{p}}
+=
+-(1-\chi(p))\sum_{j\ge 0}\frac{1}{(2j+1)p^{2j+1}}
+=
+-\frac{1-\chi(p)}{p}+O\Big(\frac{1}{p^3}\Big).
+\end{equation}
+Esto explica el coeficiente ``armónico'' unificado:
+\[
+\alpha(\chi(p))=-(1-\chi(p)),
+\quad \text{es decir: }
+\alpha=0 \text{ en split},\ \alpha=-2 \text{ en inerte},\ \alpha=-1 \text{ en ramificado}.
+\]
+
+Al sustraer el término principal $\frac{1-\chi(p)}{p}$, el resto es $O(p^{-3})$ y por tanto absolutamente sumable.
+Esto permite definir una constante renormalizada \emph{absolutamente convergente}:
+\[
+\mathcal{M}_\Delta
+:=
+\prod_{p}
+\frac{1-\frac{1}{p}}{1-\frac{\chi(p)}{p}}
+\exp\Big(\frac{1-\chi(p)}{p}\Big),
+\qquad
+\log\mathcal{M}_\Delta=\sum_{p} O(p^{-3}).
+\]
+La cota anterior se entiende salvo un conjunto finito de primos, donde la corrección puede escribirse como $O(p^{-2})$.
+En particular, los términos de orden $p^{-2}$ que aparecen cuando se estudian correcciones más finas
+se expresan naturalmente en términos de productos convergentes en $s\ge 2$:
+\[
+\frac{\zeta(2)}{L(2,\chi_\Delta)}
+=
+\prod_{p}\frac{1-\frac{\chi_\Delta(p)}{p^2}}{1-\frac{1}{p^2}},
+\qquad
+\log\frac{\zeta(2)}{L(2,\chi_\Delta)}
+=
+\sum_{p}\frac{1-\chi_\Delta(p)}{p^2}+O\Big(\sum_p\frac{1}{p^4}\Big).
+\]
+
+\begin{remark}[Lectura conceptual]
+\eqref{eq:lim-mertens-chi} explica el baseline $e^{-\gamma}L(1,\chi_\Delta)$ (y por ende $2e^{-\gamma}L(1,\chi_\Delta)$ en la constante final).
+La identidad con $\zeta(2)/L(2,\chi_\Delta)$ explica por qué las correcciones finas de la serie singular “huelen” a valores de $\zeta$ y $L$
+en enteros: las correcciones verdaderamente locales empiezan en orden $p^{-2}$.
+\end{remark}
+
+% ================================================================
+\section{Evidencia computacional: cómo se estima $\Csinf(\Delta)$ y por qué la cola manda}
+\label{sec:computo}
+% ================================================================
+
+\subsection{Qué se computa}
+Para cada $R$ en una malla (en los experimentos principales: $R=101+20k$, i.e. $R\equiv 1\pmod{20}$, por lo que $R$ es impar y $v_5(R)=0$; los CSV conservan el sufijo histórico ``step10'') se computa:
+\[
+N_\Delta(R),\qquad H_\Delta(R),\qquad C_{\sigma,\Delta}(R)=\frac{N_\Delta(R)\log R}{H_\Delta(R)R}.
+\]
+La generación primaria de $N_\Delta(R)$ queda automatizada en un script dedicado,
+con CLI reproducible y semilla explícita para los modos estocásticos.
+Esta malla principal fija además $v_2(R)=0$, por lo que no explora estratos $2$-ádicos ni estratos con $v_5(R)>0$; esos casos requieren mallas complementarias.
+Para ello, añadimos una malla complementaria por estratos exactos
+\[
+(v_2(R),v_5(R))\in\{(1,0),(2,0),(3,0),(0,1),(1,1),(2,1),(0,2)\},
+\]
+parametrizada como $R=2^{\alpha}5^{\beta}q$ con $(q,10)=1$.
+En el caso de Heegner ($h(\Delta)=1$) es particularmente eficiente usar el principio local--global:
+un racional $x\in\Q^\times$ es norma global en $K^\times$ si y solo si es norma local en todo lugar (Proposición~\ref{prop:hasse-norm}).
+En los CSV principales fijamos una convención operativa \emph{inerte-only}: el observable se normaliza únicamente con los factores inertes
+(incluyendo $p=2$ solo si es inerte y divide a $R$). Para nuestro conteo, esto se traduce en:
+
+\begin{itemize}[leftmargin=2em]
+\item Para todo primo impar $p\nmid \Delta$, el criterio local se reduce a la \emph{paridad}:
+si $p$ es inerte entonces es necesario y suficiente que $v_p(n)$ sea par; si $p$ es split no hay obstrucción.
+\item Los primos ramificados se dejan fuera de $H_\Delta(R)$ en esta convención base y se estudian por separado mediante
+el refinamiento $H_\Delta^\star$ (ver \Cref{subsec:ramified-star-tail}).
+\end{itemize}
+
+Usamos factorización directa con precomputación de primos (criba de Eratóstenes modificada) para verificar esta paridad eficientemente.
+
+\subsection{Por qué el promedio no es el límite}
+En problemas de criba es típico que el acercamiento al límite tenga correcciones del tipo $1/\log R$.
+Así, un promedio sobre todo el rango mezcla regímenes finitos con el régimen asintótico y sesga hacia arriba/abajo.
+Por eso se usa un ajuste sobre la cola.
+
+\subsection{Ajuste de cola (ansatz de relajación)}
+Usamos el modelo empírico estable:
+\[
+C_{\sigma,\Delta}(R)\approx \Csinf(\Delta)+\frac{a}{\log R}\qquad (R\ \text{grande}),
+\]
+y estimamos $\Csinf(\Delta)$ por regresión lineal de $C_{\sigma,\Delta}(R)$ contra $1/\log R$
+restringiendo a $R\ge 10^6$ (y opcionalmente bindeando en cuantiles de $\log R$ para estabilizar varianza).
+Como diagnóstico de sesgo de truncación/modelo, también ajustamos
+\[
+C_{\sigma,\Delta}(R)\approx \Csinf(\Delta)+\frac{a}{\log R}+\frac{b}{\log^2 R}
+\]
+en la misma cola y en la rejilla $R_{\mathrm{tail}}\in\{10^6,2\cdot 10^6,3\cdot 10^6\}$.
+Así, reportamos dos capas de incertidumbre para $C_\infty$:
+\[
+\mathrm{EE}_{\mathrm{WLS}} \quad\text{(in-model)},
+\qquad
+\mathrm{EE}_{\mathrm{sist}}:=\max_{R_{\mathrm{tail}}}\big|C_\infty(R_{\mathrm{tail}})-C_\infty(10^6)\big|.
+\]
+
+\begin{table}[H]
+\centering
+\caption{Heegner: baseline canónico $C_{\mathrm{base}}(\Delta)$ y ajuste de cola $C_\infty(\Delta)$ usando $C_{\sigma,\Delta}(R)\approx C_\infty+a/\log R$ en $R\ge 10^6$ (200 bins por cuantiles). Se reporta $\mathrm{EE}_{\mathrm{WLS}}$ (incertidumbre in-model) del WLS en bins (pesos por tamaño de bin).}
+\label{tab:heegner-tailfit}
+\sisetup{group-separator={},group-minimum-digits=4}
+\begin{tabular}{
+    r
+    S[table-format=1.6]
+    S[table-format=1.6]
+    S[table-format=1.6]
+    S[table-format=-1.3]
+    S[table-format=1.3]
+    S[table-format=1.6]
+}
+\toprule
+{$\Delta$} & {$C_{\mathrm{base}}$} & {$C_\infty$} & {$\mathrm{EE}_{\mathrm{WLS}}(C_\infty)$} & {$a$} & {$\mathrm{EE}_{\mathrm{WLS}}(a)$} & {$\mathfrak{S}_\Delta$} \\
+\midrule
+$-163$ & 0.276315 & 0.156052 & 0.000063 & -0.010 & 0.001 & 0.564763 \\
+$-67$  & 0.430984 & 0.241297 & 0.000107 & 0.272  & 0.002 & 0.559875 \\
+$-43$  & 0.537977 & 0.303469 & 0.000140 & 0.400  & 0.002 & 0.564093 \\
+$-19$  & 0.809322 & 0.473185 & 0.000208 & 0.590  & 0.003 & 0.584669 \\
+$-11$  & 1.063658 & 0.650708 & 0.000281 & 0.666  & 0.004 & 0.611765 \\
+$-8$   & 1.247249 & 0.692068 & 0.000070 & 0.819  & 0.001 & 0.554875 \\
+$-7$   & 1.333366 & 0.431485 & 0.000186 & 0.513  & 0.003 & 0.323606 \\
+$-4$   & 0.881938 & 0.735033 & 0.000064 & 0.775  & 0.001 & 0.833428 \\
+$-3$   & 0.678917 & 0.566005 & 0.000065 & 0.563  & 0.001 & 0.833689 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Descomposición de incertidumbre de cola para $C_\infty(\Delta)$.
+Modelo de referencia: $C_\infty+a/\log R$ en $R_{\mathrm{tail}}=10^6$.
+Se reporta $\mathrm{EE}_{\mathrm{WLS}}$, la sensibilidad de truncación $\mathrm{EE}_{\mathrm{sist}}$ en
+$R_{\mathrm{tail}}\in\{10^6,2\cdot 10^6,3\cdot 10^6\}$, y el desplazamiento de modelo
+$|\Delta_{\mathrm{model}}|:=|C_\infty^{(2)}-C_\infty^{(1)}|$ entre
+$C_\infty+a/\log R+b/\log^2 R$ y $C_\infty+a/\log R$ en $R_{\mathrm{tail}}=10^6$.}
+\label{tab:tail-stability}
+\sisetup{group-separator={},group-minimum-digits=4}
+\begin{tabular}{r S[table-format=1.6] S[table-format=1.6] S[table-format=1.6] S[table-format=1.6]}
+\toprule
+{$\Delta$} & {$C_\infty^{(1)}$} & {$\mathrm{EE}_{\mathrm{WLS}}$} & {$\mathrm{EE}_{\mathrm{sist}}$} & {$|\Delta_{\mathrm{model}}|$} \\
+\midrule
+$-163$ & 0.156052 & 0.000063 & 0.000530 & 0.004047 \\
+$-67$  & 0.241297 & 0.000107 & 0.000401 & 0.006613 \\
+$-43$  & 0.303469 & 0.000140 & 0.001303 & 0.022085 \\
+$-19$  & 0.473185 & 0.000208 & 0.001055 & 0.017593 \\
+$-11$  & 0.650708 & 0.000281 & 0.001388 & 0.022101 \\
+$-8$   & 0.692068 & 0.000070 & 0.001398 & 0.019602 \\
+$-7$   & 0.431485 & 0.000186 & 0.000786 & 0.011712 \\
+$-4$   & 0.735032 & 0.000064 & 0.001259 & 0.019624 \\
+$-3$   & 0.566005 & 0.000065 & 0.001074 & 0.016527 \\
+\bottomrule
+\end{tabular}
+\end{table}
+En toda la familia se observa $\mathrm{EE}_{\mathrm{sist}}>\mathrm{EE}_{\mathrm{WLS}}$ (entre $3.8\times$ y $19.9\times$),
+lo que confirma que la metrología de $C_\infty$ debe separar incertidumbre estadística in-model y sensibilidad sistemática de cola/modelo.
+
+\subsection{Refinamiento ramificado en cola: $H_\Delta^\star$}
+\label{subsec:ramified-star-tail}
+Sobre los mismos CSV aplicamos el post-procesado
+\[
+H_\Delta^\star(R)=H_\Delta(R)\prod_{\substack{p\mid \Delta\\ p\ \text{impar}}}p^{-v_p(R)},
+\qquad
+C_{\sigma,\Delta}^\star(R):=\frac{N_\Delta(R)\log R}{H_\Delta^\star(R)\,R}.
+\]
+Equivalentemente:
+\[
+C_{\sigma,\Delta}^\star(R)=C_{\sigma,\Delta}(R)\prod_{\substack{p\mid \Delta\\ p\ \text{impar}}}p^{v_p(R)}.
+\]
+La reducción de varianza en la cola es sustancial:
+\begin{table}[H]
+\centering
+\caption{Efecto del refinamiento ramificado en la cola $R\in[10^6,10^7]$.}
+\label{tab:tail-star-sd}
+\sisetup{group-separator={},group-minimum-digits=4}
+\begin{tabular}{r S[table-format=1.3] S[table-format=1.3] S[table-format=1.3]}
+\toprule
+{$\Delta$} & {$\operatorname{SD}(C_{\sigma,\Delta})$} & {$\operatorname{SD}(C_{\sigma,\Delta}^\star)$} & {ratio} \\
+\midrule
+$-3$  & 0.279 & 0.072 & 0.259 \\
+$-7$  & 0.159 & 0.045 & 0.283 \\
+$-11$ & 0.196 & 0.058 & 0.296 \\
+$-43$ & 0.049 & 0.021 & 0.423 \\
+\bottomrule
+\end{tabular}
+\end{table}
+Este comportamiento confirma que separar explícitamente el bloque ramificado mejora la estabilidad estadística del ajuste de cola.
+
+\begin{remark}
+Los casos $\Delta=-4,-8$ (pares) y $\Delta=-163$ exhiben estabilidad extrema en la cola, mientras que $\Delta=-3$ presenta varianza residual alta.
+Esto es consistente con el hecho de que en $\Delta=-3$ interviene además el primo ramificado $3$ (Apéndice \Cref{subsec:sigma3-minus3})
+y con la dominancia de primos pequeños en la serie singular.
+\end{remark}
+
+\begin{remark}[Lectura inmediata]
+Para $\Delta=-43,-67,-163$ (donde $2$ es inerte) la relación $\Ssing\approx 0.56$ se puede interpretar como producto de un
+factor $2$-ádico explícito (Teorema~\ref{thm:sigma2-inerte}) y un factor impar $\Sodd$ (ver \Cref{sec:renorm} y \Cref{sec:zetaL}).
+\end{remark}
+
+\subsection{Estabilización visual de $C_{\sigma,\Delta}(R)$}
+La \Cref{fig:stabilization-all} muestra la convergencia de $C_{\sigma,\Delta}(R)$ hacia el límite $\Csinf(\Delta)$
+para los nueve discriminantes de Heegner. La línea roja corresponde al ajuste de cola
+$C_{\sigma,\Delta}(R)\approx C_\infty(\Delta)+a/\log R$ en la región $R\ge 10^6$.
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}[b]{0.32\linewidth}
+\incfig[width=\linewidth]{../../Figuras/Articulo/D-3_stabilizacion.pdf}
+\caption{$\Delta=-3$}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.32\linewidth}
+\incfig[width=\linewidth]{../../Figuras/Articulo/D-4_stabilizacion.pdf}
+\caption{$\Delta=-4$}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.32\linewidth}
+\incfig[width=\linewidth]{../../Figuras/Articulo/D-7_stabilizacion.pdf}
+\caption{$\Delta=-7$}
+\end{subfigure}
+\\[1em]
+\begin{subfigure}[b]{0.32\linewidth}
+\incfig[width=\linewidth]{../../Figuras/Articulo/D-8_stabilizacion.pdf}
+\caption{$\Delta=-8$}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.32\linewidth}
+\incfig[width=\linewidth]{../../Figuras/Articulo/D-11_stabilizacion.pdf}
+\caption{$\Delta=-11$}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.32\linewidth}
+\incfig[width=\linewidth]{../../Figuras/Articulo/D-19_stabilizacion.pdf}
+\caption{$\Delta=-19$}
+\end{subfigure}
+\\[1em]
+\begin{subfigure}[b]{0.32\linewidth}
+\incfig[width=\linewidth]{../../Figuras/Articulo/D-43_stabilizacion.pdf}
+\caption{$\Delta=-43$}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.32\linewidth}
+\incfig[width=\linewidth]{../../Figuras/Articulo/D-67_stabilizacion.pdf}
+\caption{$\Delta=-67$}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.32\linewidth}
+\incfig[width=\linewidth]{../../Figuras/Articulo/D-163_stabilizacion.pdf}
+\caption{$\Delta=-163$}
+\end{subfigure}
+\caption{Estabilización de $C_{\sigma,\Delta}(R)$ vs $R$ (escala log) para los nueve discriminantes de Heegner. Línea roja: ajuste de cola $C_{\sigma,\Delta}(R)\approx C_\infty(\Delta)+a/\log R$ para $R\ge 10^6$.}
+\label{fig:stabilization-all}
+\end{figure}
+\FloatBarrier
+
+\subsection{Comparativa Heegner: el factor singular}
+La \Cref{fig:heegner-comparative} muestra la relación entre la constante empírica $\Csinf(\Delta)$ y el baseline teórico $\Csbase(\Delta)$.
+El cociente $\Ssing=\Csinf/\Csbase$ captura el factor singular de la familia.
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}[b]{0.48\linewidth}
+\incfig[width=\linewidth]{../../Figuras/Articulo/Heegner_Ssing.pdf}
+\caption{Factor singular $\Ssing=\Csinf/\Csbase$}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.48\linewidth}
+\incfig[width=\linewidth]{../../Figuras/Articulo/Heegner_Cinf_vs_Cbase.pdf}
+\caption{Scatter $\Csinf$ vs $\Csbase$}
+\end{subfigure}
+\caption{Comparativa Heegner: (a) barra de $\Ssing$ mostrando el outlier $\Delta=-7$; (b) relación entre constante empírica y baseline teórico.}
+\label{fig:heegner-comparative}
+\end{figure}
+\FloatBarrier
+
+\subsection{Colapso lineal: $C_{\rm raw}(R)$ vs $H_\Delta(R)$}
+Si $C_{\sigma,\Delta}(R)$ se estabiliza hacia $\Csinf(\Delta)$, entonces por la ley global
+(Conjetura~\ref{conj:global}, o Teorema~\ref{thm:global-conditional} bajo hipótesis analítica):
+\[
+C_{\rm raw}(R)=\frac{N_\Delta(R)\log R}{R}\approx \Csinf(\Delta)\,H_\Delta(R).
+\]
+La \Cref{fig:D43-collapse} confirma este colapso lineal: al graficar $C_{\rm raw}$ contra $H_\Delta$, la nube se alinea,
+demostrando que $H_\Delta$ no es un ``fit hack'' sino estructura.
+
+\begin{figure}[H]
+\centering
+\incfig[width=0.85\linewidth]{../../Figuras/Articulo/D-43_Craw_vs_H.pdf}
+\caption{Colapso lineal: $C_{\rm raw}(R)$ vs $H_\Delta(R)$ para $\Delta=-43$. El alineamiento demuestra que $H_\Delta$ captura la oscilación determinista.}
+\label{fig:D43-collapse}
+\end{figure}
+\FloatBarrier
+
+% ================================================================
+\section{Ejemplo de control: el outlier $\Delta=-7$ explicado por inertes pequeños}
+\label{sec:ejemplo7}
+% ================================================================
+
+\begin{example}[Producto de pequeños inertes y predicción de primer orden]
+\label{ex:minus7}
+Para $\Delta=-7$,
+\[
+\Csbase(-7)=\frac{4\pi e^{-\euler}}{2\sqrt 7}\approx 1.333366.
+\]
+En $\Q(\sqrt{-7})$, los primos $3$ y $5$ son inertes. Si restringimos a $R$ coprimo con $15$ (de modo que $v_3(R)=v_5(R)=0$),
+entonces el Teorema~\ref{thm:local-odd} da
+\[
+\sigma_3^{(0)}=\frac{3-1}{3+1}=\frac12,
+\qquad
+\sigma_5^{(0)}=\frac{5-1}{5+1}=\frac23.
+\]
+El producto de primer orden es
+\[
+\sigma_3^{(0)}\sigma_5^{(0)}=\frac{1}{3},
+\]
+y por tanto la predicción inmediata es
+\[
+\Csinf(-7)\approx \Csbase(-7)\cdot \frac{1}{3}\approx 0.444.
+\]
+Comparado con $\Csinf(-7)\approx 0.431$ (tabla), la diferencia restante es compatible con correcciones de primos mayores y efectos finitos:
+lo crucial es que el ``desplome'' se predice por estructura local, no por accidente.
+\end{example}
+
+La \Cref{fig:partial-products} muestra el producto parcial de primer orden sobre primos inertes:
+\[
+\prod_{\substack{p\le x \\ \chi_\Delta(p)=-1}}\frac{p-1}{p+1}.
+\]
+Para $\Delta=-7$, este producto cae rápidamente debido a los pocos inertes pequeños ($p=3,5$), explicando el outlier.
+
+\begin{figure}[H]
+\centering
+\incfig[width=0.75\linewidth]{../../Figuras/Articulo/Heegner_partial_products.pdf}
+\caption{Producto parcial de primer orden sobre primos inertes para los nueve discriminantes de Heegner. La caída de $\Delta=-7$ se explica por pocos inertes pequeños ($p=3,5$).}
+\label{fig:partial-products}
+\end{figure}
+
+Además, la \Cref{fig:D7-vp-effects} muestra la dependencia respecto de $v_3(R)$.
+En la malla principal ($R\equiv 1\pmod{20}$), se tiene $v_5(R)=0$ para todo $R$, de modo que el panel de $p=5$
+funciona como control (sin estratificación adicional). Esta dependencia en $v_3(R)$ es exactamente la que captura
+el factor inercial $H_\Delta(R)$.
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}[b]{0.48\linewidth}
+\incfig[width=\linewidth]{../../Figuras/Articulo/D-7_vp_effect_p3.pdf}
+\caption{Efecto de $v_3(R)$}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.48\linewidth}
+\incfig[width=\linewidth]{../../Figuras/Articulo/D-7_vp_effect_p5.pdf}
+\caption{Control en $p=5$ (malla: $v_5(R)=0$)}
+\end{subfigure}
+\caption{Dependencia del observable $C_{\sigma,-7}(R)$ respecto de la valuación de $R$ para inertes pequeños. Izquierda: estratificación efectiva por $v_3(R)$. Derecha: control para $p=5$ en la malla $R\equiv1\pmod{20}$ (no hay estratos con $v_5(R)>0$).}
+\label{fig:D7-vp-effects}
+\end{figure}
+
+\subsection{Predicción de primer orden por primos inertes pequeños}
+La observación clave del Ejemplo~\ref{ex:minus7} se puede cuantificar sistemáticamente: para cada discriminante de Heegner,
+usamos solo los primos inertes $p\le 50$ para construir una predicción de primer orden:
+\[
+C_\infty^{\text{pred}}(\Delta):=\Csbase(\Delta)\cdot\prod_{\substack{3\le p\le 50 \\ \chi_\Delta(p)=-1}}\frac{p-1}{p+1}.
+\]
+La \Cref{fig:pred-small-inerts} compara esta predicción con los valores observados $\Csinf(\Delta)$ obtenidos del ajuste de cola.
+El patrón es monótono (predicciones mayores tienden a corresponder a observaciones mayores), pero con subestimación sistemática de escala:
+el primer orden con inertes pequeños captura parte de la variación relativa entre discriminantes, mientras que la normalización completa
+requiere factores adicionales (incluyendo el capítulo $2$-ádico y correcciones finas de segundo orden $O(p^{-2})$).
+
+\begin{figure}[H]
+\centering
+\incfig[width=0.75\linewidth]{../../Figuras/Articulo/Extra/Heegner_pred_small_inerts.pdf}
+\caption{Comparación entre la predicción de primer orden $C_\infty^{\text{pred}}$ (usando solo primos inertes $p\le 50$) y el valor observado $\Csinf(\Delta)$ para los nueve discriminantes de Heegner. La nube conserva orden relativo, pero evidencia subestimación de escala cuando se usa solo primer orden.}
+\label{fig:pred-small-inerts}
+\end{figure}
+\FloatBarrier
+
+% ================================================================
+\section{Regularización tipo Mertens: por qué la serie singular debe converger}
+\label{sec:renorm}
+% ================================================================
+
+\begin{theorem}[Renormalización universal con coeficientes variables]
+\label{thm:renorm}
+Sea $(a_p)_p$ una familia indexada por primos tal que
+\[
+a_p=\frac{\alpha_p}{p}+O\Big(\frac{1}{p^2}\Big)\qquad (p\to\infty),
+\]
+con $(\alpha_p)_p$ una sucesión complejamente acotada. 
+Entonces, para $p$ suficientemente grande (asumiendo $|a_p|\le 1/2$ y $1+a_p\neq 0$), el producto renormalizado
+\[
+\prod_p(1+a_p)\exp(-\alpha_p/p)
+\]
+converge absolutamente (salvo anulación de un número finito de factores) porque
+\[
+\log\big((1+a_p)e^{-\alpha_p/p}\big)=O(p^{-2}).
+\]
+\end{theorem}
+\begin{proof}
+Para $|x|$ pequeño, $\log(1+x)=x+O(x^2)$. Como $a_p=O(1/p)$, para $p$ grande:
+\[
+\log\big((1+a_p)e^{-\alpha_p/p}\big)=\log(1+a_p)-\alpha_p/p
+=\Big(\alpha_p/p+O(p^{-2})\Big)-\alpha_p/p+O(p^{-2})=O(p^{-2}).
+\]
+Como $\sum_p p^{-2}<\infty$, la suma de logaritmos converge absolutamente.
+\end{proof}
+
+\begin{corollary}[Convergencia absoluta de la serie singular normalizada]
+\label{cor:ssing-absconv}
+Con la normalización de \Cref{sec:zetaL}, supongamos que para $p$ impar grande
+\[
+\Prob_{c\in \Z/p^k\Z}\!\big(M_R(c)\in N(\mathcal O_{K,p})\big)
+=(1-1/p)(1-\chi_\Delta(p)/p)^{-1}\bigl(1+b_p(\Delta)\bigr),
+\]
+con $b_p(\Delta)=O(p^{-2})$ uniforme en $p$ (para $k$ suficientemente grande).
+Entonces
+\[
+\kappa_p(\Delta)=1+b_p(\Delta),
+\qquad
+\log \kappa_p(\Delta)=O(p^{-2}),
+\]
+y en consecuencia el producto
+\[
+\Ssing=\kappa_2(\Delta)\prod_{p\ge 3}\kappa_p(\Delta)
+\]
+converge absolutamente.
+\end{corollary}
+\begin{proof}
+Basta aplicar el Teorema~\ref{thm:renorm} con $\alpha_p=0$ y $a_p=b_p(\Delta)$.
+Entonces $\log(1+b_p(\Delta))=O(p^{-2})$, y como $\sum_p p^{-2}<\infty$ se obtiene convergencia absoluta de
+la suma de logaritmos, luego del producto.
+\end{proof}
+
+\begin{remark}[Aplicación a $\Ssing$]
+La parte de primer orden $(1-1/p)(1-\chi_\Delta(p)/p)^{-1}$ ya está absorbida en el baseline
+$2e^{-\euler}L(1,\chi_\Delta)$; la serie singular $\Ssing$ recoge únicamente la corrección fina residual.
+\end{remark}
+
+% ================================================================
+\section{Discusión final: manuscrito blindado y siguiente paso hacia un teorema global}
+\label{sec:discusion}
+% ================================================================
+
+\subsection{Lo que ya está ``cerrado''}
+El corazón del paper es local y está completamente sellado:
+\begin{itemize}[leftmargin=2em]
+\item Para $p\ge 3$ (inerte), la densidad local es exactamente $\sigma_p^{(m)}=1-\frac{2}{p^m(p+1)}$ (Teorema~\ref{thm:local-odd}).
+\item Para $p=2$ inerte, la densidad es $\sigma_2^{(m)}=1-\frac{1}{3\cdot 2^m}$ (Teorema~\ref{thm:sigma2-inerte}),
+y en particular para $R$ impar aparece el racional fijo $2/3$.
+\item El baseline canónico del campo es $\Csbase(\Delta)=2e^{-\euler}L(1,\chi_\Delta)$
+(Teorema~\ref{thm:arch}), y en Heegner se vuelve cerradamente $\frac{4\pi e^{-\euler}}{w(\Delta)\sqrt{|\Delta|}}$.
+\item Los outliers se explican por productos de pequeños inertes (Ejemplo~\ref{ex:minus7}).
+\end{itemize}
+
+\subsection{Hipótesis analítica para el Teorema Global}
+\paragraph{Lema puente (hipótesis de distribución $\mathcal D_\theta$).}
+Existe $\theta>0$ tal que, para todo $A>0$ y $Q=R^\theta$, se tiene uniformemente para $q\le Q$ y $(a,q)=1$:
+\[
+\#\{1\le c\le R:\ M_R(c)\equiv a\!\!\!\pmod q\}
+=\frac{R}{q}\,\rho_q(a)+E(R;q,a),
+\]
+donde
+\[
+\rho_q(a):=\#\{x\!\!\!\pmod q:\ R^2-x^2\equiv a\!\!\!\pmod q\},
+\]
+y además
+\[
+\sum_{q\le Q}\max_{(a,q)=1}|E(R;q,a)|\ll_A \frac{R}{(\log R)^A}.
+\]
+Esta es exactamente la pieza analítica que no se demuestra en el manuscrito y que debe obtenerse con técnicas de criba
+asintótica (Selberg/\(\beta\)-criba; ver \cite{HalberstamRichert,FriedlanderIwaniec}).
+
+\begin{theorem}[Asintótica global de normas (condicional)]
+\label{thm:global-conditional}
+Sea $\Delta<0$ un discriminante fundamental. Si la hipótesis $\mathcal D_\theta$ anterior vale para algún $\theta>0$, entonces existe
+$\delta>0$ tal que
+\[
+N_\Delta(R)=\Csinf(\Delta)\,H_\Delta(R)\,\frac{R}{\log R}
++O\!\left(\frac{R}{(\log R)^{1+\delta}}\right),
+\]
+con
+\[
+\Csinf(\Delta)=2e^{-\euler}L(1,\chi_\Delta)\,
+\kappa_2(\Delta)\prod_{p\ge 3}\kappa_p(\Delta).
+\]
+\end{theorem}
+\begin{proof}[Esquema de demostración]
+La hipótesis $\mathcal D_\theta$ entrega la uniformidad en progresiones requerida para cerrar una criba de dimensión $1$ con ahorro en el error.
+Los Teoremas~\ref{thm:local-odd} y \ref{thm:sigma2-inerte} fijan los factores locales inertes, y el Teorema~\ref{thm:arch}
+fuerza el baseline arquimediano $2e^{-\euler}L(1,\chi_\Delta)$.
+La convergencia absoluta del producto residual se obtiene por \Cref{cor:ssing-absconv}. Con esto, el término principal queda determinado y el error
+hereda un ahorro logarítmico $O(R/(\log R)^{1+\delta})$.
+\end{proof}
+
+En síntesis: la estructura de la constante global está completamente determinada por el análisis local del manuscrito;
+el único faltante para el resultado incondicional es probar $\mathcal D_\theta$.
+
+% ================================================================
+\appendix
+
+\section{Constantes y valores de referencia}
+\label{app:const}
+\begin{itemize}[leftmargin=2em]
+\item $\euler=0.5772156649\ldots$, $e^{-\euler}=0.5614594836\ldots$.
+\item En Heegner: $w(-3)=6$ y $w(-4)=4$.
+\item Para $\Delta\in\{-7,-8,-11,-19,-43,-67,-163\}$ se tiene $w(\Delta)=2$.
+\end{itemize}
+
+% ================================================================
+\section{Análisis local explícito en $p=2$ para discriminantes especiales}
+\label{app:local2-special}
+% ================================================================
+
+\subsection{El lugar $2$ en $K=\mathbb{Q}(\sqrt{-2})$ ($\Delta=-8$): densidad local cerrada}
+\label{subsec:sigma2-minus8}
+
+En el completamiento $K_2=\mathbb{Q}_2(\sqrt{-2})$ la norma es
+\[
+N(a+b\sqrt{-2})=a^2+2b^2.
+\]
+En particular, para unidades $u\in\mathbb{Z}_2^\times$ se tiene la caracterización clásica:
+\begin{equation}\label{eq:norm-units-minus8}
+u\in N(K_2^\times)\quad\Longleftrightarrow\quad u\equiv 1,3\pmod 8.
+\end{equation}
+
+\begin{theorem}[Densidad local $2$-ádica para $\Delta=-8$]
+\label{thm:sigma2-minus8}
+Sea $R\in\mathbb{Z}$ y $m=v_2(R)$. Para $c$ distribuido uniformemente respecto a la medida de Haar en $\mathbb{Z}_2$, definimos
+\[
+\sigma_{2,-8}^{(m)}:=\mathbb{P}\big(M_R(c)=(R-c)(R+c)\in N(K_2^\times)\cup\{0\}\big).
+\]
+Entonces:
+\begin{equation}\label{eq:sigma2-minus8-formula}
+\sigma_{2,-8}^{(m)}=
+\begin{cases}
+\frac12, & m=0\ \ (R\ \text{impar}),\\[6pt]
+\frac{3}{2^{m+1}}, & m\ge 1.
+\end{cases}
+\end{equation}
+En particular, en el régimen $R$ impar, el factor local fijo es
+\[
+\kappa_2(\Delta=-8)=\sigma_{2,-8}^{(0)}=\frac12.
+\]
+\end{theorem}
+
+\begin{proof}
+Usaremos \eqref{eq:norm-units-minus8} y el hecho de que $2$ es norma en $K_2$ (pues $2=N(\sqrt{-2})$), de modo que
+la condición de ser norma depende únicamente de la clase módulo $8$ de la \emph{unidad impar} asociada a $M_R(c)$ tras extraer su potencia máxima de $2$.
+
+\smallskip
+\noindent\emph{Caso $m=0$ ($R$ impar).}
+Partimos según la paridad de $c$.
+
+\smallskip
+\noindent\underline{(i) $c$ par.} Escribimos $c=2k$. Entonces $M_R(c)=R^2-4k^2$ es impar y, módulo $8$, como $R^2\equiv 1\pmod 8$,
+\[
+M_R(c)\equiv 1-4k^2\equiv
+\begin{cases}
+1\pmod 8,& k\ \text{par},\\
+5\pmod 8,& k\ \text{impar}.
+\end{cases}
+\]
+Como $k$ es par/impar con probabilidad $1/2$ bajo Haar, por \eqref{eq:norm-units-minus8} la probabilidad condicional de ser norma es $1/2$.
+Por tanto
+\[
+\mathbb{P}(M_R(c)\ \text{norma}\mid c\ \text{par})=\frac12.
+\]
+
+\smallskip
+\noindent\underline{(ii) $c$ impar.} Escribimos $c=1+2t$ con $t\in\mathbb{Z}_2$ Haar-uniforme. Entonces
+\[
+M_R(c)=(R-c)(R+c)=4\cdot \Big(\frac{R-c}{2}\Big)\Big(\frac{R+c}{2}\Big)=:4ab,
+\]
+donde $a=(R-c)/2$ y $b=(R+c)/2$ satisfacen $a+b=R$ (impar), por lo que exactamente uno de $a,b$ es par y el otro impar.
+Sea $E$ el factor par entre $\{a,b\}$ y $O$ el factor impar. Entonces $ab=EO$. Como $O$ es impar,
+multiplicar por $O$ permuta las clases de unidades módulo $8$, y por tanto (usando \eqref{eq:norm-units-minus8}) basta analizar la unidad impar
+asociada a $E$ tras extraer su potencia de $2$.
+
+Condicionado al evento “$E$ es el factor par”, la variable $E$ es Haar-uniforme en $2\mathbb{Z}_2$,
+luego $E/2$ es Haar-uniforme en $\mathbb{Z}_2$ y su unidad impar es uniforme en $\{1,3,5,7\}\pmod 8$.
+Por tanto la probabilidad de caer en $\{1,3\}$ es exactamente $1/2$, y obtenemos
+\[
+\mathbb{P}(M_R(c)\ \text{norma}\mid c\ \text{impar})=\frac12.
+\]
+Finalmente,
+\[
+\sigma_{2,-8}^{(0)}=\frac12\cdot\frac12+\frac12\cdot\frac12=\frac12.
+\]
+
+\smallskip
+\noindent\emph{Caso $m\ge 1$ ($R$ par).}
+Escribimos $R=2^m r$ con $r$ impar y descomponemos por capas $t=v_2(c)$.
+
+\smallskip
+\noindent\underline{(1) Capa $t=0$ ( $c$ impar ).}
+Entonces $R^2\equiv 0\pmod 4$ y $c^2\equiv 1\pmod 8$, así que $M_R(c)=R^2-c^2$ es impar y
+\[
+M_R(c)\equiv R^2-1\pmod 8.
+\]
+Si $m=1$, $R^2=4r^2\equiv 4\pmod 8$, luego $M_R(c)\equiv 3\pmod 8$ (éxito por \eqref{eq:norm-units-minus8}).
+Si $m\ge 2$, $R^2\equiv 0\pmod 8$, luego $M_R(c)\equiv 7\pmod 8$ (fallo). Esta es precisamente la razón por la cual
+una prueba “en una sola frase” aquí es frágil: hay que separar $m=1$ de $m\ge 2$.
+
+\smallskip
+\noindent\underline{(2) Capas $t\ge 1$ ( $c$ par ).}
+Escribimos $c=2c_1$ y observamos la identidad exacta
+\[
+M_R(c)=R^2-c^2=4\Big((2^{m-1}r)^2-c_1^2\Big)=4\,M_{R/2}(c_1).
+\]
+Como $4$ es norma (de hecho potencia de la norma de $\sqrt{-2}$), la pertenencia de $M_R(c)$ al conjunto de normas depende únicamente de
+$M_{R/2}(c_1)$.
+Además, la masa de la condición $t\ge 1$ es $1/2$, y condicionada a ella, $c_1$ es Haar-uniforme en $\mathbb{Z}_2$.
+Por tanto obtenemos la recurrencia exacta
+\[
+\sigma_{2,-8}^{(m)}=\frac12\cdot \mathbf{1}_{\{\text{éxito en }t=0\}}+\frac12\,\sigma_{2,-8}^{(m-1)}.
+\]
+Con la evaluación explícita del caso $t=0$ anterior, se verifica que la solución cerrada es
+\[
+\sigma_{2,-8}^{(m)}=\frac{3}{2^{m+1}},\qquad m\ge 1,
+\]
+y coincide con \eqref{eq:sigma2-minus8-formula}.
+\end{proof}
+
+% ================================================================
+\subsection{Expansión exacta vía la zeta de primos y reducción a valores de $\zeta$}
+\label{subsec:Aodd-expansion}
+% ================================================================
+
+\begin{definition}[Producto impar modelo $A_{\mathrm{odd}}$]
+\label{def:Aodd}
+Definimos
+\[
+A_{\mathrm{odd}}=\prod_{p\ge 3}\Big(1-\frac{1}{p(p+1)}\Big).
+\]
+Este producto aparece como un prototipo de “factor impar” en modelos de primer/segundo orden,
+y es un objeto independiente bien definido cuyo análisis espectral es completamente explícito.
+\end{definition}
+
+Tomando logaritmos y expandiendo,
+\[
+\log A_{\mathrm{odd}}
+=\sum_{p\ge 3}\log\Big(1-\frac{1}{p(p+1)}\Big)
+=-\sum_{n\ge 1}\frac{1}{n}\sum_{p\ge 3}\frac{1}{p^n(p+1)^n}.
+\]
+Para reescribir $\frac{1}{(p+1)^n}$ usamos la expansión binomial
+\[
+\frac{1}{(p+1)^n}=p^{-n}\Big(1+\frac{1}{p}\Big)^{-n}
+=p^{-n}\sum_{j\ge 0}(-1)^j\binom{n+j-1}{j}\,p^{-j},
+\]
+válida absolutamente para $p\ge 3$. Sustituyendo y reordenando (justificado por convergencia absoluta),
+\begin{equation}\label{eq:logAodd-primezeta}
+\log A_{\mathrm{odd}}
+=-\sum_{n\ge 1}\frac{1}{n}\sum_{j\ge 0}(-1)^j\binom{n+j-1}{j}
+\sum_{p\ge 3}\frac{1}{p^{2n+j}}.
+\end{equation}
+Introduciendo la zeta de primos $P(s)=\sum_{p}p^{-s}$ obtenemos
+\[
+\sum_{p\ge 3}\frac{1}{p^{s}}=P(s)-2^{-s}.
+\]
+Así,
+\begin{equation}\label{eq:logAodd-P}
+\boxed{
+\log A_{\mathrm{odd}}
+=-\sum_{n\ge 1}\frac{1}{n}\sum_{j\ge 0}(-1)^j\binom{n+j-1}{j}
+\big(P(2n+j)-2^{-(2n+j)}\big).
+}
+\end{equation}
+
+Finalmente, usamos la identidad clásica (inversión de Möbius) que expresa $P(s)$ en términos de $\zeta$:
+\[
+P(s)=\sum_{m\ge 1}\frac{\mu(m)}{m}\log\zeta(ms)\qquad(\Re s>1).
+\]
+Sustituyendo en \eqref{eq:logAodd-P} y exponenciando, se obtiene una factorización puramente en valores de $\zeta$.
+El término $-2^{-s}$ aporta exactamente la constante de exclusión del primo $2$, igual a $\log(6/5)$:
+\begin{equation}\label{eq:Aodd-zeta-factor}
+\boxed{
+A_{\mathrm{odd}}=\frac65\prod_{k\ge 2}\zeta(k)^{-b_k},
+}
+\end{equation}
+donde los exponentes $b_k$ vienen dados explícitamente por
+\[
+b_k=\sum_{\substack{m\ge 1\\ m\mid k}}\frac{\mu(m)}{m}\,a_{k/m},
+\qquad
+a_\ell:=\sum_{\substack{n\ge 1,\ j\ge 0\\ 2n+j=\ell}}
+\frac{(-1)^j}{n}\binom{n+j-1}{j}.
+\]
+En particular, dado que $\log\zeta(k)\sim 2^{-k}$ y $b_k$ no crece exponencialmente rápido, la serie converge a gran velocidad, lo cual explica la utilidad numérica de \eqref{eq:Aodd-zeta-factor}.
+
+% ================================================================
+\subsection{El lugar $2$ en el caso gaussiano: $\Delta=-4$ ($K=\mathbb{Q}(i)$)}
+\label{subsec:sigma2-minus4}
+% ================================================================
+
+En esta sección cerramos el análisis $2$-ádico del caso gaussiano $K=\mathbb{Q}(i)$, donde
+la norma viene dada por
+\[
+N(a+bi)=a^2+b^2.
+\]
+A diferencia del caso \emph{inerte}, en $\mathbb{Q}(i)$ no aparece una restricción de \emph{paridad} sobre $v_2(\cdot)$.
+Sin embargo, sí aparece una restricción fina sobre la \emph{unidad} impar (clase módulo $4$), que determina la densidad local.
+
+\subsubsection{Caracterización exacta de normas en $\mathbb{Z}_2[i]$}
+
+\begin{lemma}[{Normas integrales en $\mathbb{Z}_2[i]$}]
+\label{lem:normZ2i}
+Sea $n\in\mathbb{Z}_2$. Entonces $n\in N(\mathbb{Z}_2[i])$ si y solo si $n=0$ o bien
+\[
+n=2^k u \qquad (k\ge 0,\ u\in\mathbb{Z}_2^\times)
+\]
+donde la unidad impar satisface
+\[
+u\equiv 1\pmod 4.
+\]
+En particular, si $n$ es impar, entonces
+\[
+n\in N(\mathbb{Z}_2[i])\quad\Longleftrightarrow\quad n\equiv 1\pmod 4.
+\]
+\end{lemma}
+
+\begin{proof}
+\emph{(Necesidad).} Si $n=a^2+b^2$ con $a,b\in\mathbb{Z}_2$, entonces módulo $4$ los cuadrados son $0$ o $1$.
+Si $n$ es impar, necesariamente exactamente uno de $a,b$ es impar, luego $n\equiv 1\pmod 4$.
+Si $n$ es par, escribimos $n=2^k u$ con $u$ impar. Como $2=N(1+i)$, extraer potencias de $2$ no cambia la pertenencia al conjunto de normas:
+$n$ es norma si y solo si $u$ lo es. Por el argumento anterior, si $u$ es norma (impar) entonces $u\equiv 1\pmod 4$.
+
+\smallskip
+\emph{(Suficiencia).} Sea $u\in\mathbb{Z}_2^\times$ con $u\equiv 1\pmod 4$. Entonces $u\equiv 1$ o $5\pmod 8$.
+En ambos casos hay una representación módulo $8$:
+\[
+1\equiv 1^2+0^2\pmod 8,\qquad 5\equiv 1^2+2^2\pmod 8.
+\]
+Estas soluciones se levantan a soluciones en $\mathbb{Z}_2$ por un argumento estándar de lifting, lo que da $u=a^2+b^2$ en $\mathbb{Z}_2$.
+Finalmente, como $2=N(1+i)$, toda potencia $2^k u$ también es norma.
+\end{proof}
+
+\subsubsection{Densidad local para la familia $F_R(d)=(R-d)(R+d)$}
+
+Recordemos $M_R(c)=R^2-c^2=(R-c)(R+c)$, y definimos la densidad local
+\[
+\sigma_{2,-4}^{(m)}:=\mathbb{P}_{c\in\mathbb{Z}_2}\Big(M_R(c)\in N(\mathbb{Z}_2[i])\cup\{0\}\Big),
+\qquad m=v_2(R).
+\]
+
+\begin{theorem}[Densidad $2$-ádica cerrada para $\Delta=-4$]
+\label{thm:sigma2-minus4}
+Sea $R\in\mathbb{Z}$ y $m=v_2(R)$. Entonces
+\begin{equation}\label{eq:sigma2-minus4-formula}
+\boxed{
+\sigma_{2,-4}^{(m)}=\frac{3}{2^{m+2}}.
+}
+\end{equation}
+En particular, en el régimen estándar de $R$ impar ($m=0$),
+\[
+\boxed{\sigma_{2,-4}^{(0)}=\frac34.}
+\]
+\end{theorem}
+
+\begin{proof}
+Escribimos $R=2^m r$ con $r$ impar.
+
+\smallskip
+\noindent\textbf{Paso 1: si $v_2(c)=t<m$, entonces $M_R(c)$ no es norma.}
+Escribimos $c=2^t u$ con $u$ impar y $t<m$. Entonces
+\[
+M_R(c)=R^2-c^2
+=2^{2t}\Big(2^{2(m-t)}r^2-u^2\Big).
+\]
+Como $m-t\ge 1$, se tiene $2^{2(m-t)}r^2\equiv 0\pmod 4$, mientras que $u^2\equiv 1\pmod 4$,
+luego
+\[
+2^{2(m-t)}r^2-u^2\equiv -1\equiv 3\pmod 4.
+\]
+Por el Lema~\ref{lem:normZ2i}, una unidad impar $\equiv 3\pmod 4$ no es norma en $\mathbb{Z}_2[i]$.
+Como $2^{2t}$ sí es norma, concluimos que $M_R(c)$ no puede ser norma.
+Por tanto, el evento ``$M_R(c)$ es norma'' implica necesariamente $v_2(c)\ge m$.
+
+\smallskip
+\noindent\textbf{Paso 2: reducción a $m=0$.}
+Condicionado a $v_2(c)\ge m$, escribimos $c=2^m x$ con $x\in\mathbb{Z}_2$ Haar-uniforme.
+Entonces
+\[
+M_R(c)=2^{2m}(r^2-x^2).
+\]
+Como $2^{2m}=N((1+i)^{2m})$ es norma, por el Lema~\ref{lem:normZ2i} se tiene que
+$M_R(c)$ es norma si y solo si $r^2-x^2$ es norma.
+Por tanto
+\[
+\sigma_{2,-4}^{(m)}
+=\mathbb{P}(v_2(c)\ge m)\cdot \mathbb{P}_{x\in\mathbb{Z}_2}(r^2-x^2\in N(\mathbb{Z}_2[i])\cup\{0\}).
+\]
+Además, $\mathbb{P}(v_2(c)\ge m)=2^{-m}$.
+
+\smallskip
+\noindent\textbf{Paso 3: cálculo base ($m=0$), probabilidad $3/4$.}
+Sea $r$ impar fijo y $x\in\mathbb{Z}_2$ Haar-uniforme.
+
+\smallskip
+\noindent\underline{(i) $x$ par.} Entonces $x^2\equiv 0\pmod 4$ y $r^2\equiv 1\pmod 4$,
+luego $r^2-x^2\equiv 1\pmod 4$ y por el Lema~\ref{lem:normZ2i} es norma. Contribución: $\mathbb{P}(x\ \text{par})=1/2$.
+
+\smallskip
+\noindent\underline{(ii) $x$ impar.} Entonces $r\pm x$ son pares y
+\[
+r^2-x^2=(r-x)(r+x)=4ab,\qquad a=\frac{r-x}{2},\ \ b=\frac{r+x}{2}.
+\]
+Como $a+b=r$ es impar, exactamente uno de $a,b$ es par y el otro impar.
+Sea $E$ el factor par y $O$ el factor impar, de modo que $ab=EO$ y $O$ es unidad impar.
+La condición de ser norma depende únicamente de la unidad impar asociada a $EO$ tras extraer su potencia de $2$.
+Condicionado a $x$ impar, la variable $E$ es Haar-uniforme en $2\mathbb{Z}_2$.
+La aplicación $x \mapsto \text{unidad}(r-x)$ es una biyección que preserva la medida de Haar localmente (salvo factores de escala que se cancelan al normalizar).
+Por tanto $E/2$ es Haar-uniforme en $\mathbb{Z}_2$ y su parte impar (unidad módulo $4$) es equiprobable en $\{1,3\}$.
+Multiplicar por la unidad $O$ permuta $\{1,3\}$, así que la probabilidad de que la unidad resultante sea $\equiv 1\pmod 4$
+es exactamente $1/2$. Contribución: $\mathbb{P}(x\ \text{impar})\cdot \frac12=\frac12\cdot\frac12=\frac14$.
+
+\smallskip
+Sumando (i)+(ii), obtenemos
+\[
+\mathbb{P}_{x\in\mathbb{Z}_2}(r^2-x^2\ \text{norma})=\frac12+\frac14=\frac34.
+\]
+
+\smallskip
+\noindent\textbf{Paso 4: conclusión.}
+\[
+\sigma_{2,-4}^{(m)}=2^{-m}\cdot\frac34=\frac{3}{2^{m+2}}.
+\]
+\end{proof}
+
+\begin{remark}[Lectura conceptual]
+En el caso inerte ($\Delta\equiv 5\pmod 8$) la obstrucción es una \emph{paridad} de $v_2$, y la densidad mejora al aumentar $m=v_2(R)$.
+En el caso gaussiano ($\Delta=-4$), la obstrucción es una \emph{clase de unidad} ($\equiv 1\pmod 4$), y el evento obliga a que $d$
+comparta al menos $m$ potencias de $2$ con $R$, lo cual introduce el factor geométrico $2^{-m}$.
+\end{remark}
+
+% ================================================================
+\subsection{El lugar $2$ en el caso eisensteiniano: $\Delta=-3$ ($K=\mathbb{Q}(\sqrt{-3})$)}
+\label{subsec:sigma2-minus3}
+% ================================================================
+
+En este apartado analizamos la contribución local en $p=2$ para el campo
+$K=\mathbb{Q}(\sqrt{-3})$, cuyo anillo de enteros es $\mathcal{O}_K=\mathbb{Z}[\omega]$,
+$\omega=\frac{-1+\sqrt{-3}}{2}$, con norma $N(a+b\omega)=a^2-ab+b^2$.
+En particular, el discriminante fundamental es $\Delta=-3\equiv 5\pmod 8$, lo cual implica que
+el primo $2$ es \emph{inerte} y la extensión local $K_2/\mathbb{Q}_2$ es cuadrática \emph{no ramificada}.
+
+\subsubsection{Grupo de normas en una extensión cuadrática no ramificada}
+
+\begin{lemma}[Normas en extensiones cuadráticas no ramificadas]
+\label{lem:norm-unramified-2}
+Sea $L/\mathbb{Q}_2$ una extensión no ramificada de grado $2$.
+Entonces
+\[
+N(L^\times)=\{x\in\mathbb{Q}_2^\times:\ v_2(x)\ \text{es par}\}.
+\]
+En particular, toda unidad $u\in\mathbb{Z}_2^\times$ es norma, y la única obstrucción es la paridad de $v_2(x)$.
+\end{lemma}
+
+\begin{proof}
+Sea $v_2$ la valuación en $\mathbb{Q}_2$ y $v_L$ la de $L$.
+Para $y\in L^\times$ se cumple $v_2(N(y))=[L:\mathbb{Q}_2]\,v_L(y)=2v_L(y)$, luego $v_2(N(y))$ es par.
+Recíprocamente, si $x=2^{2k}u$ con $u\in\mathbb{Z}_2^\times$, basta ver que $u$ es norma:
+el morfismo norma sobre residuos $\mathbb{F}_{4}^\times\to \mathbb{F}_2^\times$ es sobreyectivo, luego las unidades son normas
+y por lifting se obtiene $u=N(y)$ con $y\in\mathcal{O}_L^\times$.
+Finalmente, $2^{2k}=N(2^k)$, así que $x$ es norma.
+\end{proof}
+
+Definimos, como antes,
+\[
+\sigma_{2,-3}^{(m)}:=\mathbb{P}_{c\in\mathbb{Z}_2}\big(M_R(c)=(R-c)(R+c)\in N(K_2^\times)\cup\{0\}\big),
+\qquad m=v_2(R).
+\]
+
+\begin{theorem}[Densidad local $2$-ádica en el caso inerte: $\Delta=-3$]
+\label{thm:sigma2-minus3}
+Sea $R\in\mathbb{Z}$, $m=v_2(R)$, y $d$ Haar-uniforme en $\mathbb{Z}_2$.
+Entonces
+\begin{equation}\label{eq:sigma2-minus3-formula}
+\boxed{
+\sigma_{2,-3}^{(m)}=1-\frac{1}{3\cdot 2^{m}}.
+}
+\end{equation}
+En particular, para $R$ impar ($m=0$),
+\[
+\boxed{\sigma_{2,-3}^{(0)}=\frac{2}{3}.}
+\]
+\end{theorem}
+
+\begin{proof}
+Es exactamente el Teorema~\ref{thm:sigma2-inerte}, ya que en $\Delta=-3$ el lugar $2$ es no ramificado y la condición local es
+paridad de $v_2$.
+\end{proof}
+
+% ================================================================
+\subsection{El lugar $3$ en el caso Eisenstein: $\Delta=-3$ (primo ramificado)}
+\label{subsec:sigma3-minus3}
+% ================================================================
+
+En el campo $K=\mathbb{Q}(\sqrt{-3})$ el primo $3$ es ramificado (pues $3\mid\Delta$).
+La completación local $K_3=\mathbb{Q}_3(\sqrt{-3})$ es una extensión cuadrática \emph{totalmente ramificada} de $\mathbb{Q}_3$.
+En este caso, la obstrucción para ser norma no es una paridad de valuación, sino una condición sobre la \emph{clase de la unidad} módulo $3$.
+
+\subsubsection{Caracterización del grupo de normas en $K_3/\mathbb{Q}_3$}
+
+\begin{lemma}[Normas en una extensión cuadrática totalmente ramificada, $p$ impar]
+\label{lem:norm-ramified-odd}
+Sea $p$ impar y $L/\mathbb{Q}_p$ una extensión cuadrática totalmente ramificada.
+Entonces:
+\begin{enumerate}[leftmargin=2em]
+\item La norma es sobreyectiva sobre la valuación: para todo $k\in\mathbb{Z}$ existe $y\in L^\times$ tal que
+$v_p(N(y))=k$.
+\item Para unidades, la imagen cumple
+\[
+N(\mathcal{O}_L^\times)\equiv (\mathbb{F}_p^\times)^2 \pmod p.
+\]
+En particular, para $p=3$ se tiene $(\mathbb{F}_3^\times)^2=\{1\}$ y por tanto:
+\begin{equation}\label{eq:norm-units-mod3}
+u\in N(L^\times)\cap \mathbb{Z}_3^\times
+\quad\Longleftrightarrow\quad
+u\equiv 1\pmod 3.
+\end{equation}
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+Como $L/\mathbb{Q}_p$ es totalmente ramificada de grado $2$, el grado residual es $f=1$.
+Para un uniformizante $\pi_L$ se sabe que $v_p(N(\pi_L))=f=1$, lo que implica que las valuaciones de normas recorren todo $\mathbb{Z}$.
+Para unidades $u\in\mathcal{O}_L^\times$, la conjugación es trivial en el cuerpo residual (pues $f=1$),
+luego $N(u)=u\cdot \bar u\equiv u^2\pmod p$, de donde la imagen módulo $p$ son exactamente los cuadrados.
+Para $p=3$ esto fuerza \eqref{eq:norm-units-mod3}.
+\end{proof}
+
+Aplicando este lema a $L=K_3=\mathbb{Q}_3(\sqrt{-3})$ obtenemos que,
+para $x\in\mathbb{Q}_3^\times$ escrito como $x=3^k u$ con $u\in\mathbb{Z}_3^\times$,
+\begin{equation}\label{eq:norm-criterion-3}
+x\in N(K_3^\times)
+\quad\Longleftrightarrow\quad
+u\equiv 1\pmod 3.
+\end{equation}
+
+\subsubsection{Densidad local para la familia $F_R(d)=R^2-d^2$}
+
+Definimos
+\[
+\sigma_{3,-3}^{(m)}:=\mathbb{P}_{d\in\mathbb{Z}_3}\Big(F_R(d)=R^2-d^2\in N(K_3^\times)\cup\{0\}\Big),
+\qquad m=v_3(R).
+\]
+
+\begin{theorem}[Densidad local $3$-ádica para $\Delta=-3$]
+\label{thm:sigma3-minus3}
+Sea $R\in\mathbb{Z}$, $m=v_3(R)$ y $d$ Haar-uniforme en $\mathbb{Z}_3$.
+Entonces:
+\begin{equation}\label{eq:sigma3-minus3-formula}
+\boxed{
+\sigma_{3,-3}^{(m)}=\frac{2}{3^{m+1}}.
+}
+\end{equation}
+En particular, para el régimen base $3\nmid R$ ($m=0$),
+\[
+\boxed{\sigma_{3,-3}^{(0)}=\frac{2}{3}.}
+\]
+\end{theorem}
+
+\begin{proof}
+Escribimos $R=3^m r$ con $r\in\mathbb{Z}_3^\times$.
+Dividimos según $t=v_3(d)$.
+
+\smallskip
+\noindent\textbf{(1) Si $t<m$, hay fallo seguro.}
+Escribimos $d=3^t u$ con $u\in\mathbb{Z}_3^\times$ y $t<m$.
+Entonces
+\[
+F_R(d)=R^2-d^2=3^{2t}\big(3^{2(m-t)}r^2-u^2\big).
+\]
+Como $m-t\ge 1$, el término $3^{2(m-t)}r^2\equiv 0\pmod 3$, mientras que $u^2\equiv 1\pmod 3$,
+luego la unidad residual de $F_R(d)$ es
+\[
+3^{2(m-t)}r^2-u^2 \equiv -1 \equiv 2 \pmod 3,
+\]
+que no satisface \eqref{eq:norm-criterion-3}. Por tanto no es norma.
+
+\smallskip
+\noindent\textbf{(2) Si $t>m$, hay éxito seguro.}
+Si $t>m$, entonces $d$ es múltiplo de $3^{m+1}$ y
+\[
+F_R(d)=R^2-d^2 \equiv R^2 \equiv 3^{2m} r^2 \pmod{3^{2m+1}}.
+\]
+En particular $v_3(F_R(d))=2m$ y la unidad residual es $r^2\equiv 1\pmod 3$, que sí es norma.
+
+\smallskip
+\noindent\textbf{(3) Capa crítica $t=m$.}
+Escribimos $d=3^m u$ con $u\in\mathbb{Z}_3^\times$. Entonces
+\[
+F_R(d)=3^{2m}(r^2-u^2).
+\]
+Como $r,u$ son unidades, $r^2\equiv u^2\equiv 1\pmod 3$, luego $r^2-u^2\equiv 0\pmod 3$ y
+$v_3(r^2-u^2)\ge 1$. El criterio de norma \eqref{eq:norm-criterion-3} depende de la unidad residual tras extraer la potencia exacta de $3$.
+Para computar la probabilidad, basta trabajar módulo $9$:
+los cuadrados de las $6$ clases unidades módulo $9$ toman exactamente los valores $\{1,4,7\}$, cada uno con probabilidad $1/3$.
+Fijado $r^2\ (\mathrm{mod}\ 9)$, para $u$ unidad al azar:
+\begin{itemize}[leftmargin=2em]
+\item con probabilidad $1/3$ se tiene $u^2\equiv r^2\ (\mathrm{mod}\ 9)$, y entonces $r^2-u^2\equiv 0\ (\mathrm{mod}\ 9)$, es decir $v_3(r^2-u^2)\ge 2$;
+\item con probabilidad $1/3$, $r^2-u^2\equiv 3\ (\mathrm{mod}\ 9)$, y entonces $(r^2-u^2)/3\equiv 1\ (\mathrm{mod}\ 3)$ (éxito);
+\item con probabilidad $1/3$, $r^2-u^2\equiv 6\ (\mathrm{mod}\ 9)$, y entonces $(r^2-u^2)/3\equiv 2\ (\mathrm{mod}\ 3)$ (fallo).
+\end{itemize}
+En la rama $v_3(r^2-u^2)\ge 2$, al refinar a niveles superiores la unidad residual tras extraer la valuación exacta
+es equidistribuida entre $\{1,2\}$, de modo que contribuye con probabilidad $1/2$ al éxito.
+Así, condicionado a $t=m$, la probabilidad total de éxito es
+\[
+\frac{1}{3}\cdot 1 \;+\;\frac{1}{3}\cdot 0 \;+\;\frac{1}{3}\cdot \frac{1}{2} \;=\;\frac{1}{2}.
+\]
+Combinando con la probabilidad de acceso a la capa crítica:
+\[
+\Prob(\text{éxito}\mid v_3(d)\ge m)=\frac23\cdot\frac12+\frac13\cdot 1=\frac23.
+\]
+
+\smallskip
+Finalmente, por (1) y (2) vemos que solo contribuyen los $d$ con $v_3(d)\ge m$,
+y esa condición tiene medida $3^{-m}$. En ese subconjunto, el cálculo base produce éxito con probabilidad $2/3$:
+\[
+\sigma_{3,-3}^{(m)}=3^{-m}\cdot \frac{2}{3}=\frac{2}{3^{m+1}}.
+\]
+\end{proof}
+
+% ================================================================
+\section{Diagnóstico de residuales del ajuste de cola}
+\label{app:residuals}
+% ================================================================
+
+Las siguientes figuras demuestran que la estimación de $\Csinf(\Delta)$ no es un artefacto de regresión.
+Los residuales del ajuste de cola muestran comportamiento estacionario sin tendencias sistemáticas.
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}[b]{0.32\linewidth}
+\incfig[width=\linewidth]{../../Figuras/Articulo/D-4_tail_residual.pdf}
+\caption{$\Delta=-4$}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.32\linewidth}
+\incfig[width=\linewidth]{../../Figuras/Articulo/D-7_tail_residual.pdf}
+\caption{$\Delta=-7$}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.32\linewidth}
+\incfig[width=\linewidth]{../../Figuras/Articulo/D-43_tail_residual.pdf}
+\caption{$\Delta=-43$}
+\end{subfigure}
+\caption{Residuales del ajuste de cola para discriminantes representativos. La ausencia de tendencia confirma la validez del modelo $C_{\sigma,\Delta}(R)\approx C_\infty+a/\log R$.}
+\label{fig:tail-residuals}
+\end{figure}
+
+% ================================================================
+\section{Figuras adicionales: normalización y colapso}
+\label{app:additional-figs}
+% ================================================================
+
+\subsection{Normalización raw vs normalizado adicional}
+Las siguientes figuras muestran el efecto de normalización para discriminantes adicionales, complementando la \Cref{fig:D43-raw-vs-norm}.
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}[b]{0.48\linewidth}
+\incfig[width=\linewidth]{../../Figuras/Articulo/D-4_raw_vs_norm.pdf}
+\caption{$\Delta=-4$ (gaussiano)}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.48\linewidth}
+\incfig[width=\linewidth]{../../Figuras/Articulo/D-7_raw_vs_norm.pdf}
+\caption{$\Delta=-7$ (outlier)}
+\end{subfigure}
+\caption{Efecto de normalización por $H_\Delta(R)$ para discriminantes adicionales. Arriba: observable crudo oscilando. Abajo: observable estabilizado.}
+\label{fig:raw-vs-norm-additional}
+\end{figure}
+
+\subsection{Colapso lineal adicional}
+Las siguientes figuras muestran el colapso $C_{\rm raw}$ vs $H_\Delta$ para discriminantes adicionales, complementando la \Cref{fig:D43-collapse}.
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}[b]{0.48\linewidth}
+\incfig[width=\linewidth]{../../Figuras/Articulo/D-4_Craw_vs_H.pdf}
+\caption{$\Delta=-4$ (gaussiano)}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.48\linewidth}
+\incfig[width=\linewidth]{../../Figuras/Articulo/D-7_Craw_vs_H.pdf}
+\caption{$\Delta=-7$ (outlier)}
+\end{subfigure}
+\caption{Colapso lineal $C_{\rm raw}(R)$ vs $H_\Delta(R)$ para discriminantes adicionales. El alineamiento confirma la estructura inerte en todos los casos.}
+\label{fig:collapse-additional}
+\end{figure}
+
+% ================================================================
+% ================================================================
+\section{Conclusiones y extensiones}
+\label{sec:conclusiones}
+% ================================================================
+
+El presente trabajo establece de manera incondicional la estructura local fina del conteo de normas,
+identifica el mecanismo de ``anclaje inerte'' y proporciona fórmulas cerradas para las densidades $p$-ádicas
+(Teoremas~\ref{thm:local-odd} y \ref{thm:sigma2-inerte}).
+La constante global queda completamente determinada por la interacción entre el residuo de la zeta de Dedekind
+y la serie singular local:
+\[
+\Csinf(\Delta)=2e^{-\euler}L(1,\chi_\Delta)\,\kappa_2(\Delta)\prod_{p\ge 3}\kappa_p(\Delta).
+\]
+
+La elevación de la Conjetura~\ref{conj:global} a teorema incondicional depende exclusivamente de probar la hipótesis
+de distribución $\mathcal D_\theta$ para la familia cuadrática $R^2-c^2$ en progresiones aritméticas.
+Ese punto queda aislado en el Teorema~\ref{thm:global-conditional}: una vez disponible dicho input analítico,
+la asintótica global se activa inmediatamente con la constante canónica ya fijada por la teoría local.
+
+Aunque el análisis se centra en $R^2-c^2$, el principio de capa crítica sugiere una extensión natural a familias
+descomponibles $Q(x,y)=L_1(x,y)L_2(x,y)$ donde una relación aditiva rígida controle la paridad de valuaciones
+en primos inertes.
+
+% ================================================================
+\section{Bibliografía}
+\begin{thebibliography}{9}
+
+\bibitem{Apostol}
+T.~M. Apostol.
+\newblock \emph{Introduction to Analytic Number Theory}.
+\newblock Springer, 1976.
+
+\bibitem{IwaniecKowalski}
+H.~Iwaniec and E.~Kowalski.
+\newblock \emph{Analytic Number Theory}.
+\newblock AMS Colloquium Publications, 2004.
+
+\bibitem{HalberstamRichert}
+H.~Halberstam and H.-E.~Richert.
+\newblock \emph{Sieve Methods}.
+\newblock Academic Press, 1974.
+
+\bibitem{FriedlanderIwaniec}
+J.~Friedlander and H.~Iwaniec.
+\newblock \emph{Opera de Cribro}.
+\newblock AMS Colloquium Publications, 2010.
+
+\bibitem{Neukirch}
+J.~Neukirch.
+\newblock \emph{Algebraic Number Theory}.
+\newblock Springer, 1999.
+
+\end{thebibliography}
+
+\end{document}
+

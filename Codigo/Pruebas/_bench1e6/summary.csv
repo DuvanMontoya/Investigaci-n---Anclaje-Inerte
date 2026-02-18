@@ -1,0 +1,2 @@
+D,Rmax,step,Rmin_export,points_used,C_med,C_mean,C_sd,C_univ_legacy,K_inerte_legacy,output_csv
+-43,1000001,10,101,49996,0.342092590442,0.335452836374,0.0502477541,0.881938494431,0.387887128866,csigma_inerte_D-43_Rmax1000001_step10_Rmin101.csv
