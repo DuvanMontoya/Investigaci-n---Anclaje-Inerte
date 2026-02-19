@@ -3,7 +3,7 @@
 
 """
 ╔══════════════════════════════════════════════════════════════════════════════╗
-║  C_SIGMA^INERTE — PIPELINE CANÓNICO v2.1                                      ║
+║  C_SIGMA^INERTE — PIPELINE CANÓNICO v2.2                                      ║
 ║  Auditoría · Inferencia asintótica · Figuras                                 ║
 ║                                                                              ║
 ║  Implementación orientada a reproducibilidad, rendimiento y robustez,        ║
@@ -383,7 +383,9 @@ def _find_col(df: pd.DataFrame, *candidates: str) -> Optional[str]:
 def load_csv(csv_path: Path) -> pd.DataFrame:
     """
     Normaliza columnas a:
-      R, D (opcional), N_R (opcional), H_R (opcional), X (opcional).
+      R, D (opcional), N_R (opcional),
+      H_R (opcional), H_star_R (opcional),
+      X (opcional), X_star (opcional).
     Si X no existe y (N_R,H_R) sí, reconstruye X = N_R·log R /(H_R·R).
     """
     if not csv_path.exists():
@@ -399,9 +401,11 @@ def load_csv(csv_path: Path) -> pd.DataFrame:
     colD = _find_col(df, "D", "d", "discriminant", "delta", "Δ")
     colN = _find_col(df, "N_R", "N", "NR", "n_r", "n")
     colH = _find_col(df, "H_R", "H", "HR", "h_r", "h")
+    colHs = _find_col(df, "Hstar_R", "H_star_R", "Hstar", "H_star", "H⋆_R", "H⋆", "H*", "H*_R")
     colX = _find_col(df, "C_sigma_inerte", "csigma_inerte", "C_sigma", "X", "ratio", "x")
+    colXs = _find_col(df, "Cstar_sigma", "C_sigma_star", "Cstar", "X_star", "x_star")
 
-    keep = [c for c in (colR, colD, colN, colH, colX) if c is not None]
+    keep = [c for c in (colR, colD, colN, colH, colHs, colX, colXs) if c is not None]
     df2 = df[keep].copy()
 
     rename = {colR: "R"}  # type: ignore[index]
@@ -411,8 +415,12 @@ def load_csv(csv_path: Path) -> pd.DataFrame:
         rename[colN] = "N_R"
     if colH:
         rename[colH] = "H_R"
+    if colHs:
+        rename[colHs] = "H_star_R"
     if colX:
         rename[colX] = "X"
+    if colXs:
+        rename[colXs] = "X_star"
     df2.rename(columns=rename, inplace=True)
 
     # Tipos
@@ -423,8 +431,12 @@ def load_csv(csv_path: Path) -> pd.DataFrame:
         df2["N_R"] = pd.to_numeric(df2["N_R"], errors="raise").astype(np.int64)
     if "H_R" in df2.columns:
         df2["H_R"] = pd.to_numeric(df2["H_R"], errors="coerce").astype(float)
+    if "H_star_R" in df2.columns:
+        df2["H_star_R"] = pd.to_numeric(df2["H_star_R"], errors="coerce").astype(float)
     if "X" in df2.columns:
         df2["X"] = pd.to_numeric(df2["X"], errors="coerce").astype(float)
+    if "X_star" in df2.columns:
+        df2["X_star"] = pd.to_numeric(df2["X_star"], errors="coerce").astype(float)
 
     df2 = (
         df2.sort_values("R")
@@ -583,9 +595,25 @@ def compute_global_stats(x: np.ndarray) -> GlobalStats:
 # 10. BLOQUES + WLS (MODELO 1er ORDEN) + ORDEN 2
 # ──────────────────────────────────────────────────────────────────────────────
 
-def make_blocks(df: pd.DataFrame, n_blocks: int, x_col: str = "X") -> pd.DataFrame:
+def make_blocks(
+    df: pd.DataFrame,
+    n_blocks: int,
+    x_col: str = "X",
+    min_R: Optional[float] = None,
+) -> pd.DataFrame:
+    """
+    Construye bloques por cuantiles de R.
+
+    Si min_R se pasa, primero restringe a la cola R >= min_R y luego binea.
+    Esto implementa exactamente el protocolo de cola del manuscrito.
+    """
     tmp = df[["R", x_col]].copy().rename(columns={x_col: "_X"})
-    tmp["block"] = pd.qcut(tmp["R"], q=int(n_blocks), labels=False, duplicates="drop")
+    if min_R is not None:
+        tmp = tmp[tmp["R"] >= float(min_R)].copy()
+    if tmp.empty:
+        return pd.DataFrame(columns=["R_center", "X_bar", "std", "n", "var"])
+    tmp["_logR"] = np.log(tmp["R"].astype(float))
+    tmp["block"] = pd.qcut(tmp["_logR"], q=int(n_blocks), labels=False, duplicates="drop")
     agg = (
         tmp.groupby("block")
         .agg(R_center=("R", "mean"), X_bar=("_X", "mean"), std=("_X", "std"), n=("_X", "count"))
@@ -631,7 +659,7 @@ def _safe_solve(A: np.ndarray, b: np.ndarray) -> np.ndarray:
 def fit_wls(
     blocks: pd.DataFrame,
     minR_center: float = 1e4,
-    weight_mode: str = "n_over_var",
+    weight_mode: str = "n",
 ) -> Tuple[WLSResult, pd.DataFrame]:
     """
     Modelo (Sección 9.3):
@@ -726,7 +754,7 @@ def fit_wls(
 def fit_wls_order2(
     blocks: pd.DataFrame,
     minR_center: float = 1e4,
-    weight_mode: str = "n_over_var",
+    weight_mode: str = "n",
 ) -> Tuple[float, float, float]:
     """
     Orden 2 (Sección 9.3, Tabla 2):
@@ -748,7 +776,14 @@ def fit_wls_order2(
     med_var = float(np.nanmedian(var_col[var_col > 0])) if np.any(var_col > 0) else 1.0
     var_col = np.where((~np.isfinite(var_col)) | (var_col <= 0), med_var, var_col)
 
-    w = (n_col / var_col) if weight_mode == "n_over_var" else n_col
+    if weight_mode == "n":
+        w = n_col
+    elif weight_mode == "inv_var":
+        w = 1.0 / var_col
+    elif weight_mode == "n_over_var":
+        w = n_col / var_col
+    else:
+        raise ValueError(f"weight_mode inválido: '{weight_mode}'")
     w = np.where(np.isfinite(w) & (w > 0), w, 1e-18)
     w = w / np.mean(w)
 
@@ -820,11 +855,13 @@ def primes_upto(n: int) -> np.ndarray:
 def partial_product_inert(D: int, cutoff: int = 50) -> float:
     """
     Sección 10.1:
-      ∏_{p≤cutoff, χΔ(p)=-1} (p−1)/(p+1)
+      ∏_{3≤p≤cutoff, χΔ(p)=-1} (p−1)/(p+1)
     """
     primes = primes_upto(int(cutoff))
     prod = 1.0
     for p in primes:
+        if int(p) < 3:
+            continue
         if kronecker_symbol(D, int(p)) == -1:
             prod *= (float(p) - 1.0) / (float(p) + 1.0)
     return prod
@@ -835,29 +872,45 @@ def partial_product_inert(D: int, cutoff: int = 50) -> float:
 # ──────────────────────────────────────────────────────────────────────────────
 
 def compute_EEsist(
-    blocks: pd.DataFrame,
+    df: pd.DataFrame,
+    n_blocks: int,
+    minR_ref: float = 1e6,
     R_tails: Tuple[float, ...] = (1e6, 2e6, 3e6),
-    weight_mode: str = "n_over_var",
+    weight_mode: str = "n",
+    x_col: str = "X",
 ) -> Dict[str, float]:
     """
     Tabla 2:
       EE_sist = max_{R_tail} |C_∞(R_tail) − C_∞(R_tail=10^6)|
       |Δmodel| = |C_∞^(2) − C_∞^(1)| en la cola de referencia.
+
+    Implementación consistente con el manuscrito:
+      para cada R_tail, los bins se construyen en cuantiles de la cola
+      R >= R_tail (no en el rango completo).
     """
     C_vals: Dict[float, float] = {}
+    blocks_by_tail: Dict[float, pd.DataFrame] = {}
     for R_tail in R_tails:
         try:
-            res, _ = fit_wls(blocks, minR_center=float(R_tail), weight_mode=weight_mode)
+            b = make_blocks(df, n_blocks=int(n_blocks), x_col=x_col, min_R=float(R_tail))
+            res, _ = fit_wls(b, minR_center=float(R_tail), weight_mode=weight_mode)
             C_vals[float(R_tail)] = res.C_inf
+            blocks_by_tail[float(R_tail)] = b
         except ValueError:
             C_vals[float(R_tail)] = float("nan")
 
-    ref = C_vals.get(1e6, float("nan"))
-    others = [v for k, v in C_vals.items() if k != 1e6 and np.isfinite(v)]
+    ref_key = float(minR_ref)
+    if ref_key not in C_vals:
+        ref_key = min(C_vals.keys(), key=lambda k: abs(float(k) - float(minR_ref)))
+    ref = C_vals.get(ref_key, float("nan"))
+    others = [v for k, v in C_vals.items() if k != ref_key and np.isfinite(v)]
     EEsist = max((abs(v - ref) for v in others), default=float("nan")) if np.isfinite(ref) else float("nan")
 
     # Desplazamiento de modelo (orden 2 vs orden 1)
-    C2, _, _ = fit_wls_order2(blocks, minR_center=1e6, weight_mode=weight_mode)
+    C2 = float("nan")
+    b_ref = blocks_by_tail.get(ref_key)
+    if b_ref is not None:
+        C2, _, _ = fit_wls_order2(b_ref, minR_center=float(ref_key), weight_mode=weight_mode)
     delta_model = abs(C2 - ref) if (np.isfinite(C2) and np.isfinite(ref)) else float("nan")
 
     out: Dict[str, float] = {"EE_sist": float(EEsist), "delta_model": float(delta_model)}
@@ -1138,7 +1191,7 @@ def write_summary_txt(
 
     lines: List[str] = [
         "=" * 82,
-        "RESUMEN — C_SIGMA^INERTE  (versión 2.1)",
+        "RESUMEN — C_SIGMA^INERTE  (versión 2.2)",
         "=" * 82,
         f"Archivo : {csv_path.name}",
         f"SHA-256 : {sha}",
@@ -1169,6 +1222,9 @@ def write_summary_txt(
         "",
         "── WLS principal (modelo 1er orden) ────────────────────────────────────",
         f"  weight_mode = {wls.weight_mode}",
+        f"  fit_scope   = {extra.get('fit_scope', 'global_quantile')}",
+        f"  minR_fit    = {extra.get('fit_minR', float('nan'))}",
+        f"  n_blocks    = {extra.get('fit_n_blocks', 'NA')}",
         f"  bloques     = {wls.n_blocks_used} / {wls.n_blocks_total}",
         f"  R_center ∈  [{wls.minR_center_used:.1f}, {wls.maxR_center_used:.1f}]",
         f"  C_inf       = {wls.C_inf:.12f}",
@@ -1324,8 +1380,9 @@ def run_pipeline(args: argparse.Namespace) -> None:
     if D is not None:
         C_sigma, C_sigma_star = audit_Cstar(df, D, spf)
 
-    # Bloques y WLS
-    blocks = make_blocks(df, n_blocks=int(args.blocks))
+    # Bloques y WLS (cuantiles construidos en la cola R >= minR)
+    fit_minR = float(args.minR)
+    blocks = make_blocks(df, n_blocks=int(args.blocks), min_R=fit_minR)
     wls, block_fit = fit_wls(blocks, minR_center=float(args.minR), weight_mode=str(args.weights))
 
     blocks_star: Optional[pd.DataFrame] = None
@@ -1333,16 +1390,25 @@ def run_pipeline(args: argparse.Namespace) -> None:
     if C_sigma_star is not None:
         df_star = df.copy()
         df_star["X"] = C_sigma_star
-        blocks_star = make_blocks(df_star, n_blocks=int(args.blocks), x_col="X")
+        blocks_star = make_blocks(df_star, n_blocks=int(args.blocks), x_col="X", min_R=fit_minR)
         try:
             wls_star, _ = fit_wls(blocks_star, minR_center=float(args.minR), weight_mode=str(args.weights))
         except ValueError:
             wls_star = None
 
     # Incertidumbre sistemática (Tabla 2)
-    sist = compute_EEsist(blocks, weight_mode=str(args.weights))
+    sist = compute_EEsist(
+        df,
+        n_blocks=int(args.blocks),
+        minR_ref=1e6,
+        weight_mode=str(args.weights),
+        x_col="X",
+    )
     extra.update({"EE_sist": sist.get("EE_sist", float("nan")), "delta_model": sist.get("delta_model", float("nan"))})
     extra.update({k: v for k, v in sist.items() if k.startswith("C_inf_tail_")})
+    extra["fit_scope"] = "tail_quantile"
+    extra["fit_minR"] = fit_minR
+    extra["fit_n_blocks"] = int(args.blocks)
 
     # Bootstrap
     boot: Dict[str, float] = {"boot_n": 0.0}
@@ -1374,7 +1440,7 @@ def run_pipeline(args: argparse.Namespace) -> None:
     S_D = (wls.C_inf / Cb) if Cb is not None else None
 
     print("=" * 82)
-    print("  C_SIGMA^INERTE  —  PIPELINE v2.1")
+    print("  C_SIGMA^INERTE  —  PIPELINE v2.2")
     print("=" * 82)
     print(f"  Archivo : {csv_path.name}")
     print(f"  SHA-256 : {sha}")
@@ -1399,6 +1465,9 @@ def run_pipeline(args: argparse.Namespace) -> None:
     print()
 
     print("  WLS  (X ≈ C_∞ + a/log R):")
+    print(f"    fit_scope = {extra.get('fit_scope', 'global_quantile')}")
+    print(f"    minR_fit  = {extra.get('fit_minR', float('nan'))}")
+    print(f"    n_blocks  = {extra.get('fit_n_blocks', 'NA')}")
     print(f"    C_∞      = {wls.C_inf:.12f}")
     print(f"    IC 95%   = {_fmt_ci(wls.C_inf_CI95)}")
     print(f"    a        = {wls.a:.12f}")
@@ -1476,7 +1545,7 @@ def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(
         prog="csigma_inerte",
         description=(
-            "Pipeline canonico C_sigma_inerte v2.1\n"
+            "Pipeline canonico C_sigma_inerte v2.2\n"
             "Auditoria · WLS asintotico · Bootstrap · Figuras PDF\n"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -1488,9 +1557,9 @@ def build_parser() -> argparse.ArgumentParser:
     run_p.add_argument("csv", type=str, help="Ruta al CSV (fuente de verdad).")
     run_p.add_argument("--outdir", type=str, default="Analisis/Csigma", help="Directorio de salida.")
     run_p.add_argument("--discriminant", type=int, default=None, help="Discriminante D<0 (anula CSV si se pasa).")
-    run_p.add_argument("--blocks", type=int, default=50, help="Número de bloques WLS [default: 50].")
-    run_p.add_argument("--minR", type=float, default=1e4, help="R_center mínimo para WLS [default: 1e4].")
-    run_p.add_argument("--weights", type=str, default="n_over_var",
+    run_p.add_argument("--blocks", type=int, default=200, help="Número de bloques WLS [default: 200].")
+    run_p.add_argument("--minR", type=float, default=1e6, help="R_center mínimo para WLS [default: 1e6].")
+    run_p.add_argument("--weights", type=str, default="n",
                        choices=["n", "inv_var", "n_over_var"], help="Modo de pesos WLS.")
     run_p.add_argument("--bootstrap", type=int, default=2000, help="Iteraciones bootstrap (0 desactiva).")
     run_p.add_argument("--seed", type=int, default=123, help="Semilla RNG.")
@@ -1523,9 +1592,9 @@ def main() -> None:
     ap2.add_argument("csv")
     ap2.add_argument("--outdir", type=str, default="Analisis/Csigma")
     ap2.add_argument("--discriminant", type=int, default=None)
-    ap2.add_argument("--blocks", type=int, default=50)
-    ap2.add_argument("--minR", type=float, default=1e4)
-    ap2.add_argument("--weights", type=str, default="n_over_var", choices=["n", "inv_var", "n_over_var"])
+    ap2.add_argument("--blocks", type=int, default=200)
+    ap2.add_argument("--minR", type=float, default=1e6)
+    ap2.add_argument("--weights", type=str, default="n", choices=["n", "inv_var", "n_over_var"])
     ap2.add_argument("--bootstrap", type=int, default=2000)
     ap2.add_argument("--seed", type=int, default=123)
     ap2.add_argument("--audit_H", action="store_true")

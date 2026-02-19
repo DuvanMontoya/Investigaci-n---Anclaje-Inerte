@@ -1,0 +1,1459 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{ems-journal-jems}[2024/07/04 v3.6 EMS Press JEMS package]
+%%
+%% v2.0 [2021/09/27]    Release of JEMS style with new line spacing (13pt)
+%% v2.1 [2021/09/28]    Bug fix for \emsaffil*
+%% v2.2 [2022/01/14]    Unified text for `openaccess'; $\bullet$; \textperiodcentered
+%% v2.3 [2022/02/02]    Placeholder if logo is missing
+%% v2.4 [2022/05/10]    New text for `openaccess'.
+%% v2.5 [2022/09/08]    \secondemail; \appendixblock; copyright line for `mode=submission' removed
+%% v2.6 [2022/11/30]    \Zbl and \JFM fixed; \IEEE added
+%% v2.7 [2022/12/01]    \arXiv added
+%% v2.8 [2023/01/21]    lang=french fixed; abstract* (different language);
+%%                      \RequirePackage{upref}; \textbullet
+%% v2.9 [2023/01/23]    New order for French/English abstracts/keywords
+%% v2.10 [2023/02/06]   accents in \emsauthor fixed; \arxiv fixed; \keywords* added
+%% v2.11 [2023/02/09]   spacing before `and licensed under' corrected
+%% v2.12 [2023/02/10]   \unskip added to \ems@maybebreak
+%% v2.13 [2023/09/11]   new author fields (\givenname, \surname, \mrid, \orcid)
+%%                      also new macro: \Emsaffil with submacros for affiliate data
+%%                      for at most 3 affiliation address per author: \department,
+%%                      \organisation, \rorid, \address, \zip, \city, \country, \affemail
+%%                      + errmessage for multiple address element of same affil/author
+%%                      ++ new \Emsaffil fields: \pretext, \posttext, \furtheremail;
+%%                      + errmessage for multiple affemail, also for furtheremail w/o affemail
+%%                      + all history dates (\received, \revised, \accepted, \published)
+%%                      and communicated data can be present in the source the one needed
+%%                      for this journal (received date) is printed, the others muted (TB)
+%% v2.14 [2023/09/13]   Emsaffil layout fixes (BT)
+%% v2.15 [2023/09/14]   Emsaffil adjacent address equality check fixed
+%%                      + mandatory package option: journal (TB)
+%% v2.16 [2023/11/26]   US, Canada affil. mail zip order fix + at most 8 affils/author
+%%                      + appendix authors, affiliates (*: w/o) automation as authors
+%%                      + xcolor package load order fixed (for newtx package changed) (TB)
+%% v2.17 [2023/11/27]   proper spacing before (semi)colons on title page elements (french) (TB)
+%% v2.18 [2023/12/08]   \copyrightyear spacing fixed + colons after MSC and keywords title
+%%                      + \appendixauthorsection pdf bookmark fixed + \editflow meta (muted) (TB)
+%% v3.0 [2024/01/10]    affiliate address zip order and separation fixes for selected countries
+%%                      (Australia, Canada, India, Japan, New Zealand, UK, USA) (TB)
+%% v3.1 [2024/03/21]    fix hyperref's theorem anchor placing (amsthm patch) (TB)
+%% v3.2 [2024/03/24]    fix the last page anchor (properly mark the lastmost page with contents)
+%%                      and reference (points to the top of the last page) (TB)
+%% v3.3 [2024/03/26]    new page(s) with summation affiliate data table in proof mode (TB)
+%% v3.4 [2024/05/20]    links in summation affiliate data table for MRID, ORCID, RORID (if exist) (GB&TB)
+%% v3.5 [2024/06/16]    cleveref hyperref theorem anchor fix (general fix messed up cleveref)
+%%                      + removed affiliate data title from TOC (proof mode) (TB)
+%%                      + extra new line removed after abstract if its last line is full (JT/AR)
+%% v3.6 [2024/07/04]    summation affiliate (meta)data in proof mode for appendix authors, too (TB)
+%%
+%% v3.7 [2025/04/03]    fixed displaying (saving) lastpage even if the last page is completely full (TB)
+%%
+%% v3.8 [2025/07/10] New~Zealand with nonbreakable space added as a country with US style address + Zbl author ID added + ORCID link changed to the author's main page (GB with efficient help from ChatGPT :-))
+
+\RequirePackage{pdf14}
+\RequirePackage[T1]{fontenc}
+\RequirePackage[utf8]{inputenc}
+\RequirePackage[l2tabu, orthodox]{nag}
+
+%%% patch commands
+\RequirePackage{xpatch}
+\def\ems@warnpatch#1{\PackageWarning{ems}{Failed to patch #1.}}
+
+\RequirePackage{kvoptions}
+\SetupKeyvalOptions{ family = ems, prefix = @ems@ }
+\DeclareBoolOption{contrib}
+\DeclareBoolOption{openaccess}
+\DeclareStringOption{paper}
+\DeclareStringOption[numeric]{cite}
+\DeclareStringOption[british]{lang}
+\DeclareStringOption[submission]{mode}
+\DeclareStringOption[???]{journal}
+\RequirePackage{pdftexcmds}
+\def\ems@check#1#2{%
+	\ifnum\pdf@strcmp{\@nameuse{@ems@#1}}{\unexpanded{#2}}=0 %
+		\expandafter\@firstoftwo
+	\else
+		\expandafter\@secondoftwo
+	\fi
+}
+\ProcessKeyvalOptions*
+\newcommand*\ems@journalname{\textcolor{emsred}{ENTER JOURNAL CODE}}
+\ems@check{journal}{JEMS}{%
+    \renewcommand*\ems@journalname{J. Eur. Math. Soc.}%
+}{\errmessage{please include the journal name among the package options as journal=JEMS}}%
+%%% online first pseudo-mode
+\newif\ifems@onlinefirst
+\ems@check{mode}{onlinefirst}{\ems@onlinefirsttrue \xdef\@ems@mode{online}}{}
+%%% proof pseudo-mode
+\newif\ifems@proof
+\ems@check{mode}{proof}{\ems@prooftrue \xdef\@ems@mode{online}}{}
+
+%%% page layout
+\newdimen\ems@grid
+\global\ems@grid 13\p@
+\topskip 9\p@
+\headheight 7\p@
+\RequirePackage{geometry}
+\geometry{ includehead, paperheight = 240mm, paperwidth = 170mm, twoside }
+\ems@check{mode}{online}
+	{\geometry{ hmarginratio = {1:1}, asymmetric }}
+	{\geometry{ inner = 20mm }}
+\ems@check{mode}{work}{\geometry{ showframe } \overfullrule 1em\relax}{}
+\geometry{
+	headsep = 19\p@,
+	marginparsep = 10\p@,
+	marginparwidth = 20mm,
+	textheight = \dimexpr42\ems@grid+\topskip\relax, % 43 lines
+	textwidth = 125mm,
+	top = 12.5mm % outer/2
+}
+\raggedbottom
+\footskip \z@
+\ems@check{paper}{a4}{
+	\geometry{
+		a4paper,
+		layouthoffset = \z@,
+		layoutvoffset = 10mm,
+		marginparwidth = 32mm,
+		asymmetric
+	}
+}{}
+\parindent 1.5em\relax
+\clubpenalty \@M
+\@clubpenalty \@M
+\widowpenalty \@M
+%%% cleardoublepage with empty page
+\def\ems@addnewpage{\null\thispagestyle{empty}\newpage}
+\renewcommand*\cleardoublepage{%
+	\clearpage
+	\ifodd\c@page\else
+		\ems@addnewpage
+		\if@twocolumn\ems@addnewpage\fi
+	\fi
+}
+
+%%% color
+\ems@check{mode}{print}{
+	\RequirePackage[cmyk]{xcolor}
+	\definecolorset{cmyk}{ems}{}{%
+		red, 0, 0.8, 0.8, 0.2;%
+		green, 0.5, 0, 0.9, 0.3;%
+		blue, 1, 0.2, 0, 0.4;%
+		yellow, 0, 0.1, 0.9, 0.3%
+	}
+}{
+	\ifems@proof
+		\RequirePackage[rgb,table]{xcolor}
+		\usepackage{longtable}
+	\else
+		\RequirePackage[rgb]{xcolor}
+	\fi
+	\definecolorset{HTML}{ems}{}{%
+		red, CC2929;%
+		green, 59B312;% RGB triadic
+		blue, 007A99;%
+		yellow, B3A112% RYB triadic
+	}
+}
+
+%%% text fonts
+\ems@check{mode}{submission}{
+	%%% TeX Gyre Termes and Heros
+	\RequirePackage[helvratio = 0.88, tighter]{newtxtext}
+}{
+	\RequirePackage{textcomp}
+	%%% Adobe Times Roman (or equivalent)
+	\renewcommand*\rmdefault{ptm}
+	\renewcommand*\bfdefault{b}
+	%%% Helvetica (or equivalent)
+	\RequirePackage[scaled = 0.88]{helvet}
+	%%% Latin Modern Mono
+	\renewcommand*\ttdefault{lmtt}
+}
+\DeclareTextCommandDefault{\textellipsis}%
+	{.\kern\fontdimen3\font.\kern\fontdimen3\font.}
+%%% fix errors (hyperref?) when used in \emsauthor
+\AtEndOfPackage{
+	\robustify\=
+	\robustify\u
+}
+
+%%% font size
+\smallskipamount .25\ems@grid\relax
+\medskipamount .5\ems@grid\relax
+\bigskipamount \ems@grid\relax
+\renewcommand*\normalsize{%
+	\@setfontsize\normalsize\@xpt\ems@grid
+	\abovedisplayskip 9\p@ \@plus4\p@ \@minus3.5\p@
+	\belowdisplayskip \abovedisplayskip
+	\abovedisplayshortskip \z@ \@plus4\p@
+	\belowdisplayshortskip 6.5\p@ \@plus4\p@ \@minus3.5\p@
+}
+\normalsize
+%%% (small from size10.clo)
+\let\footnotesize\small
+\newcommand*\listsize{\@setfontsize\listsize\@ixpt\@xpt}
+\renewcommand*\scriptsize{\@setfontsize\scriptsize\@viipt\@viiipt}
+\renewcommand*\tiny{\@setfontsize\tiny\@vpt\@vipt}
+\renewcommand*\large{\@setfontsize\large\@xiipt{14}}
+\renewcommand*\Large{\@setfontsize\Large\@xivpt{17}}
+\renewcommand*\LARGE{\@setfontsize\LARGE\@xviipt{18}}
+\renewcommand*\huge{\@setfontsize\huge\@xxpt{25}}
+\renewcommand*\Huge{\@setfontsize\Huge\@xxvpt{30}}
+
+%%% heading
+\def\jems@head#1#2{\listsize
+	\vbox to \ht\strutbox{%
+		\strut\smash{\hb@xt@\textwidth{#1\quad\hfil#2}}%
+		\vskip\tw@\p@\hrule\vss
+	}%
+}
+\renewcommand*\ps@headings{%
+	\let\@evenfoot\@empty
+	\let\@oddfoot\@empty
+	\ems@check{mode}{online}%
+		{\def\@evenhead{\jems@head{\leftmark}{\thepage}}}%
+		{\def\@evenhead{\jems@head{\thepage}{\leftmark}}}%
+	\def\@oddhead{\jems@head{\rightmark}{\thepage}}%
+}
+\pagestyle{headings}
+\newcommand*\authormark[1]{\gdef\@authormark{#1}}
+\newcommand*\titlemark[1]{\gdef\@titlemark{#1}}
+
+%%% title page
+\def\jems@copyright{%
+	\ems@check{mode}{submission}{}{%
+		\textcopyright\,\ems@copyrightyear\ European Mathematical Society\newline
+		Published by EMS Press
+		\if@ems@openaccess
+			and licensed under a\space
+			\href{https://creativecommons.org/licenses/by/4.0/}{CC BY 4.0}\space
+			license%
+		\fi
+	}
+}
+\def\ps@titlepage{%
+	\let\@oddfoot\@empty
+	\let\@evenfoot\@empty
+	\def\@oddhead{%
+		\jems@head{%
+			\rlap{\vbox to \z@{\kern\@xpt\p@
+				{\fontsize\@viipt\@xpt\selectfont \jems@copyright\endgraf}\vss
+			}}%
+			\ems@journalname\space
+			\ems@check{mode}{submission}{(submitted)}{%
+%				\ems@check{mode}{proof}{\textcolor{emsred}{(Galley proof)}}{%
+				\ifems@proof
+					\textcolor{emsred}{(Galley proof)}%
+				\else
+					\ifems@onlinefirst (Online first)\else
+						\ems@volume,\space
+						\ems@FirstPage--\hyperlink{page.\@kernel@pageref@exp{MyLastPage}}{\@kernel@pageref@exp{MyLastPage}}\space%for nolink:\pageref*{MyLastPage}
+						(\ems@volumeyear)%
+					\fi
+				\fi
+%				}%
+			}%
+		}{%%% size: 48 bp, 52 bp
+			\IfFileExists{logo-jems.pdf}{%
+				\raisebox{-\dimexpr\@viiipt\p@+52bp\relax}[\z@][\z@]{%
+					\includegraphics{logo-jems.pdf}%
+				}%
+			}{\raisebox{-4mm}{\fbox{\parbox[t][14mm][c]{14mm}{JEMS LOGO}}}}%
+			\ems@check{mode}{submission}{}{\llap{DOI \ems@doi}}%
+		}%
+	}%
+	\let\@evenhead\@oddhead
+}
+\newbox\jems@box@abstract
+\renewenvironment{abstract}{%
+	\global\setbox\jems@box@abstract\color@vbox
+		\normalcolor \small
+		\noindent\strut\textbf{\abstractname.}\enskip\ignorespaces
+}{\unskip\strut\par\color@endbox}
+%
+\newbox\jems@box@@abstract
+\newenvironment{abstract*}[1]{%
+	\global\setbox\jems@box@@abstract\color@vbox
+		\normalcolor \small
+		\selectlanguage{#1}%
+		\noindent\strut\textbf{\abstractname.}\enskip\ignorespaces
+}{\unskip\strut\par\color@endbox}
+%
+\newcommand*\appendixblock[2]{
+	\ems@affilskip
+	\@appendixauthor:\space \@appendixaffil
+}
+%
+\renewcommand*\maketitle{%
+	%%% header
+	\thispagestyle{titlepage}%
+	\begingroup
+		\global\@topnum \z@
+		\vspace*\ems@grid
+		\begingroup
+			\raggedright
+			\vrule \@width\z@ \@height8mm\relax
+			%%% author
+			\ifx\ems@authlist\@empty\else
+				\begingroup
+					%%% avoid logo
+					\parshape \tw@
+						\z@ \dimexpr\textwidth-48bp-1em\relax
+						\z@ \textwidth
+					\def\Authsep{~\textperiodcentered\ \texorpdfstring{\null}{}}%
+					\let\Authand\Authsep
+					\let\Authands\Authsep
+					\strut\ems@authlist
+%					\ifx\@appendixauthor\@undefined\else
+%						\newline (\appendixbyname\ \@appendixauthor)%
+%					\fi
+					\ifx\ems@aauthlist\@empty\else
+						\strut\newline \strut(\appendixbyname\ \null\ems@aauthlist)%
+					\fi
+					\strut\par
+					\vskip.5\ems@grid
+				\endgroup
+				\ems@check{mode}{print}{}{%
+					\hypersetup{ pdfauthor = \ems@authlist@abbr }%
+				}%
+			\fi
+			%%% affiliation
+			\ifx\ems@affillist\@empty\else
+				\begingroup
+					\let\footnotelayout\raggedright
+					\let\@makefnmark\relax
+					\footnotetext{%
+						\vskip-\jems@affilsep
+						\ems@affillist
+%						\ifx\@appendixaffil\@undefined\else
+%							\appendixblock{\@appendixauthor}{\@appendixaffil}
+%						\fi
+						\ifx\ems@aaffillist\@undefined\else
+							\ems@aaffillist
+						\fi
+					}%
+				\endgroup
+			\fi
+			%%% title
+			\begingroup
+				\Large\bfseries\boldmath\strut\@title\strut\par
+				\vskip\ems@grid
+			\endgroup
+		\endgroup
+		%%% heading
+		\markboth{%
+			\ifx\@authormark\@undefined
+				\ifx\ems@authlist@abbr\@empty\else\ems@authlist@abbr\fi
+			\else
+				\@authormark
+			\fi
+		}{%
+			\ifx\@titlemark\@undefined
+				{\def\\{\space\ignorespaces}\@title}%
+			\else
+				\@titlemark
+			\fi
+		}%
+		%%% classification
+		\ifx\ems@classification\@undefined\else
+			\begingroup
+				\let\footnotelayout\raggedright
+				\let\@makefnmark\relax
+				\footnotetext{%
+					\vskip .25\baselineskip
+					\textit{\classificationname} \ems@classification.
+				}%
+			\endgroup
+		\fi
+		\begingroup
+			\small
+			%%% dedication
+			\ifx\ems@dedication\@undefined\else
+				\begingroup
+					\raggedright\itshape
+					\ems@dedication\strut\par
+				\endgroup
+				\vskip\ems@grid
+			\fi
+			%%% history dates
+			\begingroup
+				\ifx\ems@received\@undefined\else
+					\raggedright
+					\receivedname\ \ems@received
+					\ifx\ems@revised\@undefined\else; \revisedname\ \ems@revised\fi
+				\fi
+				\strut\par
+			\endgroup
+			\vskip\ems@grid
+			%%% abstract
+			\ifvoid\jems@box@abstract\else
+				\noindent\unvbox\jems@box@abstract\par
+			\fi
+			%%% keywords
+			\ifx\ems@keywords\@undefined\else
+				\addvspace\baselineskip
+				\begingroup
+					\raggedright
+					%\textbf{\keywordsname.}\enskip\ignorespaces
+					\textit{\keywordsname}\enskip\ignorespaces
+					\ems@keywords.\strut\par
+				\endgroup
+				\ems@check{mode}{print}{}{%
+					\hypersetup{ pdfkeywords = \ems@keywords }%
+				}%
+			\fi
+            %%% abstract second language
+            \ifvoid\jems@box@@abstract\else
+				\addvspace\baselineskip%
+				\noindent\unvbox\jems@box@@abstract\par
+			\fi
+			%%% keywords second language
+			\ifx\ems@@keywords\@undefined\else
+				\addvspace\baselineskip
+				\begingroup
+					\raggedright\selectlanguage{american}%
+                    \textbf{Keywords.}\enskip\ignorespaces
+					\ems@@keywords\strut\par
+				\endgroup
+			\fi
+		\endgroup
+		\vrule \@width\z@ \@height\baselineskip\relax
+		\hrule \par \vskip\tw@\ems@grid
+	\endgroup
+	\@afterheading \@afterindentfalse
+%	\ifems@proof\xdef\ems@aff@seq{\ems@aff@seq}\fi
+}
+
+%%% section
+\renewcommand*\@seccntformat[1]{\csuse{the#1}.\enskip}
+\newskip\jems@sec@preskip
+\newskip\jems@sec@postskip
+\jems@sec@preskip2\ems@grid \@plus\z@ \@minus.5\ems@grid
+\jems@sec@postskip\ems@grid \@plus\z@ \@minus.25\ems@grid
+\renewcommand*\section{%
+	\@startsection{section}{1}{\z@}%
+		{-\jems@sec@preskip}{\jems@sec@postskip}%
+		{\raggedright\normalfont\bfseries\boldmath}%
+}
+\renewcommand*\subsection{%
+	\@startsection{subsection}{2}{\z@}%
+		{-1.5\ems@grid \@plus\z@ \@minus-.25\ems@grid}{.5\ems@grid}%
+		{\raggedright\normalfont\itshape}%
+}
+\def\ems@runinformat#1{#1\@addpunct{.}}
+\renewcommand*\subsubsection{%
+	\@startsection{subsubsection}{3}{\z@}%
+		{\ems@grid}{-.5em}{\normalfont\itshape\ems@runinformat}%
+}
+\renewcommand*\paragraph{%
+	\@startsection{paragraph}{4}{\z@}%
+		{.5\ems@grid}{-.5em}{\normalfont\itshape\ems@runinformat}%
+}
+\renewcommand*\subparagraph{%
+	\@startsection{subparagraph}{5}{\z@}%
+		{.5\ems@grid}{-.5em}{\normalfont\itshape\ems@runinformat}%
+}
+%%% part
+\xpatchcmd\part%
+	{\addvspace{4ex}}%
+	{\addvspace\jems@sec@preskip}%
+	{}{\ems@warnpatch{part}}
+%%% (numbered)
+\xpatchcmd\@part{\Large}{}{}{\ems@warnpatch{part}}
+\xpatchcmd\@part{\huge}{\large\boldmath}{}{\ems@warnpatch{part}}
+\xpatchcmd\@part{\markboth{}{}}{}{}{\ems@warnpatch{part}}
+\xpatchcmd\@part%
+	{\vskip3ex}%
+	{\vskip\jems@sec@postskip}%
+	{}{\ems@warnpatch{@part}}
+%%% (unnumbered)
+\xpatchcmd\@spart%
+	{\huge}%
+	{\addcontentsline{toc}{part}{#1}\large\boldmath}%
+	{}{\ems@warnpatch{part}}
+\xpatchcmd\@spart%
+	{\vskip3ex}%
+	{\vskip\jems@sec@postskip}%
+	{}{\ems@warnpatch{@spart}}
+%%% (contents)
+\xpatchcmd\@part%
+	{\thepart\hspace{1em}}%
+	{\texorpdfstring{\hb@xt@1.5em{\thepart\hss}}{\thepart\space}}%
+	{}{\ems@warnpatch{part}}
+\xpatchcmd\l@part%
+	{\addvspace{2.25em \@plus\p@}\setlength\@tempdima{3em}}%
+	{\addvspace\baselineskip \setlength\@tempdima{1.5em}}%
+	{}{\ems@warnpatch{l@part}}
+\xpatchcmd\l@part\large\boldmath{}{\ems@warnpatch{l@part}}
+
+%%% table of contents
+\renewcommand*\@pnumwidth{2em}
+\renewcommand*\@dotsep{3}
+\setcounter{tocdepth}{2}
+\renewcommand*\tableofcontents{%
+	%%% to skip Contents in contents
+	\par \addvspace\jems@sec@preskip
+	\noindent \textbf{\contentsname}\par\nobreak
+	\vskip\jems@sec@postskip
+	\@starttoc{toc}%
+	\addtocontents{toc}{\protect\listsize}%
+	\AtEndDocument{\addtocontents{toc}{\protect\normalsize}}%
+}
+%%% important dot after section number (patch twice)
+\xpatchcmd\@sect%
+	{\numberline{\csname the#1\endcsname}}%
+	{\numberline{\csuse{the#1}.}}%
+	{}{\ems@warnpatch{@sect}}
+\xpatchcmd\@sect%
+	{\numberline{\csname the#1\endcsname}}%
+	{\numberline{\csuse{the#1}.}}%
+	{}{\ems@warnpatch{@sect}}
+\renewcommand*\l@section{\@dottedtocline{1}{\z@}{1.5em}}
+
+%%% appendix
+\newcommand*\appendixauthor[2]{%
+	\gdef\@appendixauthor{#1}%
+	\gdef\@appendixauthor@abbr{#2}%
+}
+\newcommand*\Appendixauthor{\@ifstar\@Appendixauthor\@@Appendixauthor}
+\newcommand*\@Appendixauthor{\let\ems@correspcheck\relax\@@@Appendixauthor}
+\newcommand*\@@Appendixauthor{\let\ems@correspcheck\@undefined\@@@Appendixauthor}
+\def\tba@w@check#1#2#3{\csxdef{tba@#1@#2}{#3}}%
+\newcommand*\@@@Appendixauthor[2]{%
+	\csxdef{ems@aaffil#1name}{\ifx\ems@correspcheck\relax\else\leavevmode\null#2\fi}%
+	\ifnum\c@aauthors >\@ne
+		\@namedef{@sepa\number\c@aauthors}{\Authsep}%
+	\fi
+	\refstepcounter{aauthors}%
+	\begingroup
+		\let\protect\@unexpandable@protect
+		\@temptokena=\expandafter{\ems@aauthors}%
+%		\@temptokenb=\expandafter{\ems@authors@abbr}%
+		{%
+			\xdef\ems@aauthor{#2}%
+                        \ifems@proof
+                                {\def\givenname##1{\tba@w@check{#1}{givenname}{##1}}\def\surname##1{\tba@w@check{#1}{surname}{##1}}%
+                                \def\mrid##1{\tba@w@check{#1}{mrid}{##1}}\def\zblid##1{\tba@w@check{#1}{zblid}{##1}}\def\orcid##1{\tba@w@check{#1}{orcid}{##1}}\setbox0\hbox{#2}}%
+                        \fi
+%			\xdef\ems@author@abbr{#3}%
+			\ifnewaaffil
+				\global\let\ems@laas\@empty
+				\gdef\ems@laasx{\protect\Authand}%
+				\global\let\ems@aas\@empty
+				\xdef\ems@aauthors{\the\@temptokena}%
+%				\xdef\ems@authors@abbr{\the\@temptokenb}%
+			\else
+				\xdef\ems@aauthors{\the\@temptokena\ems@aas\ems@aau@str}%
+%				\xdef\ems@authors@abbr{\the\@temptokenb\ems@as\ems@au@str@abbr}%
+				\global\let\ems@laas\ems@laasx
+				\gdef\ems@laasx{\protect\Authands}%
+				\gdef\ems@aas{\Authsep}%
+			\fi
+			\gdef\ems@aau@str{#2}%
+%			\gdef\ems@au@str@abbr{#3}%
+		}%
+		\@temptokena=\expandafter{\ems@aauthlist}%
+		\xdef\ems@aauthlist{%
+			\the\@temptokena
+			\protect\@nameuse{@sepa\number\c@aauthors}#2%
+		}%
+%		\@temptokenb=\expandafter{\ems@authlist@abbr}%
+%		\xdef\ems@authlist@abbr{%
+%			\the\@temptokenb
+%			\protect\@nameuse{@sep\number\c@authors}#3%
+%		}%
+	\endgroup
+	\ifnum\c@aauthors >\tw@
+		\@namedef{@sepa\number\c@aauthors}{\Authands}%
+	\fi
+	\newaaffilfalse
+}
+\newcommand*\appendixaffil[1]{\gdef\@appendixaffil{#1}}
+\newcount\ems@aaff@max  \ems@aaff@max=0
+\newif\ifbt@aaff        \bt@aafffalse
+\newcommand\Appendixaffil[2]{%
+	\newaaffiltrue
+	\global\ems@affemail@setfalse
+        \expandafter\ifx\csname ems@aaffil#1name\endcsname\@empty
+                {\bt@aafftrue\gdef\ems@aff@seq{#1}\ifnum\ems@aaff@max<#1\global\ems@aaff@max=#1\fi\init@ffil\setbox0\hbox{#2}\ems@emailcheck}%
+        \else
+	    \begingroup
+		%%% no page breaks for \\
+		\let\\\ems@affilcr
+		\let\protect\@unexpandable@protect
+		\@temptokena=\expandafter{\ems@aauthors}%
+                {\bt@aafftrue\gdef\ems@aff@seq{#1}\ifnum\ems@aaff@max<#1\global\ems@aaff@max=#1\fi\init@ffil\setbox0\hbox{#2}\ems@emailcheck\xdef\ems@temp{\build@ffil}\init@ffil}%
+		\xdef\ems@aauthors{\the\@temptokena\ems@laas\ems@aau@str\ems@temp}%
+		\global\let\ems@laas\@empty
+		\global\let\ems@aau@str\@empty
+%		{\init@ffil\setbox0\hbox{#2}\xdef\ems@temp{\build@ffil}\init@ffil}%
+%		\@temptokena=\expandafter{\ems@affillist}%
+		\@temptokena=\expandafter{\ems@aaffillist}%%
+%		\xdef\@appendixaffil{\ems@temp}%
+		\xdef\ems@aaffillist{\the\@temptokena\ems@affilskip\ems@aaffilnameformat{#1}\ems@temp}%
+	    \endgroup
+	\fi
+}
+\newcommand*\appendixauthorsection[2][(by~\null\ems@aauthlist%\@appendixauthor
+)]{\section[#2]{#2 \textmd{#1}}}
+\newcommand*\appendixsection[2][(by~\null\ems@aauthlist)]{
+%	\appendix \section[#2 #1]{#2}%
+	\appendix \section[#2]{#2}%
+}
+%%% title option of appendix.sty
+\let\@@seccntformat\@seccntformat
+\def\ems@app@seccntformat#1{%
+	\ifcsvoid{ems@#1name}{}{%
+		\setbox\z@\hbox{\csuse{ems@#1name}}%
+		\ifx\@appendixauthor\@undefined
+			%%% just add appendixname
+			\unhbox\z@
+		\else
+			%%% author before title
+			\hb@xt@\wd\z@{%
+				\vbox{%
+					\rlap{\mdseries\upshape \@appendixauthor}\break
+					\unhbox\z@
+				}\hss
+			}%
+		\fi
+		\space
+	}%
+	\@@seccntformat{#1}%
+}
+\appto\appendix{%
+	\let\ems@sectionname\appendixname
+	\let\@seccntformat\ems@app@seccntformat
+}{}{}
+
+\def\ems@titlehead#1#2{\listsize
+	\hb@xt@\textwidth{%
+		\vbox to \headheight{\halign{##\hfil\cr #1}\vss}\hfill
+		\vbox to \headheight{\halign{\hfil##\cr #2}\vss}%
+	}%
+}
+
+%%% language
+\ems@check{lang}{french}{}{\PassOptionsToPackage{shorthands = off}{babel}}
+\RequirePackage[american, british, french, \@ems@lang]{babel}
+\ifFB@mainlanguage@FR
+	\frenchsetup{
+		StandardLayout = true,
+		SmallCapsFigTabCaptions = false
+	}
+\fi
+\lefthyphenmin \tw@
+\righthyphenmin \thr@@
+\renewcommand*\americanhyphenmins{33}
+\renewcommand*\britishhyphenmins{33}
+\renewcommand*\frenchhyphenmins{23}
+\doublehyphendemerits 100000000\relax
+
+%%% math
+\thickmuskip5mu \@plus\@ne mu \@minus\tw@ mu\relax
+\medmuskip4mu \@plus\@ne mu \@minus\@ne mu\relax
+\thinmuskip\thr@@ mu \@plus\@ne mu \@minus\@ne mu\relax
+\RequirePackage[tbtags]{amsmath}
+\robustify\nobreakdash
+%%% redefine horizontal spacing after the cases brace
+\renewcommand*\env@cases{%
+	\let\@ifnextchar\new@ifnextchar
+	\left\lbrace
+	\def\arraystretch{1.2}%
+	\array{@{\,}l@{\quad}l@{}}%
+}
+%%% binomial coefficients for displayed formulas
+\newcommand*\emsbinom[2]{\biggl(\genfrac{}{}{\z@}{}{#1}{#2}\biggr)}
+\RequirePackage{amsthm}
+%%% has to be after amsthm for \@addpunct
+\frenchspacing
+%%% overwrite default theorem styles
+\newtheoremstyle{plain}
+	{.5\ems@grid}{.5\ems@grid}
+	{\itshape}{}{\bfseries}
+	{\ifx\thmnote\@gobble\else\normalfont\fi.}
+	{.5em}{}
+\newtheoremstyle{definition}
+	{.5\ems@grid}{.5\ems@grid}
+	{\normalfont}{}{\bfseries}
+	{\ifx\thmnote\@gobble\else\normalfont\fi.}
+	{.5em}{}
+%%% qed symbol
+\newbox\ems@qedbox
+\AtBeginDocument{%
+	\setbox\@tempboxa\hbox{x}%
+	\setbox\ems@qedbox\hbox{%
+		\vrule\@width\ht\@tempboxa \@height\ht\@tempboxa \@depth\z@
+	}%
+}
+\renewcommand*\qedsymbol{\relax
+	\ifmmode\copy\ems@qedbox\else\unhcopy\ems@qedbox\fi
+}
+%%% math font
+\ems@check{mode}{submission}{
+	\RequirePackage[varvw]{newtxmath}
+}{
+	\RequirePackage[
+		mtphrb, mtpfrak, mtpcal,
+		straightbraces, subscriptcorrection
+	]{mtpro2}[2009/1/30]
+	%%% use text companion encoding
+	\DeclareTextSymbolDefault{\textperiodcentered}{TS1}
+    %\textbullet: see below (for some reason, it must be after {hyperref}
+    \robustify\widetilde
+	%%% active character in math mode?
+	%%% identify "S" in \mathcal with \altS
+	\appto\MTPsetupScript{%
+		\begingroup\lccode`~=`S\lowercase{\endgroup\def~{\MTP@S}}%
+		\mathcode`S="8000%
+	}{}{}
+	\RequirePackage[mathscr]{eucal}
+	\AtBeginDocument{
+		\@ifpackageloaded{mathtools}{
+			\let\overbrace\LaTeXoverbrace
+			\let\underbrace\LaTeXunderbrace
+		}{}
+	}
+}
+
+%%% author (variant of authblk.sty)
+\newcommand*\Authsep{, \texorpdfstring{\null}{}}
+\newcommand*\Authand{, \texorpdfstring{\null}{}}
+\newcommand*\Authands{, \texorpdfstring{\null}{}}
+\def\ems@corresplabel{\null\space\textmd{(corresponding author)}}
+\robustify\ems@corresplabel
+\newcounter{authors}
+\newcounter{aauthors}
+\newif\ifnewaffil \newaffiltrue
+\newif\ifnewaaffil \newaaffiltrue
+\@namedef{@sep1}{}
+\@namedef{@sep2}{\Authand}
+\@namedef{@sepa1}{}
+\@namedef{@sepa2}{\Authand}
+\def\ems@authlist{}
+\def\ems@aauthlist{}
+\def\ems@authors{}
+\def\ems@aauthors{}
+\newtoks\@temptokenb
+\def\ems@authlist@abbr{}
+\def\ems@authors@abbr{}
+\newcommand*\emsauthor{\@ifstar\@emsauthor\@@emsauthor}
+\def\@emsauthor{\let\ems@correspcheck\relax\@@@emsauthor}
+\def\@@emsauthor{\let\ems@correspcheck\@undefined\@@@emsauthor}
+\def\tb@w@check#1#2#3{\csxdef{tb@#1@#2}{#3}}%
+\def\@@@emsauthor#1#2#3{%
+	\csxdef{ems@affil#1name}{#2\ifx\ems@correspcheck\relax\ems@corresplabel\fi}%
+	\ifnum\c@authors >\@ne
+		\@namedef{@sep\number\c@authors}{\Authsep}%
+	\fi
+	\refstepcounter{authors}%
+	\begingroup
+		\let\protect\@unexpandable@protect
+		\@temptokena=\expandafter{\ems@authors}%
+		\@temptokenb=\expandafter{\ems@authors@abbr}%
+		{%
+			\xdef\ems@author{#2}%
+			\ifems@proof
+				{\def\givenname##1{\tb@w@check{#1}{givenname}{##1}}\def\surname##1{\tb@w@check{#1}{surname}{##1}}%
+				\def\mrid##1{\tb@w@check{#1}{mrid}{##1}}\def\zblid##1{\tb@w@check{#1}{zblid}{##1}}\def\orcid##1{\tb@w@check{#1}{orcid}{##1}}\setbox0\hbox{#2}%
+                                \ifx\ems@correspcheck\relax\tb@w@check{#1}{corresp}{\ems@corresplabel}\fi}%
+			\fi
+			\xdef\ems@author@abbr{#3}%
+			\ifnewaffil
+				\global\let\ems@las\@empty
+				\gdef\ems@lasx{\protect\Authand}%
+				\global\let\ems@as\@empty
+				\xdef\ems@authors{\the\@temptokena}%
+				\xdef\ems@authors@abbr{\the\@temptokenb}%
+			\else
+				\xdef\ems@authors{\the\@temptokena\ems@as\ems@au@str}%
+				\xdef\ems@authors@abbr{\the\@temptokenb\ems@as\ems@au@str@abbr}%
+				\global\let\ems@las\ems@lasx
+				\gdef\ems@lasx{\protect\Authands}%
+				\gdef\ems@as{\Authsep}%
+			\fi
+			\gdef\ems@au@str{#2}%
+			\gdef\ems@au@str@abbr{#3}%
+		}%
+		\@temptokena=\expandafter{\ems@authlist}%
+		\xdef\ems@authlist{%
+			\the\@temptokena
+			\protect\@nameuse{@sep\number\c@authors}#2%
+		}%
+		\@temptokenb=\expandafter{\ems@authlist@abbr}%
+		\xdef\ems@authlist@abbr{%
+			\the\@temptokenb
+			\protect\@nameuse{@sep\number\c@authors}#3%
+		}%
+	\endgroup
+	\ifnum\c@authors >\tw@
+		\@namedef{@sep\number\c@authors}{\Authands}%
+	\fi
+	\newaffilfalse
+}
+%%% affiliation
+\def\ems@affillist{}
+\def\ems@aaffillist{}
+%%% no page breaks for \\
+\def\ems@affilcr{\let\reserved@e\vadjust \let\reserved@f\nobreak \@xnewline}
+\robustify\ems@affilcr
+%%% name format
+\newdimen\jems@affilsep
+\jems@affilsep .25\ems@grid
+\def\ems@affilskip{\par \vskip\jems@affilsep}
+% TODO
+\def\ems@affilnameformat#1{\strut \csuse{ems@affil#1name}\ems@check{lang}{french}{~}{}:\space}
+\def\ems@aaffilnameformat#1{\strut \csuse{ems@aaffil#1name}\ems@check{lang}{french}{~}{}:\space}
+\newcommand*\breakemail[1]{\unskip;\linebreak \jems@email{#1}}
+\newcommand*\secondemail[1]{\unskip, \jems@email{#1}}
+\newcommand*\emsaffil{\@ifstar\@emsaffil\@@emsaffil}
+\def\@emsaffil#1#2{{\let\ems@affilnameformat\@gobble \@@emsaffil{#1}{#2}}}
+\def\@@emsaffil#1#2{%
+	\newaffiltrue
+% 	TODO
+	%%% add semicolon in front of e-mail (without space!)
+	\renewcommand*\email[1]{\unskip;\space\jems@email{##1}}
+	\begingroup
+		\let\\\ems@affilcr
+		\let\protect\@unexpandable@protect
+		\@temptokena=\expandafter{\ems@authors}%
+		{\xdef\ems@temp{#2}}%
+		\xdef\ems@authors{\the\@temptokena\ems@las\ems@au@str\ems@temp}%
+		\global\let\ems@las\@empty
+		\global\let\ems@au@str\@empty
+		{\xdef\ems@temp{#2}}%
+		\@temptokena=\expandafter{\ems@affillist}%
+		\xdef\ems@affillist{%
+			\the\@temptokena
+			\ems@affilskip\ems@affilnameformat{#1}\ems@temp
+		}%
+	\endgroup
+}
+\newcount\ems@aff@max   \ems@aff@max=0
+\newcommand\Emsaffil[2]{%
+	\newaffiltrue
+	\global\ems@affemail@setfalse
+	\renewcommand*\email[1]{\unskip;\space\jems@email{##1}}
+	\begingroup
+		%%% no page breaks for \\
+		\let\\\ems@affilcr
+		\let\protect\@unexpandable@protect
+		\@temptokena=\expandafter{\ems@authors}%
+                {\bt@aafffalse\gdef\ems@aff@seq{#1}\ifnum\ems@aff@max<#1\global\ems@aff@max=#1\fi\init@ffil\setbox0\hbox{#2}\ems@emailcheck\xdef\ems@temp{\build@ffil}\init@ffil}%
+		\xdef\ems@authors{\the\@temptokena\ems@las\ems@au@str\ems@temp}%
+		\global\let\ems@las\@empty
+		\global\let\ems@au@str\@empty
+%		{\init@ffil\setbox0\hbox{#2}\xdef\ems@temp{\build@ffil}\init@ffil}%
+		\@temptokena=\expandafter{\ems@affillist}%
+		\xdef\ems@affillist{\the\@temptokena
+			\ems@affilskip\ems@affilnameformat{#1}\ems@temp
+		}%
+	\endgroup
+}
+\newcount\last@ems@aff	\last@ems@aff0
+\def\ems@if@cs@def#1#2#3{\expandafter\ifx\csname ems@#1\endcsname\relax\else#2\csname ems@#1\endcsname#3\fi}
+\def\ems@if@@cs@def#1#2#3{\expandafter\ifx\csname ems@#1\endcsname\relax#3\else#2\fi}
+\def\ems@if@cs@eq#1#2#3#4{\ifnum\pdf@strcmp{\csname ems@#1\endcsname}{\csname ems@#2\endcsname}=\z@#3\else\expandafter\ifx\csname ems@#1\endcsname\relax\expandafter\ifx\csname ems@#2\endcsname\relax#3\else#4\fi\else#4\fi\fi}
+\def\ems@if@cs@zro#1#2#3#4{\expandafter\ifx\csname ems@#1\endcsname\relax\expandafter\ifx\csname ems@#2\endcsname\relax#3\else#4\fi\else#4\fi}
+\def\ems@if@uniq@addr#1#2#3#4{\ems@if@cs@eq{address#1}{address#2}{\ems@if@cs@eq{zip#1}{zip#2}{\ems@if@cs@eq{city#1}{city#2}{#3}{#4}}{#4}}{#4}}
+\def\ems@if@zero@aff#1#2#3#4{\ems@if@cs@zro{department#1}{department#2}{\ems@if@cs@zro{organisation#1}{organisation#2}{\ems@if@cs@zro{address#1}{address#2}{\ems@if@cs@zro{zip#1}{zip#2}{\ems@if@cs@zro{city#1}{city#2}{#3}{#4}}{#4}}{#4}}{#4}}{#4}}
+\def\ems@if@uniq@org#1#2#3{\ems@if@cs@eq{organisation#1}{organisation#2}{\ems@if@uniq@addr{#1}{#2}{\ems@if@zero@aff{#1}{#2}{}{\ems@check{lang}{french}{~}{};\space}}{#3}}{#3}}
+\def\ems@city@zip@post#1#2{\ems@if@@cs@def{country#1}{\ems@if@cs@eq{country#1}{country#2}{\ems@if@@cs@def{posttext#1}{\null}{\ems@check{lang}{french}{~}{};}\space}{,\space}}{\ems@if@@cs@def{posttext#1}{\null}{\ems@check{lang}{french}{~}{};}\space}}%
+%%%
+\def\ems@city@zip#1#2{%
+  \ifnum\pdf@strcmp{\csname ems@country#1\endcsname}{\ignorespaces USA\ignorespaces}=\z@ \ems@city@zip@US{#1}{#2}%
+  \else\ifnum\pdf@strcmp{\csname ems@country#1\endcsname}{\ignorespaces UK\ignorespaces}=\z@ \ems@city@zip@US{#1}{#2}%
+  \else\ifnum\pdf@strcmp{\csname ems@country#1\endcsname}{\ignorespaces Canada\ignorespaces}=\z@ \ems@city@zip@US{#1}{#2}%
+  \else\ifnum\pdf@strcmp{\csname ems@country#1\endcsname}{\ignorespaces Japan\ignorespaces}=\z@ \ems@city@zip@US{#1}{#2}%
+  \else\ifnum\pdf@strcmp{\csname ems@country#1\endcsname}{\ignorespaces Australia\ignorespaces}=\z@ \ems@city@zip@US{#1}{#2}%
+  \else\ifnum\pdf@strcmp{\csname ems@country#1\endcsname}{\ignorespaces New Zealand\ignorespaces}=\z@ \ems@city@zip@US{#1}{#2}%
+  \else\ifnum\pdf@strcmp{\csname ems@country#1\endcsname}{\ignorespaces New~Zealand\ignorespaces}=\z@ \ems@city@zip@US{#1}{#2}%
+  \else\ifnum\pdf@strcmp{\csname ems@country#1\endcsname}{\ignorespaces India\ignorespaces}=\z@ \ems@city@zip@US{#1}{#2}%
+  \else \ems@city@zip@normal{#1}{#2}%
+  \fi\fi\fi\fi\fi\fi\fi\fi%
+}
+%%%
+\def\ems@city@zip@normal#1#2{\ems@if@cs@def{zip#1}{}{\ems@if@@cs@def{city#1}{~}{\ems@city@zip@post#1#2}}\ems@if@cs@def{city#1}{}{\ems@city@zip@post#1#2}}%
+%%%%
+\def\ems@city@zip@US#1#2{%
+  \ems@if@cs@def{city#1}{}{%
+    \ems@if@@cs@def{zip#1}{%
+      \ifnum\pdf@strcmp{\csname ems@country#1\endcsname}{\ignorespaces UK\ignorespaces}=\z@ \null\space
+      \else\ifnum\pdf@strcmp{\csname ems@country#1\endcsname}{\ignorespaces Japan\ignorespaces}=\z@ \null\space
+      \else\ifnum\pdf@strcmp{\csname ems@country#1\endcsname}{\ignorespaces New Zealand\ignorespaces}=\z@ \null\space
+      \else\ifnum\pdf@strcmp{\csname ems@country#1\endcsname}{\ignorespaces New~Zealand\ignorespaces}=\z@ \null\space
+      \else\ifnum\pdf@strcmp{\csname ems@country#1\endcsname}{\ignorespaces India\ignorespaces}=\z@ \null\space
+      \else ,\space
+      \fi\fi\fi\fi\fi}
+{\ems@city@zip@post#1#2}}\ems@if@cs@def{zip#1}{}{\ems@city@zip@post#1#2}}%
+%%%%%
+\def\ems@build@one@affil#1#2#3{\ems@if@cs@def{pretext#2}{\ems@if@@cs@def{posttext#1}{\null}{\null}}{\null\space}%
+	\ems@if@cs@def{department#2}{}{}%
+	\ems@if@uniq@org{#2}{#3}{\ems@if@@cs@def{department#2}{,\space}{}%
+		\ems@if@cs@def{organisation#2}{}{,\space}%
+		\ems@if@cs@def{address#2}{}{,\space}%
+		\ems@city@zip{#2}{#3}%
+		\ems@if@cs@eq{country#2}{country#3}{}{%
+			\ems@if@cs@def{country#2}{}{\ems@if@@cs@def{posttext#2}{\null}{\ems@check{lang}{french}{~}{};}\space}%
+		}%
+	}%
+	\ems@if@cs@def{posttext#2}{\null}{\null\space}%
+}
+\def\ems@chk@email#1#2{\expandafter\ifx\csname ems@affemail#1\endcsname\relax#2\else\href{mailto:\csname ems@affemail#1\endcsname}{\mbox{\csname ems@affemail#1\endcsname}}\ignorespaces\fi}
+\def\ems@further@email@check#1{\expandafter\ifx\csname ems@furtheremail#1\endcsname\relax\else,\space\href{mailto:\csname ems@furtheremail#1\endcsname}{\mbox{\csname ems@furtheremail#1\endcsname}}\ignorespaces\fi}%
+\def\build@ffil{\leavevmode\ems@build@one@affil012%
+	\ems@build@one@affil123%
+	\ems@build@one@affil234%
+	\ems@build@one@affil345%
+	\ems@build@one@affil456%
+	\ems@build@one@affil567%
+	\ems@build@one@affil678%
+	\ems@build@one@affil789%
+%	\ems@build@one@affil89{10}
+%	\ems@build@one@affil9{10}{11}
+	\ems@chk@email1{\ems@chk@email2{\ems@chk@email3{\ems@chk@email4{\ems@chk@email5{\ems@chk@email6{\ems@chk@email7{\ems@chk@email8{%\ems@chk@email9{%\ems@chk@email{10}{}
+%}
+}}}}}}}}%
+%	\expandafter\ifx\csname ems@affemail1\endcsname\relax%
+%		\expandafter\ifx\csname ems@affemail2\endcsname\relax%
+%			\expandafter\ifx\csname ems@affemail3\endcsname\relax%
+%				\else\href{mailto:\csname ems@affemail3\endcsname}{\mbox{\csname ems@affemail3\endcsname}}\ignorespaces\fi%
+%			\else\href{mailto:\csname ems@affemail2\endcsname}{\mbox{\csname ems@affemail2\endcsname}}\ignorespaces\fi%
+%		\else\href{mailto:\csname ems@affemail1\endcsname}{\mbox{\csname ems@affemail1\endcsname}}\ignorespaces\fi%
+	\ems@further@email@check1%
+	\ems@further@email@check2%
+	\ems@further@email@check3%
+	\ems@further@email@check4%
+	\ems@further@email@check5%
+	\ems@further@email@check6%
+	\ems@further@email@check7%
+	\ems@further@email@check8%
+%	\ems@further@email@check9%
+%	\ems@further@email@check{10}%
+}
+\newif\ifems@temp@test	\ems@temp@testfalse
+\def\ems@emailcheck{\ems@temp@testfalse\ifems@affemail@set\else\expandafter\ifx\csname ems@furtheremail1\endcsname\relax\else\ems@temp@testtrue\fi\expandafter\ifx\csname ems@furtheremail2\endcsname\relax\else\ems@temp@testtrue\fi\expandafter\ifx\csname ems@furtheremail3\endcsname\relax\else\ems@temp@testtrue\fi\expandafter\ifx\csname ems@furtheremail4\endcsname\relax\else\ems@temp@testtrue\fi\expandafter\ifx\csname ems@furtheremail5\endcsname\relax\else\ems@temp@testtrue\fi\expandafter\ifx\csname ems@furtheremail6\endcsname\relax\else\ems@temp@testtrue\fi\expandafter\ifx\csname ems@furtheremail7\endcsname\relax\else\ems@temp@testtrue\fi\expandafter\ifx\csname ems@furtheremail8\endcsname\relax\else\ems@temp@testtrue\fi\fi\ifems@temp@test\errmessage{\noexpand\furtheremail without \noexpand\affemail - please use exactly one \noexpand\affemail before using any \noexpand\furtheremail per author}\fi}%
+\newcount\ems@temp@aaffil@num
+\newcount\ems@temp@affil@num
+\newcount\ems@temp@affil@num@two
+\def\init@ffil{\ems@temp@affil@num=0	\loop\ifnum\ems@temp@affil@num<8	\advance\ems@temp@affil@num by1%
+	\pretext{\the\ems@temp@affil@num}{}%
+	\department{\the\ems@temp@affil@num}{}%
+	\organisation{\the\ems@temp@affil@num}{}%
+	\rorid{\the\ems@temp@affil@num}{}%
+	\address{\the\ems@temp@affil@num}{}%
+	\zip{\the\ems@temp@affil@num}{}%
+	\city{\the\ems@temp@affil@num}{}%
+%	\state{\the\ems@temp@affil@num}{}%
+	\country{\the\ems@temp@affil@num}{}%
+	\posttext{\the\ems@temp@affil@num}{}%
+	\affemail{\the\ems@temp@affil@num}{}%
+	\furtheremail{\the\ems@temp@affil@num}{}%
+	\repeat}
+%%% metadata
+\def\ems@newmeta#1{%
+	\@ifundefined{#1}{%
+%		\csdef{#1}##1{\csgdef{ems@#1}{\ignorespaces ##1}}%
+		\csdef{#1}##1{\ignorespaces\csgdef{ems@#1}{\ignorespaces ##1\ignorespaces}\ignorespaces}%
+	}{\PackageError{ems}{Command #1 already defined.}{}}%
+}
+\gdef\ems@glet{\global\let}
+\providecommand*\ems@name@init[1]{%
+  \expandafter\ems@glet\csname #1\endcsname\relax}
+\newcommand*\ems@newmeta@two[1]{%
+	\@ifundefined{#1}{%
+	    \csdef{#1}##1{\@ifnextchar\bgroup{\ems@meta@two@args{#1}{##1}}{\ems@meta@one@arg{#1}{##1}}}
+	}{\PackageError{ems}{Command #1 already defined.}{}}%
+}
+\newif\ifems@affemail@set	\ems@affemail@setfalse
+\def\ems@meta@two@args#1#2#3{\ignorespaces
+	\def\ems@orig@param{#1}
+	\def\ems@second@param{#3}
+	\def\ems@mailname{affemail}
+	\def\ems@mailfurthername{furtheremail}
+%	\def\ems@rorname{rorid}
+	\ifx\ems@second@param\empty
+		\ems@name@init{ems@#1#2}
+	\else
+	    \expandafter\ifx\csname ems@#1#2\endcsname\relax
+		\ifx\ems@orig@param\ems@mailname
+		    \ifems@affemail@set
+			\errmessage{only one \noexpand\affemail is allowed, please use \noexpand\furtheremail for listing further emails for the author (all subsequent \noexpand\affemail ignored)}%
+		    \else
+			\global\ems@affemail@settrue
+			\csgdef{ems@#1#2}{#3}%
+                        \ifems@proof\ifbt@aaff\tba@w@check{\ems@aff@seq}{#1#2}{#3}\expandafter\ifnum\expandafter0\csuse{tba@\ems@aff@seq @last@ems@aff}<#2\global\csdef{tba@\ems@aff@seq @last@ems@aff}{#2}\fi\else\tb@w@check{\ems@aff@seq}{#1#2}{#3}\expandafter\ifnum\expandafter0\csuse{tb@\ems@aff@seq @last@ems@aff}<#2\global\csdef{tb@\ems@aff@seq @last@ems@aff}{#2}\fi\fi\fi
+		    \fi
+		\else
+		    \ifx\ems@orig@param\ems@mailfurthername
+%			\ifems@affemail@set
+%			    \message{\noexpand\furtheremail without preceding \noexpand\affemail - please use exactly one \noexpand\affemail before any \noexpand\furtheremail per author}%
+%			\fi
+			\csgdef{ems@#1#2}{#3}%
+%			\ifems@proof\tb@w@check{\ems@aff@seq}{#1#2}{#3}\expandafter\ifnum\expandafter0\csuse{tb@\ems@aff@seq @last@ems@aff}<#2\global\csdef{tb@\ems@aff@seq @last@ems@aff}{#2}\fi\fi
+                        \ifems@proof\ifbt@aaff\tba@w@check{\ems@aff@seq}{#1#2}{#3}\expandafter\ifnum\expandafter0\csuse{tba@\ems@aff@seq @last@ems@aff}<#2\global\csdef{tba@\ems@aff@seq @last@ems@aff}{#2}\fi\else\tb@w@check{\ems@aff@seq}{#1#2}{#3}\expandafter\ifnum\expandafter0\csuse{tb@\ems@aff@seq @last@ems@aff}<#2\global\csdef{tb@\ems@aff@seq @last@ems@aff}{#2}\fi\fi\fi
+		    \else
+%			\ifx\ems@orig@param\ems@rorname
+%				\csgdef{ems@#1#2}{#3}%
+%			\else
+				\csgdef{ems@#1#2}{\ignorespaces #3\ignorespaces}%
+%				\ifems@proof\tb@w@check{\ems@aff@seq}{#1#2}{#3}\expandafter\ifnum\expandafter0\csuse{tb@\ems@aff@seq @last@ems@aff}<#2\global\csdef{tb@\ems@aff@seq @last@ems@aff}{#2}\fi\fi
+                                \ifems@proof\ifbt@aaff\tba@w@check{\ems@aff@seq}{#1#2}{#3}\expandafter\ifnum\expandafter0\csuse{tba@\ems@aff@seq @last@ems@aff}<#2\global\csdef{tba@\ems@aff@seq @last@ems@aff}{#2}\fi\else\tb@w@check{\ems@aff@seq}{#1#2}{#3}\expandafter\ifnum\expandafter0\csuse{tb@\ems@aff@seq @last@ems@aff}<#2\global\csdef{tb@\ems@aff@seq @last@ems@aff}{#2}\fi\fi\fi
+%			\fi
+		    \fi
+		\fi
+	    \else
+		\errmessage{#1#2 already defined (new: #3), possibly wrong \ifx#21(or missing) \fi affiliation ordinal}%
+	    \fi
+	\fi
+\ignorespaces}%
+\def\ems@meta@one@arg#1#2{\ems@meta@two@args{#1}1{#2}}%
+\ems@newmeta{accepted}
+\ems@newmeta{copyrightyear}
+\ems@newmeta{dedication}
+\ems@newmeta{doinumber}
+\ems@newmeta{doi}
+\ems@newmeta{issue}
+\ems@newmeta{journal}
+\ems@newmeta{published}
+\ems@newmeta{received}
+\ems@newmeta{revised}
+\ems@newmeta{communicated}
+\ems@newmeta{volumeyear}
+\ems@newmeta{volume}
+\newcommand\givenname[1]{\unskip\ignorespaces #1\ignorespaces}%
+\newcommand\surname[1]{\unskip\ignorespaces~\ignorespaces #1\ignorespaces}%
+\ems@newmeta{mrid}
+\ems@newmeta{zblid}
+\ems@newmeta{orcid}
+\ems@newmeta{editflow}
+\ems@newmeta@two{pretext}
+\ems@newmeta@two{department}
+\ems@newmeta@two{organisation}
+\ems@newmeta@two{rorid}
+\ems@newmeta@two{address}
+\ems@newmeta@two{zip}
+\ems@newmeta@two{city}
+%\ems@newmeta@two{state}
+\ems@newmeta@two{country}
+\ems@newmeta@two{posttext}
+\ems@newmeta@two{affemail}
+\ems@newmeta@two{furtheremail}
+%
+\newcommand*\keywords{\@ifstar\@keywords\@@keywords}
+\newcommand*\@keywords[1]{\def\ems@@keywords{\ignorespaces #1}}
+\newcommand*\@@keywords[1]{\gdef\ems@keywords{\ignorespaces #1}}
+%
+\providecommand*\appendixbyname{with an appendix by}
+\providecommand*\receivedname{Received}
+\providecommand*\revisedname{revised}
+\providecommand*\keywordsname{Keywords:}
+\providecommand*\classificationname{Mathematics Subject Classification 2020:}
+\newcommand*\classification[2][]{%
+	\ifx\relax#1\relax
+		\gdef\ems@classification{\ignorespaces #2}%
+	\else
+		\gdef\ems@classification{%
+			\ignorespaces #2\nobreakspace(primary);\space
+			\ignorespaces #1\nobreakspace(secondary)}%
+	\fi
+}
+%
+\addto\captionsfrench{%
+	\renewcommand*\appendixbyname{avec une appendice par}%
+	\renewcommand*\receivedname{Reçu le}%
+	\renewcommand*\revisedname{révisé le}%
+	\renewcommand*\keywordsname{Mots-clés~:}%
+	\renewcommand*\classificationname{Classification mathématique 2020~:}%
+	\renewcommand*\classification[2][]{%
+		\ifx\relax#1\relax
+			\gdef\ems@classification{\ignorespaces #2}%
+		\else
+			\gdef\ems@classification{%
+				\ignorespaces #2\nobreakspace(primaire)~;\space
+				\ignorespaces #1\nobreakspace(secondaire)}%
+		\fi
+	}%
+}
+%					  Classification mathématique par matières 2020
+%
+%%% defaults
+\doinumber{?}
+\journal{JEMS}
+\doi{10.4171/\ems@journal/\ems@doinumber}
+\copyrightyear{\the\year}
+\issue{0}
+\volumeyear{0}
+\volume{0}
+
+%%% first and last page
+\newcommand*\firstpage[1]{\setcounter{page}{#1}\xdef\ems@FirstPage{#1}}
+\AtBeginDocument{\firstpage{1}}%
+%\AtEndDocument{\phantomsection\label{MyLastPage}}%
+\AtEndDocument{\clearpage\addtocounter{page}{-1}\immediate\write\@auxout{\string\newlabel{MyLastPage}{{}{\thepage}}}\addtocounter{page}{1}}%
+
+
+%% summation affiliate data page in submission mode...
+\ifems@proof
+	\newlinechar=`\^^J%
+	\def\ems@empty{\ignorespaces\ignorespaces}%
+	\def\te@val@or@red#1{\expandafter\ifx\csname ems@#1\endcsname\relax\cellcolor{red}\else\expandafter\ifx\csname ems@#1\endcsname\ems@empty\cellcolor{red}\else\csuse{ems@#1}\fi\fi}%
+        \xdef\tb@{tb@}%
+        \def\th@val@or@red#1{\expandafter\ifx\csname\tb@\the\ems@temp@affil@num @#1\endcsname\relax\cellcolor{red}\else\expandafter\ifx\csname\tb@\the\ems@temp@affil@num @#1\endcsname\@empty\cellcolor{red}\else\csuse{\tb@\the\ems@temp@affil@num @#1}\fi\fi}%
+        \def\th@val@or@red@href#1#2{\expandafter\ifx\csname\tb@\the\ems@temp@affil@num @#1\endcsname\relax\cellcolor{red}\else\expandafter\ifx\csname\tb@\the\ems@temp@affil@num @#1\endcsname\@empty\cellcolor{red}\else\href{#2\csuse{\tb@\the\ems@temp@affil@num @#1}}{\csuse{\tb@\the\ems@temp@affil@num @#1}}\fi\fi}%
+        \def\th@two@val@or@red#1{\expandafter\ifx\csname\tb@\the\ems@temp@affil@num @#1\the\ems@temp@affil@num@two\endcsname\relax\cellcolor{red}\else\csuse{\tb@\the\ems@temp@affil@num @#1\the\ems@temp@affil@num@two}\fi}%
+        \def\th@two@val@or@red@href#1#2{\expandafter\ifx\csname\tb@\the\ems@temp@affil@num @#1\the\ems@temp@affil@num@two\endcsname\relax\cellcolor{red}\else\href{#2\csuse{\tb@\the\ems@temp@affil@num @#1\the\ems@temp@affil@num@two}}{\csuse{\tb@\the\ems@temp@affil@num @#1\the\ems@temp@affil@num@two}}\fi}%
+	\AtEndDocument{\clearpage\pagestyle{empty}\addtocontents{toc}{\protect\setcounter{tocdepth}{0}}\raggedright\raggedbottom\parindent1em\small\hypersetup{bookmarksdepth=-1}
+		\subsection*{Dear Author\ifnum\ems@aff@max>1s\else\ifnum\ems@aaff@max>0s\fi\fi,}
+		This is not part of your paper, it serves for your checking that all your data is correct. Please check	the accuracy of each field and kindly provide the missing ones (if they apply, note that some fields may be intentionally blank). In~particular, please consider the following points:
+		\begin{itemize}\item Are first and last names entered properly? Are there further names or initials missing?
+		\item If applicable, please provide your Mathematical Reviews ID from MathSciNet and your ORCID. (The MR ID can be checked even without MathSciNet access in three easy steps:
+		\begin{enumerate}\item Copy the bibliographic data of any published paper (co-)authored by you in the search field at \url{https://mathscinet.ams.org/mathscinet/freetools/mref};
+		\item Click your name in the search result;
+		\item Find your MR Author ID in the first row.)
+		\end{enumerate}\item Please check your institutional affiliations (department and institution) and use their official titles.
+		\item Are there any parts missing from the addresses, like postal code, PO Box, street names, etc.?
+		\item Please provide email addresses in lowercase characters. If you provided a non-institutional email address like Gmail, consider also adding your institutional one.\end{itemize}
+		\noindent In addition, please also check if there is any funding or other information that you would like to include.\par\medskip
+		\noindent Thankfully, the EMS Press team\par\medskip
+		\def\@my@lines{\hline editflow&\te@val@or@red{editflow}\\ \hline received&\te@val@or@red{received}\\ \hline revised&\csuse{ems@revised}\\ \hline accepted&\te@val@or@red{accepted}\\ \hline\noalign{\medskip}}\ems@temp@affil@num=0	\loop\ifnum\ems@temp@affil@num<\ems@aff@max	\advance\ems@temp@affil@num by1%
+		{\let\hline\relax	\let\multicolumn2\relax
+                        \protected@xdef\@my@lines{\@my@lines\hline\multicolumn2{|c|}{\textbf{Personal data (Author \the\ems@temp@affil@num)}\csuse{tb@\the\ems@temp@affil@num @corresp}}\\
+			\hline given name(s)&\th@val@or@red{givenname}\\ %\csuse{tb@\the\ems@temp@affil@num @givenname}
+			\hline surname&\th@val@or@red{surname}\\
+			\hline MR ID&\th@val@or@red@href{mrid}{https://mathscinet.ams.org/mathscinet/MRAuthorID/}\\
+			\hline zbMATH Open ID&\th@val@or@red@href{zblid}{https://zbmath.org/authors/}\\
+			\hline ORCID&\th@val@or@red@href{orcid}{https://orcid.org/}\\
+			\hline}{\ems@temp@affil@num@two=0	\loop\ifnum0\csuse{tb@\the\ems@temp@affil@num @last@ems@aff}>\the\ems@temp@affil@num@two	\advance\ems@temp@affil@num@two by1%
+				\protected@xdef\@my@lines{\@my@lines\hline \multicolumn2{|c|}{\textbf{Affiliation \the\ems@temp@affil@num@two\ of Author \the\ems@temp@affil@num} \csuse{tb@\the\ems@temp@affil@num @pretext\the\ems@temp@affil@num@two}}\\
+					\hline department&\csuse{tb@\the\ems@temp@affil@num @department\the\ems@temp@affil@num@two}\\
+					\hline organisation&\th@two@val@or@red{organisation}\\
+					\hline ROR ID&\th@two@val@or@red@href{rorid}{https://ror.org/}\\
+					\hline street address or PO Box&\csuse{tb@\the\ems@temp@affil@num @address\the\ems@temp@affil@num@two}\\
+					\hline zip code&\csuse{tb@\the\ems@temp@affil@num @zip\the\ems@temp@affil@num@two}\\
+					\hline city&\th@two@val@or@red{city}\\
+					\hline country&\th@two@val@or@red{country}\\
+					\hline email&\th@two@val@or@red{affemail}\\
+					\hline furtheremail&\csuse{tb@\the\ems@temp@affil@num @furtheremail\the\ems@temp@affil@num@two}\\ % DO WE NEED THIS?
+					\hline}\repeat
+				\protected@xdef\@my@lines{\@my@lines\noalign{\medskip}}%
+                        }}\repeat\ems@temp@affil@num=0\xdef\tb@{tba@}   \loop\ifnum\ems@temp@affil@num<\ems@aaff@max    \advance\ems@temp@affil@num by1%
+                {\let\hline\relax       \let\multicolumn2\relax
+                        \protected@xdef\@my@lines{\@my@lines\hline\multicolumn2{|c|}{\textbf{Personal data (Appendix Author \the\ems@temp@affil@num)}}\\
+                        \hline given name(s)&\th@val@or@red{givenname}\\ %\csuse{tb@\the\ems@temp@affil@num @givenname}
+                        \hline surname&\th@val@or@red{surname}\\
+                        \hline MR ID&\th@val@or@red@href{mrid}{https://mathscinet.ams.org/mathscinet/MRAuthorID/}\\
+                        \hline zbMATH Open ID&\th@val@or@red@href{zblid}{https://zbmath.org/authors/}\\
+                        \hline ORCID&\th@val@or@red@href{orcid}{https://orcid.org/orcid-search/search?searchQuery=}\\
+                        \hline}{\ems@temp@affil@num@two=0       \loop\ifnum0\csuse{tba@\the\ems@temp@affil@num @last@ems@aff}>\the\ems@temp@affil@num@two      \advance\ems@temp@affil@num@two by1%
+                                \protected@xdef\@my@lines{\@my@lines\hline \multicolumn2{|c|}{\textbf{Affiliation \the\ems@temp@affil@num@two\ of Appendix Author \the\ems@temp@affil@num} \csuse{tba@\the\ems@temp@affil@num @pretext\the\ems@temp@affil@num@two}}\\
+                                        \hline department&\csuse{tba@\the\ems@temp@affil@num @department\the\ems@temp@affil@num@two}\\
+                                        \hline organisation&\th@two@val@or@red{organisation}\\
+                                        \hline ROR ID&\th@two@val@or@red@href{rorid}{https://ror.org/}\\
+                                        \hline street address or PO Box&\csuse{tba@\the\ems@temp@affil@num @address\the\ems@temp@affil@num@two}\\
+                                        \hline zip code&\csuse{tba@\the\ems@temp@affil@num @zip\the\ems@temp@affil@num@two}\\
+                                        \hline city&\th@two@val@or@red{city}\\
+                                        \hline country&\th@two@val@or@red{country}\\
+                                        \hline email&\th@two@val@or@red{affemail}\\
+                                        \hline furtheremail&\csuse{tba@\the\ems@temp@affil@num @furtheremail\the\ems@temp@affil@num@two}\\ % DO WE NEED THIS?
+                                        \hline}\repeat
+                                \protected@xdef\@my@lines{\@my@lines\noalign{\medskip}}%
+			}}\repeat
+		\begin{longtable}{|l|p{.667\hsize}|}%
+		\@my@lines
+		\end{longtable}%
+	}%
+\fi
+
+
+%%% footnote
+\RequirePackage[bottom]{footmisc}
+\footnotesep \z@
+\skip\footins \tw@\ems@grid \@plus\ems@grid \@minus\ems@grid
+%%% tex.stackexchange.com/q/552365/
+%%% the \hrule is .4pt high
+\def\jems@footnoterule{\kern-3\p@ \hrule\@width48mm \kern2.6\p@}
+\def\jems@titlepagerule{\kern-3\p@ \hrule \kern2.6\p@}
+\renewcommand*\footnoterule{%
+	\ifnum\c@page=\ems@FirstPage\jems@titlepagerule\else\jems@footnoterule\fi
+}
+
+%%% multiple columns
+\RequirePackage{multicol}
+\multicolsep \z@
+\multicolbaselineskip \z@skip
+\raggedcolumns
+
+%%% list
+\RequirePackage[shortlabels]{enumitem}
+\setlist{
+	font = \upshape,
+	itemsep = .25\baselineskip \@minus\p@,
+	leftmargin = \parindent,
+	parsep = \z@,
+	partopsep = .25\baselineskip,
+	topsep = .25\baselineskip,
+}
+\setlist[enumerate]{ align = left, leftmargin = * }
+\setlist[enumerate, 1]{ align = left, leftmargin = * }
+\setlist[itemize]{
+	align = left,
+	label = $\bullet$,
+	labelindent = \z@,
+	labelsep = *,
+	leftmargin = \parindent
+}
+\setlist[description]{ font = \mdseries }
+\renewcommand*\labelenumi{(\theenumi)}
+\renewcommand*\labelenumii{(\theenumii)}
+\renewcommand*\labelenumiii{(\theenumiii)}
+\renewcommand*\labelenumiv{(\theenumiv)}
+\newlist{footnoteitemize}{itemize}{1}
+%%% not perfect ...
+\setlist[footnoteitemize]{
+	align = left,
+	label = $\bullet$,
+	labelindent = \z@,
+	labelsep = \z@,
+	labelwidth = 1em,
+	leftmargin = !
+}
+%%% block
+\newenvironment{block}{%
+	\list{}{%
+		\topsep.5 \baselineskip
+		\leftmargin \parindent
+		\rightmargin \leftmargin
+	}\item\relax
+}{\endlist}
+
+%%% quote
+\renewenvironment{quote}{%
+	\list{}{%
+		\topsep.5 \baselineskip
+		\leftmargin \parindent
+		\rightmargin \leftmargin
+	}\item\relax\itshape
+}{\endlist}
+\newcommand\attrib[1]{%
+	\par\nopagebreak
+	\setbox\@tempboxa\hbox{{\upshape #1}}%
+	\ifdim\parindent <\dimexpr\linewidth-\wd\@tempboxa\relax
+		\leavevmode\hfill \unhbox\@tempboxa
+	\else
+		\parbox[t]{\dimexpr\@tempdima-\parindent}{\unhbox\@tempboxa}%
+	\fi
+}
+
+%%% float
+\renewcommand*\floatpagefraction{.8}
+\appto\@floatboxreset{\centering\small}{}{}
+\floatsep \ems@grid \@plus\z@ \@minus.5\ems@grid
+\textfloatsep \tw@\ems@grid \@plus\z@ \@minus.5\ems@grid
+\intextsep 1.5\ems@grid \@plus\z@ \@minus.5\ems@grid
+\dblfloatsep \floatsep
+\dbltextfloatsep \textfloatsep
+\@fptop \z@
+\@fpsep \ems@grid \@plus\z@ \@minus.5\ems@grid
+\@fpbot \z@ \@plus 1fil
+\@dblfptop \@fptop
+\@dblfpsep \@fpsep
+\@dblfpbot \@fpbot
+\RequirePackage{graphicx}
+\RequirePackage{float}
+\RequirePackage{caption}
+\addto\captionsamerican{\renewcommand*\figurename{Fig.}}
+\addto\captionsbritish{\renewcommand*\figurename{Fig.}}
+\addto\captionsfrench{\renewcommand*\figurename{Fig.}}
+\addto\captionsamerican{\renewcommand*\tablename{Tab.}}
+\addto\captionsbritish{\renewcommand*\tablename{Tab.}}
+\addto\captionsfrench{\renewcommand*\tablename{Tab.}}
+\captionsetup{
+	font = small,
+	labelfont = bf,
+	labelsep = period,
+	position = bottom
+}
+\RequirePackage{array}
+\RequirePackage{booktabs}
+\defaultaddspace .25\ems@grid
+
+%%% funding
+\providecommand*\fundingname{Funding}
+\addto\captionsfrench{\renewcommand*\fundingname{Financement}}
+\newenvironment{funding}[1][\fundingname]{\small\paragraph*{#1}}{\par}
+
+%%% acknowledg(e)ment(s)
+\providecommand*\ackname{Acknowledgements}
+\addto\captionsamerican{\renewcommand*\ackname{Acknowledgments}}
+\addto\captionsbritish{\renewcommand*\ackname{Acknowledgements}}
+\addto\captionsfrench{\renewcommand*\ackname{Remerciements}}
+\newenvironment{ack}[1][\ackname]{\small\paragraph*{#1}}{\par}
+
+%%% bibliography
+\addto\captionsamerican{\renewcommand*\bibname{References}}%
+\addto\captionsbritish{\renewcommand*\bibname{References}}%
+\addto\captionsfrench{\renewcommand*\bibname{R\'{e}f\'{e}rences}}
+\renewcommand*\thebibliography[1]{%
+	\section*\bibname
+	\list{\@biblabel{\@arabic\c@enumiv}}{%
+		\listsize
+		\settowidth\labelwidth{\@biblabel{#1}}%
+		\leftmargin \dimexpr\labelwidth+\labelsep\relax
+		\itemsep 3\p@ \@minus\p@
+		\parsep \z@
+		\usecounter{enumiv}%
+		\let\p@enumiv\@empty
+		\renewcommand\theenumiv{\@arabic\c@enumiv}%
+	}%
+	\interlinepenalty \@M
+	\sloppy
+	\sfcode`\.\@m
+}
+\ems@check{cite}{numeric}{
+	\RequirePackage[noadjust]{cite}
+	\renewcommand*\citedash{\hbox{--}\nobreak}
+	%%% cite always upright
+	\renewcommand*\@cite[2]{%
+		\leavevmode \cite@adjust
+		{\upshape
+			\citeleft{%
+				#1\if@tempswa\@safe@activesfalse\citemid{#2}\fi
+				\spacefactor\@m
+			}\citeright
+		}\@restore@auxhandle
+	}
+}{\renewcommand*\@cite[2]{\textup{[#1\if@tempswa , #2\fi]}}}
+%%% break if it does not fit
+\RequirePackage{tabto}
+\newcommand*\ems@maybebreak[2][.5em]{\unskip%
+	\tabto\CurrentLineWidth
+	\setbox\@tempboxa\hbox{#2}%
+	\@tempdima \dimexpr\linewidth-\TabPrevPos-#1\relax
+	\ifdim\TabPrevPos >\z@
+		\ifdim\@tempdima <\wd\@tempboxa\newline\else\hskip#1\relax\fi
+	\fi
+	\unhbox\@tempboxa
+}
+\newcommand*\ems@bibinfo[3]{\ems@maybebreak{#1~\href{https://#2}{#3}}}
+\newcommand*\MR[1]{\ems@bibinfo{MR}{mathscinet.ams.org/mathscinet-getitem?mr=#1}{#1}}
+\newcommand*\Zbl[1]{\ems@bibinfo{Zbl}{zbmath.org/?q=an:#1}{#1}}
+\newcommand*\JFM[1]{\ems@bibinfo{JFM}{zbmath.org/?q=an:#1}{#1}}
+\newcommand*\IEEE[1]{\ems@bibinfo{IEEEXplore}{ieeexplore.ieee.org/document/#1}{#1}}
+\newcommand*\DOI[1]{\ems@bibinfo{DOI}{doi.org/#1}{#1}}
+%
+\newcommand*\arxiv[1]{\ems@maybebreak[\fontdimen2\font]{arXiv:\href{https://arxiv.org/abs/#1}{#1}}}
+\newcommand*\arXiv[1]{\arxiv{#1}}
+
+%%% hyperref
+% for correcting hyperref's wrongly placing target anchors to amsthm's theorems, part 1...
+\let\@kernel@refstepcounter\refstepcounter
+%
+\RequirePackage[hyphens]{url}
+%%% do not break http:// at colon
+\patchcmd\UrlBreaks{\do\/}{}{}{\ems@warnpatch{UrlBreaks}}
+\appto\UrlBigBreaks{\do\/}{}{}
+\urlstyle{same}
+\RequirePackage[pdfa]{hyperref}
+%
+\renewcommand\textbullet{$\bullet$}
+%
+\hypersetup{ pdfencoding = auto, psdextra }
+\ems@check{mode}{print}%
+	{\hypersetup{ draft, pdftrapped = false }}%
+	{\hypersetup{ allcolors = emsblue, colorlinks, bookmarksnumbered }}
+\newcommand*\email[1]{\href{mailto:#1}{\mbox{#1}}}
+\let\jems@email\email
+%%% unnumbered sections in PDF bookmarks
+%%% http://tex.stackexchange.com/q/33696/
+\xpatchcmd\@startsection%
+	{\@ssect{#3}{#4}{#5}{#6}}%
+	{\@dblarg{\@sect{#1}{\@m}{#3}{#4}{#5}{#6}}}%
+	{}{\ems@warnpatch{@startsection}}
+\newcommand*\pdfmath[2]{\texorpdfstring{$#1$}{\$#2\$}}
+\pdfstringdefDisableCommands{%
+	\def\titlebreak{\space\ignorespaces}%
+	\def\tocbreak{\space\ignorespaces}%
+	\let\,\space
+	\let\\\textbackslash
+	\let\boldmath\relax
+	\let\nobreakdash\relax
+	\let\sb\textunderscore
+	\let\sp\textasciicircum
+	\let\unskip\relax
+%	\def\hbox#1{#1}%
+}
+
+\RequirePackage{upref}
+% %%% references always upright
+% %%% http://tex.stackexchange.com/q/407419/
+% \catcode`#=12
+% \AtBeginDocument{%
+% 	\patchcmd\@setref%
+% 		{\expandafter\Hy@setref@link#1\@empty\@empty\@nil{#2}}%
+% 		{\textup{\expandafter\Hy@setref@link#1\@empty\@empty\@nil{#2}}}%
+% 		{}{\ems@warnpatch{@setref}}%
+% 	\renewcommand*\p@equation{\expandafter\upshape}%
+% }
+% \catcode`#=6
+% \patchcmd\real@setref%
+% 	{\expandafter#2#1}%
+% 	{\textup{\expandafter#2#1}}%
+% 	{}{\ems@warnpatch{real@setref}}
+% for correcting hyperref's wrongly placing target anchors to amsthm's theorems, part 2...
+%\AtBeginDocument{%
+% \@ifpackageloaded{cleveref}{%
+% \def\thm@refstepcounter@noarg#1{%
+%  \@kernel@refstepcounter{#1}%
+%  \cref@constructprefix{#1}{\cref@result}%
+%  \@ifundefined{cref@#1@alias}%
+%    {\def\@tempa{#1}}%
+%    {\def\@tempa{\csname cref@#1@alias\endcsname}}%
+%  \protected@edef\cref@currentlabel{%
+%    [\@tempa][\arabic{#1}][\cref@result]%
+%    \csname p@#1\endcsname\csname the#1\endcsname}}%
+% \def\thm@refstepcounter@optarg[#1]#2{%
+%  \@kernel@refstepcounter{#2}%
+%  \cref@constructprefix{#2}{\cref@result}%
+%  \@ifundefined{cref@#1@alias}%
+%    {\def\@tempa{#1}}%
+%    {\def\@tempa{\csname cref@#1@alias\endcsname}}%
+%  \protected@edef\cref@currentlabel{%
+%    [\@tempa][\arabic{#2}][\cref@result]%
+%    \csname p@#2\endcsname\csname the#2\endcsname}}%
+% \def\thm@refstepcounter{%
+%  \@ifnextchar[{\thm@refstepcounter@optarg}{\thm@refstepcounter@noarg}%]
+% }%
+% \xpatchcmd\cref@thmnoarg%
+%	{\@kernel@refstepcounter}%
+%	{\thm@refstepcounter}%
+%	{}{\ems@warnpatch{cref@thmnoarg}}%
+% \xpatchcmd\cref@thmoptarg%
+%	{\refstepcounter}%
+%	{\thm@refstepcounter}%
+%	{}{\ems@warnpatch{cref@thmoptarg}}%
+% }{}%
+%}%
+%\xpatchcmd\@thm%
+%	{\refstepcounter}%
+%	{\@kernel@refstepcounter}%
+%	{}{\ems@warnpatch{@thm}}%
+%% for also latex2e's theorem support, part 1:
+%\@ifpackageloaded{amsthm}{%
+%\newif\ifems@new@hyperref	\ems@new@hyperreffalse
+%\IfPackageAtLeastTF{hyperref}{2023/04/19}{\ems@new@hyperreftrue}{\ems@new@hyperreffalse}%
+%\xpatchcmd\@begintheorem%
+%	{\thmhead{#1}}%
+%	{\thmhead{\@ifpackageloaded{cleveref}{\MakeLinkTarget{\@currentcounter}}{\ifems@new@hyperref\MakeLinkTarget{\@currentcounter}\fi}#1}}%\errmessage{MKLtarget \@currentcounter: #1}
+%	{}{\ems@warnpatch{@begintheorem}}%
+% for also latex2e's theorem support, part 2:
+%}{\xpatchcmd\@begintheorem%
+%	{\item[}%
+%	{\item[\MakeLinkTarget{\@currentcounter}}%
+%	{}{\ems@warnpatch{@begintheorem}}%
+%\xpatchcmd\@opargbegintheorem%
+%	{\item[}%
+%	{\item[\MakeLinkTarget{\@currentcounter}}%
+%	{}{\ems@warnpatch{@opargbegintheorem}}%
+\endinput

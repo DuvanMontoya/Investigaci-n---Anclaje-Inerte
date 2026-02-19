@@ -79,7 +79,15 @@ try {
         $outdir = Join-Path "Analisis/Csigma" $tag
         Ensure-Directory $outdir
 
-        $args = @("-X", "utf8", "Codigo/Fuente/PipelineCsigma.py", "run", $csv.FullName, "--outdir", $outdir, "--audit_H")
+        $args = @(
+            "-X", "utf8",
+            "Codigo/Fuente/PipelineCsigma.py", "run", $csv.FullName,
+            "--outdir", $outdir,
+            "--blocks", "200",
+            "--minR", "1000000",
+            "--weights", "n",
+            "--audit_H"
+        )
         if ($tag -eq "D-4") { $args += "--audit_N" }
         python @args
         if ($LASTEXITCODE -ne 0) {

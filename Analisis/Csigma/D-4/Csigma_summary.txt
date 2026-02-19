@@ -1,5 +1,5 @@
 ==================================================================================
-RESUMEN — C_SIGMA^INERTE  (versión 2.1)
+RESUMEN — C_SIGMA^INERTE  (versión 2.2)
 ==================================================================================
 Archivo : csigma_inerte_D-4_Rmax10000001_step10.csv
 SHA-256 : f66f68f9cdf1f0c96b1492767d0ebe6cff97f831ad0cfbd2f3fea59f71ffdeb4
@@ -7,8 +7,7 @@ SHA-256 : f66f68f9cdf1f0c96b1492767d0ebe6cff97f831ad0cfbd2f3fea59f71ffdeb4
 
 [AUDIT] max|X_reconstruido − X_csv| = 8.8851e-13
 [AUDIT] max|H_recomputed − H_csv|   = 5.0004e-13
-[AUDIT] max|H⋆_recomputed − H⋆_csv| = nan
-[AUDIT] Familia inferida para N(R) = R
+[AUDIT] max|H⋆_recomputed − H⋆_csv| = 5.0004e-13
 
 ── Estadísticas globales X(R) ──────────────────────────────────────────
   n           = 499996
@@ -21,33 +20,36 @@ SHA-256 : f66f68f9cdf1f0c96b1492767d0ebe6cff97f831ad0cfbd2f3fea59f71ffdeb4
   skew / kurt = 1.342286  /  8.543026
 
 ── WLS principal (modelo 1er orden) ────────────────────────────────────
-  weight_mode = n_over_var
-  bloques     = 50 / 50
-  R_center ∈  [100091.0, 9900011.0]
-  C_inf       = 0.731717317824
-  IC 95%      = [0.7302080097, 0.7332266259]
-  a           = 0.826085467056
-  IC 95%(a)   = [0.8030895650, 0.8490813691]
-  R²_w        = 0.99088308
-  DOF         = 48
+  weight_mode = n
+  fit_scope   = tail_quantile
+  minR_fit    = 1000000.0
+  n_blocks    = 200
+  bloques     = 200 / 200
+  R_center ∈  [1022501.0, 9977511.0]
+  C_inf       = 0.735032481984
+  IC 95%      = [0.7349054068, 0.7351595572]
+  a           = 0.774822563674
+  IC 95%(a)   = [0.7728733835, 0.7767717438]
+  R²_w        = 0.99967789
+  DOF         = 198
 
 ── Constantes teóricas ─────────────────────────────────────────────────
   C_univ = C_base(−4) = 0.881938494431
   C_base(Δ=-4)    = 0.881938494431
-  S_Δ = C_∞/C_base = 0.829669327786
-  K_inerte = C_∞/C_univ = 0.829669327786
+  S_Δ = C_∞/C_base = 0.833428279438
+  K_inerte = C_∞/C_univ = 0.833428279438
 
 ── Incertidumbre sistemática (Tabla 2) ────────────────────────────────
-  EE_WLS   = 2.951252e-04  (raíz σ² residual WLS)
-  EE_sist  = 1.194272e-03  (sensibilidad de truncación)
-  |Δmodel| = 1.988725e-02  (1er vs 2do orden en cola)
+  EE_WLS   = 3.596499e-05  (raíz σ² residual WLS)
+  EE_sist  = 1.258798e-03  (sensibilidad de truncación)
+  |Δmodel| = 1.962441e-02  (1er vs 2do orden en cola)
 
 ── Bootstrap C_∞ (n_boot=2000) ────────────────────────
-  sd(C_∞) ≈ 1.726067e-03
-  IC 95%  ≈ [0.728369520443, 0.734648255033]
+  sd(C_∞) ≈ 1.000000e-04
+  IC 95%  ≈ [0.734854202567, 0.735246705544]
 
 ── Predicción primer orden inertes (Sección 10.1) ─────────────────────
   ∏_{p≤50, inerte} (p−1)/(p+1) = 0.2210998535
   C_∞^pred ≈ C_base × ∏         = 0.1949964719
-  C_∞ observado                 = 0.7317173178
-  Diferencia relativa           = 73.3508%
+  C_∞ observado                 = 0.7350324820
+  Diferencia relativa           = 73.4710%

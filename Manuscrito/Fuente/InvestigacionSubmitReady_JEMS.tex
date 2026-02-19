@@ -1,0 +1,150 @@
+% !TeX program = pdflatex
+\documentclass{article}
+\usepackage[journal=JEMS,lang=american]{ems-journal-jems}
+
+% Additional packages needed by the current manuscript body.
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,decorations.pathreplacing}
+\usepackage{subcaption}
+\usepackage{ifthen}
+\usepackage{float}
+\usepackage[section]{placeins}
+\usepackage{flafter}
+\usepackage[nameinlink,noabbrev]{cleveref}
+\usepackage{siunitx}
+
+\graphicspath{{../../Figuras/Articulo/}{../../Figuras/Articulo/Extra/}{../../Figuras/Articulo/Diagnosticos/}}
+\setcounter{tocdepth}{2}
+\numberwithin{equation}{section}
+\allowdisplaybreaks[2]
+\sisetup{round-mode=places,round-precision=6}
+
+% --- Figure helper (compatible with existing body) ---
+\newboolean{draftfigs}
+\setboolean{draftfigs}{false}
+\newcommand{\incfig}[2][]{%
+    \ifthenelse{\boolean{draftfigs}}%
+    {\fbox{\begin{minipage}{0.8\linewidth}\centering\texttt{FIGURE MISSING: #2}\\ \small(Draft mode enabled)\end{minipage}}}%
+    {\IfFileExists{#2}%
+        {\includegraphics[#1]{#2}}%
+        {\fbox{\begin{minipage}{0.8\linewidth}\centering\texttt{MISSING FILE: #2}\end{minipage}}}%
+    }%
+}
+
+% --- Theorem environments ---
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% --- Shared notation ---
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\vp}{v_p}
+\newcommand{\Zp}{\Z_p}
+\newcommand{\euler}{\gamma}
+\newcommand{\Csbase}{C_{\mathrm{base}}}
+\newcommand{\Csinf}{C_{\infty}}
+\newcommand{\Cobs}{C_{\sigma,\Delta}}
+\newcommand{\Ssing}{\mathfrak{S}_\Delta}
+\newcommand{\Sodd}{\mathfrak{S}_{\Delta,\mathrm{odd}}}
+\renewcommand{\MR}[2]{M_{#1}(#2)}
+\newcommand{\Prob}{\mathbb{P}}
+\newcommand{\E}{\mathbb{E}}
+
+\begin{document}
+
+% Institutional cover page for submission package.
+\begin{titlepage}
+\centering
+{\Large\bfseries Submission Cover Sheet\par}
+\vspace{1.1cm}
+{\large Target Journal: Journal of the European Mathematical Society (JEMS)\par}
+\vspace{0.8cm}
+{\LARGE\bfseries Inert Anchoring and Explicit $p$-adic Densities in the Family $R^2-c^2$\par}
+\vspace{0.35cm}
+{\large Deterministic renormalization and singular series in imaginary quadratic fields\par}
+\vspace{1.0cm}
+{\large Robert Duan Montoya Cardona\par}
+\vspace{0.35cm}
+{\normalsize Independent Researcher, Colombia\par}
+\vspace{0.35cm}
+{\normalsize Contact: \texttt{replace-with-author-email@example.com}\par}
+\vfill
+{\normalsize Prepared on \today\par}
+\end{titlepage}
+
+\title{Inert Anchoring and Explicit $p$-adic Densities in the Family $R^2-c^2$}
+\titlemark{Inert Anchoring for $R^2-c^2$}
+
+\emsauthor*{1}{
+  \givenname{Robert Duan}
+  \surname{Montoya Cardona}
+  \mrid{}
+  \zblid{}
+  \orcid{}}
+{R. D. Montoya Cardona}
+
+\Emsaffil{1}{
+  \pretext{}
+  \department{Independent Researcher}
+  \organisation{Mathematics}
+  \rorid{}
+  \address{}
+  \zip{}
+  \city{}
+  \country{Colombia}
+  \posttext{}
+  \affemail{replace-with-author-email@example.com}
+  \furtheremail{}}
+
+\classification[11R11]{11N32}
+\keywords{imaginary quadratic norms, $p$-adic densities, sieve constants, singular series, inert primes}
+
+\begin{abstract}
+We study the arithmetic family $M_R(c)=R^2-c^2$ for $1\le c\le R-1$, and the counting function
+$N_\Delta(R)$ of values represented as norms from $K=\Q(\sqrt{\Delta})$ with fundamental $\Delta<0$.
+The central mechanism is \emph{inert anchoring}: for an inert prime $p$, parity defects of $v_p(M_R(c))$
+concentrate on the critical layer $v_p(c)=v_p(R)$ and therefore become deterministic rather than random.
+This yields closed local formulas,
+$\sigma_p^{(m)}=1-2/(p^m(p+1))$ for odd primes and
+$\sigma_{2,\Delta}^{(m)}=1-1/(3\cdot 2^m)$ in the inert dyadic case.
+
+Using these densities, we build a finite normalizer $H_\Delta(R)$ that isolates the local dependence on
+prime powers dividing $R$, and we stabilize
+$C_{\sigma,\Delta}(R)=N_\Delta(R)\log R/(H_\Delta(R)R)$.
+The canonical baseline is
+$\Csbase(\Delta)=2e^{-\gamma}L(1,\chi_\Delta)$, with closed Heegner specialization, and we propose
+$\Csinf(\Delta)=\Csbase(\Delta)\Ssing$.
+Numerical evidence up to $R\le 10^7$ over all Heegner discriminants supports stable convergence and nontrivial local structure.
+Under a standard distribution-level hypothesis for $M_R(c)$ in arithmetic progressions, we obtain
+$N_\Delta(R)=\Csinf(\Delta)H_\Delta(R)R/\log R + O\!\left(R/(\log R)^{1+\delta}\right)$.
+\end{abstract}
+
+\maketitle
+
+\input{SubmitReady/Shared/body_main.tex}
+
+\begin{ack}
+The author thanks the open-source mathematical software ecosystem used to generate all computational evidence.
+\end{ack}
+
+\begin{funding}
+No external funding is declared in this submission package.
+\end{funding}
+
+\bibliographystyle{emsjems}
+\bibliography{SubmitReady/Shared/references}
+
+\end{document}
