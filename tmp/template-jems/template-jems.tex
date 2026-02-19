@@ -1,0 +1,270 @@
+%------
+% This is a template file for typesetting papers to appear in
+% the Journal of the European Mathematical Society (JEMS).
+%------
+% Before you edit this file, please read
+% Guidelines-Journals.pdf
+%------
+\documentclass{article}
+\usepackage[journal=JEMS,lang=british]{ems-journal-jems} %% change to `american' if you use American English
+
+%------
+% Include here your personal symbol definitions
+% and macros as well as any extra LaTeX packages
+% you need. Do not include any commands/packages
+% that alter the layout of the page, e.g. height/width.
+%------
+% Do not include packages that are already loaded:
+%   amsthm
+%   amsmath
+%   amssymb
+%   enumitem
+%   geometry
+%   caption
+%   graphicx
+%   hyperref
+%   fontenc
+%   inputenc
+% as well as:
+%   array, babel, booktabs, cite, float, footmisc, kvoptions,
+%   multicol, nag, newtxmath, newtxtext, pdf14, pdftexcmds,
+%   ragged2e, upref, url, xcolor, xpatch, zref-base
+%------
+
+
+% To include the section number in the equation numbering:
+\numberwithin{equation}{section}
+
+
+\begin{document}
+
+%------
+% Insert the title of your paper and (if necessary)
+% a short title for the running head.
+%------
+\title{TITLE}
+\titlemark{SHORT TITLE FOR THE RUNNING HEAD}
+
+%------
+
+%%%% Pls fill in all fields for each author
+%%%% Label the authors by their position in the authors' list using {}
+%%%% If you published any math paper ever, you have an MR Author ID.
+%  Please look it up in three easy (and free) steps:
+% 1. copy the bibliographic data of any published paper (co-)authored by you in the search field at https://mathscinet.ams.org/mathscinet/freetools/mref
+% 2. Hit your name in the search result
+% 3. Find your MR Author ID in the first row, copy it in the \mrid{} field
+%%%% Similarly, if this is not your first publication ever, then you have a zbMATH Open Author ID.
+%  Please look it up in four easy (and free) steps:
+% 1. copy the bibliographic data of any published paper (co-)authored by you in the Citation Text field at https://zbmath.org/citationmatching/
+% 2. Hit the Zbl ID if the relevant search result
+% 3. Hit your name in the first line of the article's page
+% 4. Find your zbMATH OPen Author ID in the first row below your name, copy it in the \zblid{} field
+%%%% If you have not created your ORCID yet, you may like to do it now, pls copy it in the field \orcid{}
+%%%% Abbreviate first names for the running head
+\emsauthor{1}{
+	\givenname{First}
+	\surname{Author}
+	\mrid{1234567}
+	\zblid{first.author}
+	\orcid{0000-0001-0002-0003}}{F.~Author}
+%%%% Repeat the same fields for each numbered author
+\emsauthor{2}{
+	\givenname{Second}
+	\surname{Contributor}
+	\mrid{}
+	\orcid{}}{S.~Contributor}
+\emsauthor*{3}{
+	\givenname{Someone}
+	\surname{Else}
+	\mrid{}
+	\orcid{}}{S.~Else}
+
+%%%% Please provide detalied address info for each author
+%%%% Use the same numbering as for \emsauthor above
+%%%% Please look up the ROR ID of your institute here: https://ror.org
+\Emsaffil{1}{
+	\pretext{}
+	\department{Department of Mathematics}
+	\organisation{University}
+	\rorid{01a2bcd34}
+	\address{Street 7}
+	\zip{10623}
+	\city{City}
+	\country{Country}
+	\posttext{}
+	\affemail{name@tuniversity.xy}
+	\furtheremail{nickname@gmail.com}}
+%%%% Repeat the same fields for each numbered author
+%%%% If some author has multiple affiliations, repeat the fields for each affiliation
+%%%% Number the affiliations using {}
+\Emsaffil{2}{
+	\pretext{}
+	\department{1}{}
+	\organisation{1}{}
+	\rorid{1}{}
+	\address{1}{}
+	\zip{1}{}
+	\city{1}{}
+	\country{1}{}
+	\posttext{}
+%
+	\pretext{}
+	\department{2}{} 
+	\organisation{2}{}%
+	\rorid{2}{}
+	\address{2}{}%
+	\zip{2}{}
+	\city{2}{}
+	\country{2}{} 
+	\posttext{}
+	\affemail{}
+	\furtheremail{}}
+\Emsaffil{3}{
+	\pretext{}
+	\department{}
+	\organisation{}
+	\rorid{}
+	\address{}
+	\zip{}
+	\city{}
+	\country{}
+	\posttext{}
+	\affemail{}
+	\furtheremail{}}
+	
+%% If a corresponding author is needed, use \emsauthor* instead of \emsauthor
+
+%%%% Appendix authors are treated analogously with the only difference 
+%%%% that they do not have the abbreviated name field
+
+\Appendixauthor{1}{
+	\givenname{Appendix}
+	\surname{Author}
+	\mrid{1234567}
+	\orcid{0000-0001-0002-0003}}
+\Appendixaffil{1}{
+	\pretext{}
+	\department{}
+	\organisation{}
+	\rorid{}
+	\address{}
+	\zip{}
+	\city{}
+	\country{}
+	\posttext{}
+	\affemail{}
+	\furtheremail{}}
+	
+%%%% If a regular author is an Appendix author as well, repeat their data 
+%%%% using  \Appendixauthor* instead of \Appendixauthor
+
+\Appendixauthor*{2}{
+	\givenname{First}
+	\surname{Author}
+	\mrid{1234567}
+	\orcid{0000-0001-0002-0003}}
+\Appendixaffil{2}{
+	\pretext{}
+	\department{}
+	\organisation{}
+	\rorid{}
+	\address{}
+	\zip{}
+	\city{}
+	\country{}
+	\posttext{}
+	\affemail{}
+	\furtheremail{}}
+
+%------
+% Add MSC 2020 codes according to www.ams.org/msc/msc2020.html.
+% Secondary codes (in square brackets) are optional.
+%------
+\classification[YYyYY]{XXxXX}
+
+%------
+% Add a list of keywords. Only capitalise those keywords that start with a proper name.
+%------
+\keywords{AAA, BBB}
+
+%------
+% Insert your abstract.
+%------
+\begin{abstract}
+\ldots
+\end{abstract}
+
+\maketitle
+
+%------
+% INSERT THE BODY OF THE PAPER HERE (except
+% acknowledgments, funding info and bibliography)
+%------
+
+
+
+
+
+
+
+
+%------
+% Insert acknowledgments and information
+% regarding funding at the end of the last
+% section, i.e., right before the bibliography.
+%------
+
+\begin{ack}
+We thank X.
+\end{ack}
+
+\begin{funding}
+This work was partially supported by~\ldots
+\end{funding}
+
+%------
+% Insert the bibliography.
+%------
+
+
+\begin{thebibliography}{99}
+
+%------ Example for a paper in journal:
+% \bibitem{article1}
+% Petrunin, A.: Parallel transportation for Alexandrov space with curvature bounded below.
+% Geom. Funct. Anal. \textbf{8}, 123--148 (1998) \Zbl{0903.53045} \MR{1601854}
+
+%------ Example for a book:
+% \bibitem{book1}
+% Ziemer, W.~P.: Weakly differentiable functions. Grad. Texts in Math. 120,
+% Springer, New York (1989) \Zbl{0692.46022} \MR{1014685}
+
+%------ Example for a paper in a book:
+% \bibitem{incollection1}
+% Milne, J.~S.: Introduction to Shimura varieties. In: Harmonic Analysis, the
+% Trace Formula, and Shimura Varieties (M.~W. Marcellin, E.~Giorgi, eds.),
+% pp. 265--378, Clay Math. Proc. 4,
+% American Mathematical Society, Providence, RI, 2005
+% \Zbl{1148.14011} \MR{2192012}
+
+%------ Example for a preprint on arXiv:
+% \bibitem{preprint1}
+% Nguyen, D.~V., Chilappagari, S.~K., Marcellin, M.~W., Vasic, B.:
+% LDPC codes from latin squares free of small trapping sets.
+% \arxiv{1008.4177} (2010)
+
+%------ Example for a report:
+% \bibitem{report1}
+% Schöberl, J.: Commuting quasi-interpolation operators.
+% Technical report isc-01-10-math, Texas A\&M University,
+% \url{www.isc.tamu.edu/publications-reports/tr/0110.pdf} (2001)
+
+%------ Example for a thesis:
+% \bibitem{thesis1}
+% Giorgi, E.: The geometric universe.
+% Ph.D. thesis, University of Maryland, College Park (2002)
+
+\end{thebibliography}
+
+\end{document} 

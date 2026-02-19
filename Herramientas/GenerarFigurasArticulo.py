@@ -1040,7 +1040,7 @@ def export_latex_table2(
     out_tex: Path,
 ) -> None:
     """
-    Tabla 2 del paper: C_∞, EE_WLS, EE_sist, |Δ_model|.
+    Tabla 2 del paper: C_∞, EE_WLS, EE_sist, |Δ_model|, EE_full.
     """
     lines = [
         r"\begin{table}[ht]",
@@ -1049,21 +1049,26 @@ def export_latex_table2(
         r"Modelo de referencia: $C_\infty+a/\log R$ en $R_{\rm tail}=10^6$. "
         r"Se reporta $\mathrm{EE}_{\rm WLS}$, la sensibilidad $\mathrm{EE}_{\rm sist}$ "
         r"en $R_{\rm tail}\in\{10^6,2\cdot10^6,3\cdot10^6\}$, y el desplazamiento de modelo "
-        r"$|\Delta_{\rm model}|:=|C^{(2)}_\infty-C^{(1)}_\infty|$.}",
+        r"$|\Delta_{\rm model}|:=|C^{(2)}_\infty-C^{(1)}_\infty|$. "
+        r"Además, $\mathrm{EE}_{\rm full}:=\sqrt{\mathrm{EE}_{\rm WLS}^2+\mathrm{EE}_{\rm sist}^2+|\Delta_{\rm model}|^2}$.}",
         r"\label{tab:uncertainty}",
         r"\small",
         r"\begin{tabular}{r S[table-format=1.6] S[table-format=1.6] "
-        r"S[table-format=1.6] S[table-format=1.6]}",
+        r"S[table-format=1.6] S[table-format=1.6] S[table-format=1.6]}",
         r"\toprule",
         r"$\Delta$ & {$C^{(1)}_\infty$} & {$\mathrm{EE}_{\rm WLS}$} & "
-        r"{$\mathrm{EE}_{\rm sist}$} & {$|\Delta_{\rm model}|$} \\",
+        r"{$\mathrm{EE}_{\rm sist}$} & {$|\Delta_{\rm model}|$} & {$\mathrm{EE}_{\rm full}$} \\",
         r"\midrule",
     ]
     for _, row in uncertainty_df.sort_values("D", key=lambda s: s.abs()).iterrows():
+        delta_abs = row["Delta_model_abs_C_inf"] if "Delta_model_abs_C_inf" in row else abs(row["Delta_model_C_inf"])
+        ee_full = row["EE_full_linear"] if "EE_full_linear" in row else math.sqrt(
+            row["EE_WLS_linear"] ** 2 + row["EE_systematic_linear"] ** 2 + delta_abs ** 2
+        )
         lines.append(
             rf"  ${int(row['D'])}$ & {row['C_inf_linear']:.6f} & "
             rf"{row['EE_WLS_linear']:.6f} & {row['EE_systematic_linear']:.6f} & "
-            rf"{row['Delta_model_C_inf']:.6f} \\"
+            rf"{delta_abs:.6f} & {ee_full:.6f} \\"
         )
     lines += [
         r"\bottomrule",
@@ -1163,6 +1168,12 @@ def write_tail_uncertainty(
                        for f in by_model["linear"])   if by_model["linear"]  else 0.0
         ee_sys_q = max(abs(f.C_inf - quad_ref.C_inf)
                        for f in by_model["quadratic"]) if by_model["quadratic"] else 0.0
+        delta_model = quad_ref.C_inf - lin_ref.C_inf
+        delta_model_abs = abs(delta_model)
+        ee_linear_nomodel = math.hypot(lin_ref.se_C_inf, ee_sys_l)
+        ee_linear_full = math.sqrt(
+            lin_ref.se_C_inf ** 2 + ee_sys_l ** 2 + delta_model_abs ** 2
+        )
 
         summary_rows.append({
             "D":                    D,
@@ -1174,8 +1185,10 @@ def write_tail_uncertainty(
             "C_inf_quadratic":      quad_ref.C_inf,
             "EE_WLS_quadratic":     quad_ref.se_C_inf,
             "EE_systematic_quadratic": ee_sys_q,
-            "Delta_model_C_inf":    quad_ref.C_inf - lin_ref.C_inf,
-            "EE_total_linear":      math.hypot(lin_ref.se_C_inf, ee_sys_l),
+            "Delta_model_C_inf":    delta_model,
+            "Delta_model_abs_C_inf": delta_model_abs,
+            "EE_total_linear":      ee_linear_nomodel,
+            "EE_full_linear":       ee_linear_full,
             "EE_total_quadratic":   math.hypot(quad_ref.se_C_inf, ee_sys_q),
             "R2_linear":            lin_ref.r2,
             "R2_quadratic":         quad_ref.r2,

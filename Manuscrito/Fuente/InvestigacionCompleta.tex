@@ -1,15 +1,18 @@
 % !TeX program = pdflatex
-\documentclass[11pt]{article}
+\documentclass[11pt,oneside]{article}
 
 % ---------------------------------------------------------------
 % Paquetes
 % ---------------------------------------------------------------
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage{lmodern}
+\usepackage[spanish,es-noquoting]{babel}
+\usepackage{newtxtext,newtxmath}
 \usepackage[final]{microtype}
-\usepackage[a4paper,margin=1.12in]{geometry}
+\usepackage[a4paper,margin=1.0in]{geometry}
 
+\let\Bbbk\relax
+\let\openbox\relax
 \usepackage{mathtools,amssymb,amsmath,amsthm}
 \usepackage{bm}
 \usepackage{enumitem}
@@ -24,6 +27,9 @@
 \usepackage[section]{placeins}
 \usepackage{flafter}
 \usepackage{titlesec}
+\usepackage{titling}
+\usepackage{tocloft}
+\usepackage{fancyhdr}
 \usepackage[font=small,labelfont=bf,labelsep=period,justification=justified,singlelinecheck=false]{caption}
 
 % --- Robust Figure Handling ---
@@ -47,22 +53,49 @@
   linkcolor=black,
   citecolor=black,
   urlcolor=black,
-  pdftitle={De la esfera x2+y2+z2=R2 al anclaje inerte: densidades p-adicas explicitas para R2-c2},
+  pdftitle={Anclaje Inerte y Densidades p-adicas Explicitas en la familia R2-c2},
   pdfauthor={Robert Duan Montoya Cardona}
 }
 \sisetup{round-mode=places,round-precision=6}
 \setlist[itemize]{itemsep=2pt,topsep=4pt,parsep=0pt,leftmargin=2em}
 \setlength{\jot}{6pt}
-\renewcommand{\arraystretch}{1.08}
-\linespread{1.03}
-\captionsetup{width=0.96\linewidth}
-\titleformat{\section}{\normalfont\large\bfseries}{\thesection}{0.65em}{}
-\titleformat{\subsection}{\normalfont\normalsize\bfseries}{\thesubsection}{0.60em}{}
-\titleformat{\subsubsection}{\normalfont\normalsize\bfseries\itshape}{\thesubsubsection}{0.60em}{}
-\titlespacing*{\section}{0pt}{1.2\baselineskip}{0.55\baselineskip}
-\titlespacing*{\subsection}{0pt}{0.95\baselineskip}{0.45\baselineskip}
-\titlespacing*{\subsubsection}{0pt}{0.80\baselineskip}{0.35\baselineskip}
+\renewcommand{\arraystretch}{1.10}
+\linespread{1.06}
+\setlength{\parindent}{1.15em}
+\setlength{\parskip}{2.5pt plus 0.8pt minus 0.5pt}
+\setlength{\emergencystretch}{2em}
+\captionsetup{width=0.94\linewidth}
+\titleformat{\section}{\normalfont\Large\bfseries}{\thesection}{0.65em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{0.60em}{}
+\titleformat{\subsubsection}{\normalfont\normalsize\bfseries}{\thesubsubsection}{0.60em}{}
+\titlespacing*{\section}{0pt}{1.35\baselineskip}{0.65\baselineskip}
+\titlespacing*{\subsection}{0pt}{1.05\baselineskip}{0.52\baselineskip}
+\titlespacing*{\subsubsection}{0pt}{0.90\baselineskip}{0.40\baselineskip}
 \raggedbottom
+\setcounter{tocdepth}{2}
+\renewcommand{\contentsname}{Índice}
+\renewcommand{\cfttoctitlefont}{\hfill\Large\bfseries}
+\renewcommand{\cftaftertoctitle}{\hfill}
+\setlength{\cftbeforesecskip}{2pt}
+\setlength{\cftbeforesubsecskip}{1pt}
+\renewcommand{\cftsecfont}{\small\bfseries}
+\renewcommand{\cftsubsecfont}{\small}
+\renewcommand{\cftsecpagefont}{\small\bfseries}
+\renewcommand{\cftsubsecpagefont}{\small}
+\setlength{\headheight}{14pt}
+\fancypagestyle{paperstyle}{
+  \fancyhf{}
+  \fancyhead[L]{\small\itshape Anclaje inerte y densidades p-adicas}
+  \fancyhead[R]{\small\thepage}
+  \renewcommand{\headrulewidth}{0.35pt}
+  \renewcommand{\footrulewidth}{0pt}
+}
+\pagestyle{paperstyle}
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \fancyhead[R]{\small\thepage}
+  \renewcommand{\headrulewidth}{0pt}
+}
 
 % ---------------------------------------------------------------
 % Ajustes de maquetación profesional (floats + espaciados)
@@ -129,65 +162,53 @@
 % ---------------------------------------------------------------
 % Título (RECOMENDADO)
 % ---------------------------------------------------------------
-\title{\textbf{De la esfera \(x^2+y^2+z^2=R^2\) al anclaje inerte:\\
-densidades \(p\)-ádicas explícitas para la familia \(R^2-c^2\)}\\[2pt]
+\title{\textbf{Anclaje Inerte y Densidades \(p\)-ádicas Explícitas en la familia \(R^2-c^2\):}\\[2pt]
 \large Renormalización determinista y serie singular en campos cuadráticos imaginarios}
 \author{Robert Duan Montoya Cardona}
 \date{\today}
+\setlength{\droptitle}{-1.2em}
+\pretitle{\begin{center}\LARGE\bfseries}
+\posttitle{\par\end{center}\vspace{0.45em}}
+\preauthor{\begin{center}\normalsize}
+\postauthor{\par\end{center}\vspace{0.2em}}
+\predate{\begin{center}\small}
+\postdate{\par\end{center}\vspace{0.65em}}
 
 \begin{document}
+\pagenumbering{roman}
 \maketitle
+\thispagestyle{empty}
 
 % ================================================================
 \begin{abstract}
-Sea $\Delta<0$ un discriminante fundamental, $K=\Q(\sqrt{\Delta})$ y
-\[
-x^2+y^2+z^2=R^2,\qquad z=c\ \Longrightarrow\ x^2+y^2=R^2-c^2.
-\]
-Esta identidad geométrica es el origen conceptual del trabajo: al cortar la esfera a altura $c$, el radio cuadrado del paralelo es
-$R^2-c^2$. En el caso gaussiano ($\Delta=-4$), decidir si $R^2-c^2$ es norma equivale a decidir si se representa como suma de dos cuadrados;
-en general, reemplazamos ``suma de dos cuadrados'' por pertenencia al conjunto de normas $N_{K/\Q}(\mathcal O_K)$.
-\[
-N_\Delta(R)=\#\{\,1\le c\le R-1:\ M_R(c)=R^2-c^2\in N_{K/\Q}(\mathcal O_K)\,\}.
-\]
-Mostramos que la dependencia de $N_\Delta(R)$ respecto de la factorización de $R$ en primos \emph{inertes} no es un efecto estadístico,
-sino una oscilación local determinista originada en la estructura $p$-ádica de $M_R(c)=(R-c)(R+c)$.
+Estudiamos la familia aritmética \(M_R(c)=R^2-c^2\), \(1\le c\le R-1\), asociada al conteo
+\(N_\Delta(R)\) de valores que son normas en \(K=\Q(\sqrt{\Delta})\), con \(\Delta<0\) fundamental.
+El resultado conceptual central es el \emph{anclaje inerte}: para un primo inerte \(p\), el defecto de paridad de
+\(v_p(M_R(c))\) no es ruido estadístico, sino un fenómeno determinista concentrado en la capa crítica \(v_p(c)=v_p(R)\).
+Esta rigidez produce fórmulas cerradas para densidades locales de norma:
+\(\sigma_p^{(m)}=1-\frac{2}{p^m(p+1)}\) para \(p\ge 3\), y
+\(\sigma_{2,\Delta}^{(m)}=1-\frac{1}{3\cdot 2^m}\) cuando \(2\) es inerte.
 
-El resultado central es local y es completamente explícito: para todo primo impar $p\ge 3$ calculamos en forma cerrada la probabilidad de que
-$v_p(M_R(c))$ sea impar cuando $c$ es Haar-uniforme en $\Z_p$ y $m=v_p(R)$,
+Con estas densidades definimos un normalizador finitista \(H_\Delta(R)\) que extrae de forma explícita la dependencia local en
+la factorización de \(R\), y estabilizamos el observable
+\(C_{\sigma,\Delta}(R)=\frac{N_\Delta(R)\log R}{H_\Delta(R)R}\).
+Identificamos el baseline canónico
+\(\Csbase(\Delta)=2e^{-\euler}L(1,\chi_\Delta)\), con forma cerrada en el caso Heegner, y proponemos la descomposición
+\(\Csinf(\Delta)=\Csbase(\Delta)\Ssing\), donde \(\Ssing\) captura correlaciones locales finas.
+La evidencia numérica hasta \(R\le 10^7\) para los nueve discriminantes de Heegner confirma estabilización robusta y estructura local no trivial.
+Bajo una hipótesis estándar de nivel de distribución para \(M_R(c)\), obtenemos asintóticamente
 \[
-\Prob\big(v_p(M_R(c))\ \mathrm{impar}\big)=\frac{2}{p^m(p+1)},
-\qquad
-\sigma_p^{(m)}=\Prob\big(v_p(M_R(c))\ \mathrm{par}\big)=1-\frac{2}{p^m(p+1)}.
+N_\Delta(R)=\Csinf(\Delta)\,H_\Delta(R)\,\frac{R}{\log R}
++O\!\left(\frac{R}{(\log R)^{1+\delta}}\right),\qquad \delta>0.
 \]
-Además, cuando $2$ es inerte ($\Delta\equiv 5\!\!\pmod 8$), aparece un \emph{interruptor} racional $2$-ádico:
-\[
-\sigma_{2,\Delta}^{(m)}=1-\frac{1}{3\cdot 2^{m}},\qquad \sigma_{2,\Delta}^{(0)}=\frac{2}{3}.
-\]
-Estas identidades se explican por un principio estructural: fuera de la \emph{capa crítica} $v_p(c)=v_p(R)$ la paridad de $v_p(M_R(c))$
-es forzosamente par.
-
-Definimos un normalizador determinista $H_\Delta(R)$ como producto finito de cocientes $\sigma_{p,\Delta}^{(m)}/\sigma_{p,\Delta}^{(0)}$
-sobre los primos inertes que dividen $R$ (incluyendo $p=2$ solo cuando es inerte y divide $R$) y consideramos el observable
-\[
-C_{\sigma,\Delta}(R)=\frac{N_\Delta(R)\log R}{H_\Delta(R)\,R}.
-\]
-Identificamos el baseline arquimediano canónico
-\[
-\Csbase(\Delta)=2e^{-\euler}L(1,\chi_\Delta)=2e^{-\euler}\mathrm{Res}_{s=1}\zeta_K(s),
-\]
-y en discriminantes de Heegner una forma cerrada en términos de $\sqrt{|\Delta|}$. Además, presentamos evidencia computacional
-hasta $R\le 10^7$ de que $C_{\sigma,\Delta}(R)$ se estabiliza hacia un límite $\Csinf(\Delta)$ compatible con la descomposición
-$\Csinf(\Delta)=\Csbase(\Delta)\,\mathfrak{S}_\Delta$, donde $\mathfrak{S}_\Delta$ es una serie singular local dominada por primos pequeños.
-Finalmente formulamos un teorema global \emph{condicional}: bajo una hipótesis estándar de nivel de distribución para
-$M_R(c)=R^2-c^2$ en progresiones aritméticas, se obtiene
-\[
-N_\Delta(R)=\Csinf(\Delta)\,H_\Delta(R)\,\frac{R}{\log R}+O\!\left(\frac{R}{(\log R)^{1+\delta}}\right)
-\]
-para algún $\delta>0$.
 \end{abstract}
+\noindent\textbf{Palabras clave.} Normas cuadráticas imaginarias, densidades \(p\)-ádicas, cribas con serie singular, renormalización aritmética, anclaje inerte.
+\par\noindent\textbf{MSC 2020.} 11N32, 11R11, 11N36, 11D09.
 
+\clearpage
 \tableofcontents
+\clearpage
+\pagenumbering{arabic}
 
 % ================================================================
 \section{Introducción y resumen de resultados}
@@ -207,7 +228,7 @@ Por tanto, para cada $c$ aparece un escalar natural, $R^2-c^2$, que codifica el 
 La pregunta aritmética nace al pedir que ese escalar pertenezca a un conjunto de normas.
 La \Cref{fig:sphere-origin} resume este puente geométrico con una visualización directa.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \begin{tikzpicture}[scale=0.95,>=Latex]
 \pgfmathsetmacro{\Rs}{2.7}
@@ -256,7 +277,7 @@ $K=\Q(\sqrt{\Delta})$ extiende esa puerta a toda una familia cuadrática con con
 
 \subsection{Mapa lógico del artículo}
 La \Cref{fig:roadmap-main} compacta la arquitectura completa: origen geométrico, filtros locales, renormalización y constante final.
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \begin{tikzpicture}[
   >=Latex,
@@ -563,7 +584,7 @@ En un modelo de criba de dimensión $1$ aplicado a valores de tamaño $\asymp R^
 Al normalizar por $\log R$, absorbemos ese factor $2$ en la constante $\Csbase(\Delta)$, justificando su prefactor.
 \end{remark}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \incfig[width=\linewidth]{../../Figuras/Articulo/D-43_raw_vs_norm.pdf}
 \caption{Demostración visual del anclaje inerte para $\Delta=-43$. \textbf{Arriba:} $C_{\rm raw}(R)=N_\Delta(R)\log R/R$ oscila multiplicativamente. \textbf{Abajo:} al normalizar por $H_\Delta(R)$, el observable $C_{\sigma,\Delta}(R)$ se estabiliza, evidenciando que $H_\Delta$ captura la oscilación determinista inducida por primos inertes.}
@@ -651,7 +672,7 @@ se concentra en una capa de masa $\asymp p^{-m}$.
 \end{remark}
 La \Cref{fig:critical-layer} lo visualiza en un solo diagrama: todo el defecto de paridad entra por $t=\vp(c)=m$.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \begin{tikzpicture}[
   >=Latex,
@@ -1313,7 +1334,7 @@ Así, reportamos dos capas de incertidumbre para $C_\infty$:
 \mathrm{EE}_{\mathrm{sist}}:=\max_{R_{\mathrm{tail}}}\big|C_\infty(R_{\mathrm{tail}})-C_\infty(10^6)\big|.
 \]
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
 \caption{Heegner: baseline canónico $C_{\mathrm{base}}(\Delta)$ y ajuste de cola $C_\infty(\Delta)$ usando $C_{\sigma,\Delta}(R)\approx C_\infty+a/\log R$ en $R\ge 10^6$ (200 bins por cuantiles). Se reporta $\mathrm{EE}_{\mathrm{WLS}}$ (incertidumbre in-model) del WLS en bins (pesos por tamaño de bin).}
 \label{tab:heegner-tailfit}
@@ -1343,33 +1364,36 @@ $-3$   & 0.678917 & 0.566005 & 0.000065 & 0.563  & 0.001 & 0.833689 \\
 \end{tabular}
 \end{table}
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
 \caption{Descomposición de incertidumbre de cola para $C_\infty(\Delta)$.
 Modelo de referencia: $C_\infty+a/\log R$ en $R_{\mathrm{tail}}=10^6$.
 Se reporta $\mathrm{EE}_{\mathrm{WLS}}$, la sensibilidad de truncación $\mathrm{EE}_{\mathrm{sist}}$ en
 $R_{\mathrm{tail}}\in\{10^6,2\cdot 10^6,3\cdot 10^6\}$, y el desplazamiento de modelo
 $|\Delta_{\mathrm{model}}|:=|C_\infty^{(2)}-C_\infty^{(1)}|$ entre
-$C_\infty+a/\log R+b/\log^2 R$ y $C_\infty+a/\log R$ en $R_{\mathrm{tail}}=10^6$.}
+$C_\infty+a/\log R+b/\log^2 R$ y $C_\infty+a/\log R$ en $R_{\mathrm{tail}}=10^6$.
+Además, $\mathrm{EE}_{\mathrm{full}}:=\sqrt{\mathrm{EE}_{\mathrm{WLS}}^2+\mathrm{EE}_{\mathrm{sist}}^2+|\Delta_{\mathrm{model}}|^2}$.}
 \label{tab:tail-stability}
 \sisetup{group-separator={},group-minimum-digits=4}
-\begin{tabular}{r S[table-format=1.6] S[table-format=1.6] S[table-format=1.6] S[table-format=1.6]}
+\begin{tabular}{r S[table-format=1.6] S[table-format=1.6] S[table-format=1.6] S[table-format=1.6] S[table-format=1.6]}
 \toprule
-{$\Delta$} & {$C_\infty^{(1)}$} & {$\mathrm{EE}_{\mathrm{WLS}}$} & {$\mathrm{EE}_{\mathrm{sist}}$} & {$|\Delta_{\mathrm{model}}|$} \\
+{$\Delta$} & {$C_\infty^{(1)}$} & {$\mathrm{EE}_{\mathrm{WLS}}$} & {$\mathrm{EE}_{\mathrm{sist}}$} & {$|\Delta_{\mathrm{model}}|$} & {$\mathrm{EE}_{\mathrm{full}}$} \\
 \midrule
-$-163$ & 0.156052 & 0.000063 & 0.000530 & 0.004047 \\
-$-67$  & 0.241297 & 0.000107 & 0.000401 & 0.006613 \\
-$-43$  & 0.303469 & 0.000140 & 0.001303 & 0.022085 \\
-$-19$  & 0.473185 & 0.000208 & 0.001055 & 0.017593 \\
-$-11$  & 0.650708 & 0.000281 & 0.001388 & 0.022101 \\
-$-8$   & 0.692068 & 0.000070 & 0.001398 & 0.019602 \\
-$-7$   & 0.431485 & 0.000186 & 0.000786 & 0.011712 \\
-$-4$   & 0.735032 & 0.000064 & 0.001259 & 0.019624 \\
-$-3$   & 0.566005 & 0.000065 & 0.001074 & 0.016527 \\
+$-163$ & 0.156052 & 0.000063 & 0.000530 & 0.004047 & 0.004082 \\
+$-67$  & 0.241297 & 0.000107 & 0.000401 & 0.006613 & 0.006626 \\
+$-43$  & 0.303469 & 0.000140 & 0.001303 & 0.022085 & 0.022124 \\
+$-19$  & 0.473185 & 0.000208 & 0.001055 & 0.017593 & 0.017626 \\
+$-11$  & 0.650708 & 0.000281 & 0.001388 & 0.022101 & 0.022146 \\
+$-8$   & 0.692068 & 0.000070 & 0.001398 & 0.019602 & 0.019652 \\
+$-7$   & 0.431485 & 0.000186 & 0.000786 & 0.011712 & 0.011740 \\
+$-4$   & 0.735032 & 0.000064 & 0.001259 & 0.019624 & 0.019665 \\
+$-3$   & 0.566005 & 0.000065 & 0.001074 & 0.016527 & 0.016562 \\
 \bottomrule
 \end{tabular}
 \end{table}
 En toda la familia se observa $\mathrm{EE}_{\mathrm{sist}}>\mathrm{EE}_{\mathrm{WLS}}$ (entre $3.8\times$ y $19.9\times$),
+pero además domina el término de modelo:
+$\mathrm{EE}_{\mathrm{full}}/\sqrt{\mathrm{EE}_{\mathrm{WLS}}^2+\mathrm{EE}_{\mathrm{sist}}^2}\in[7.65,16.88]$,
 lo que confirma que la metrología de $C_\infty$ debe separar incertidumbre estadística in-model y sensibilidad sistemática de cola/modelo.
 
 \subsection{Refinamiento ramificado en cola: $H_\Delta^\star$}
@@ -1385,7 +1409,7 @@ Equivalentemente:
 C_{\sigma,\Delta}^\star(R)=C_{\sigma,\Delta}(R)\prod_{\substack{p\mid \Delta\\ p\ \text{impar}}}p^{v_p(R)}.
 \]
 La reducción de varianza en la cola es sustancial:
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
 \caption{Efecto del refinamiento ramificado en la cola $R\in[10^6,10^7]$.}
 \label{tab:tail-star-sd}
@@ -1419,7 +1443,7 @@ La \Cref{fig:stabilization-all} muestra la convergencia de $C_{\sigma,\Delta}(R)
 para los nueve discriminantes de Heegner. La línea roja corresponde al ajuste de cola
 $C_{\sigma,\Delta}(R)\approx C_\infty(\Delta)+a/\log R$ en la región $R\ge 10^6$.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \begin{subfigure}[b]{0.32\linewidth}
 \incfig[width=\linewidth]{../../Figuras/Articulo/D-3_stabilizacion.pdf}
@@ -1474,7 +1498,7 @@ $C_{\sigma,\Delta}(R)\approx C_\infty(\Delta)+a/\log R$ en la región $R\ge 10^6
 La \Cref{fig:heegner-comparative} muestra la relación entre la constante empírica $\Csinf(\Delta)$ y el baseline teórico $\Csbase(\Delta)$.
 El cociente $\Ssing=\Csinf/\Csbase$ captura el factor singular de la familia.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \begin{subfigure}[b]{0.48\linewidth}
 \incfig[width=\linewidth]{../../Figuras/Articulo/Heegner_Ssing.pdf}
@@ -1499,7 +1523,7 @@ C_{\rm raw}(R)=\frac{N_\Delta(R)\log R}{R}\approx \Csinf(\Delta)\,H_\Delta(R).
 La \Cref{fig:D43-collapse} confirma este colapso lineal: al graficar $C_{\rm raw}$ contra $H_\Delta$, la nube se alinea,
 demostrando que $H_\Delta$ no es un ``fit hack'' sino estructura.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \incfig[width=0.85\linewidth]{../../Figuras/Articulo/D-43_Craw_vs_H.pdf}
 \caption{Colapso lineal: $C_{\rm raw}(R)$ vs $H_\Delta(R)$ para $\Delta=-43$. El alineamiento demuestra que $H_\Delta$ captura la oscilación determinista.}
@@ -1543,7 +1567,7 @@ La \Cref{fig:partial-products} muestra el producto parcial de primer orden sobre
 \]
 Para $\Delta=-7$, este producto cae rápidamente debido a los pocos inertes pequeños ($p=3,5$), explicando el outlier.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \incfig[width=0.75\linewidth]{../../Figuras/Articulo/Heegner_partial_products.pdf}
 \caption{Producto parcial de primer orden sobre primos inertes para los nueve discriminantes de Heegner. La caída de $\Delta=-7$ se explica por pocos inertes pequeños ($p=3,5$).}
@@ -1555,7 +1579,7 @@ En la malla principal ($R\equiv 1\pmod{20}$), se tiene $v_5(R)=0$ para todo $R$,
 funciona como control (sin estratificación adicional). Esta dependencia en $v_3(R)$ es exactamente la que captura
 el factor inercial $H_\Delta(R)$.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \begin{subfigure}[b]{0.48\linewidth}
 \incfig[width=\linewidth]{../../Figuras/Articulo/D-7_vp_effect_p3.pdf}
@@ -1581,7 +1605,7 @@ El patrón es monótono (predicciones mayores tienden a corresponder a observaci
 el primer orden con inertes pequeños captura parte de la variación relativa entre discriminantes, mientras que la normalización completa
 requiere factores adicionales (incluyendo el capítulo $2$-ádico y correcciones finas de segundo orden $O(p^{-2})$).
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \incfig[width=0.75\linewidth]{../../Figuras/Articulo/Extra/Heegner_pred_small_inerts.pdf}
 \caption{Comparación entre la predicción de primer orden $C_\infty^{\text{pred}}$ (usando solo primos inertes $p\le 50$) y el valor observado $\Csinf(\Delta)$ para los nueve discriminantes de Heegner. La nube conserva orden relativo, pero evidencia subestimación de escala cuando se usa solo primer orden.}
@@ -2242,7 +2266,7 @@ y esa condición tiene medida $3^{-m}$. En ese subconjunto, el cálculo base pro
 Las siguientes figuras demuestran que la estimación de $\Csinf(\Delta)$ no es un artefacto de regresión.
 Los residuales del ajuste de cola muestran comportamiento estacionario sin tendencias sistemáticas.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \begin{subfigure}[b]{0.32\linewidth}
 \incfig[width=\linewidth]{../../Figuras/Articulo/D-4_tail_residual.pdf}
@@ -2270,7 +2294,7 @@ Los residuales del ajuste de cola muestran comportamiento estacionario sin tende
 \subsection{Normalización raw vs normalizado adicional}
 Las siguientes figuras muestran el efecto de normalización para discriminantes adicionales, complementando la \Cref{fig:D43-raw-vs-norm}.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \begin{subfigure}[b]{0.48\linewidth}
 \incfig[width=\linewidth]{../../Figuras/Articulo/D-4_raw_vs_norm.pdf}
@@ -2288,7 +2312,7 @@ Las siguientes figuras muestran el efecto de normalización para discriminantes 
 \subsection{Colapso lineal adicional}
 Las siguientes figuras muestran el colapso $C_{\rm raw}$ vs $H_\Delta$ para discriminantes adicionales, complementando la \Cref{fig:D43-collapse}.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \begin{subfigure}[b]{0.48\linewidth}
 \incfig[width=\linewidth]{../../Figuras/Articulo/D-4_Craw_vs_H.pdf}
@@ -2327,6 +2351,14 @@ Aunque el análisis se centra en $R^2-c^2$, el principio de capa crítica sugier
 descomponibles $Q(x,y)=L_1(x,y)L_2(x,y)$ donde una relación aditiva rígida controle la paridad de valuaciones
 en primos inertes.
 
+Como agenda inmediata, el marco desarrollado aquí sugiere cuatro direcciones de trabajo concretas:
+\begin{enumerate}
+\item Extender el anclaje inerte a familias cuadráticas más generales $f(c)$, identificando el rol del discriminante local en la capa crítica.
+\item Obtener una versión incondicional global del Teorema~\ref{thm:global-conditional} bajo hipótesis analíticas estándar (por ejemplo, GRH o un nivel de distribución óptimo).
+\item Tratar sistemáticamente el régimen $h(\Delta)>1$, incorporando clases de ideales y su contribución a la constante singular.
+\item Explorar análogos en órdenes no maximales y contextos aritmético-geométricos afines donde aparezcan normas con estructura local anclada.
+\end{enumerate}
+
 % ================================================================
 \section{Bibliografía}
 \begin{thebibliography}{9}
@@ -2359,4 +2391,7 @@ J.~Neukirch.
 \end{thebibliography}
 
 \end{document}
+
+
+
 

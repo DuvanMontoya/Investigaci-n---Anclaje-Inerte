@@ -1042,14 +1042,14 @@ def plot_linear_collapse(df: pd.DataFrame, D: int, spf: np.ndarray, outdir: Path
     k = float(np.dot(H_arr, Craw) / denom) if denom > 0 else float("nan")
 
     fig, ax = plt.subplots()
-    ax.scatter(H_arr, Craw, s=2, alpha=0.35, rasterized=True, label=f"$R \\ge 10^{{{int(np.log10(min_R))}}}$")
+    ax.scatter(H_arr, Craw, s=2, alpha=0.35, rasterized=True, label=f"$R \\geq 10^{{{int(np.log10(min_R))}}}$")
 
     xg = np.linspace(float(np.nanmin(H_arr)), float(np.nanmax(H_arr)), 200)
     ax.plot(xg, k * xg, lw=2, ls="--", label=f"Ajuste por origen: $k = {k:.6f}$")
 
     ax.set_xlabel("$H_\\Delta(R)$")
     ax.set_ylabel("$C_{\\rm raw}(R) = N_\\Delta(R)\\,\\log R / R$")
-    ax.set_title(f"Colapso lineal ($\\Delta = {D}$, cola $R \\ge {min_R:.0e}$)")
+    ax.set_title(f"Colapso lineal ($\\Delta = {D}$, cola $R \\geq {min_R:.0e}$)")
     ax.legend(fontsize=9)
     fig.savefig(outdir / "fig_colapso_lineal.pdf")
     plt.close(fig)

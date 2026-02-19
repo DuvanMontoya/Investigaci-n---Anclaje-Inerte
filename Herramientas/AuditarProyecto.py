@@ -153,6 +153,8 @@ def is_norm_minus8_local(n: int) -> bool:
 def load_data_files() -> List[Path]:
     files = sorted(DATA_DIR.glob("csigma_inerte_D-*_Rmax10000001_step10_Rmin101.csv"))
     if len(files) != 9:
+        files = sorted(DATA_DIR.glob("csigma_inerte_D-*_Rmax10000001_step10.csv"))
+    if len(files) != 9:
         fail(f"Se esperaban 9 CSV en Datos/Canonicos, encontrados {len(files)}.")
     return files
 
@@ -162,10 +164,15 @@ def check_data_integrity(files: Sequence[Path]) -> Dict[int, pd.DataFrame]:
     r_grid_ref: pd.Series | None = None
     for fp in files:
         df = pd.read_csv(fp)
-        required = {"D", "R", "N_R", "H_R", "C_sigma_inerte"}
+        required = {"D", "R", "N_R", "H_R"}
         missing = required - set(df.columns)
         if missing:
             fail(f"{fp.name}: faltan columnas {sorted(missing)}")
+        if "C_sigma_inerte" not in df.columns:
+            if "C_sigma" in df.columns:
+                df["C_sigma_inerte"] = df["C_sigma"]
+            else:
+                fail(f"{fp.name}: falta columna C_sigma_inerte/C_sigma")
         if df.isna().any().any():
             fail(f"{fp.name}: contiene NaN")
         if df["D"].nunique() != 1:
@@ -237,8 +244,11 @@ def check_summary_vs_tex() -> None:
     summ = pd.read_csv(SUMMARY_CSV).sort_values("D").reset_index(drop=True)
     if sorted(summ["D"].tolist()) != EXPECTED_DS:
         fail("summary_tail_fits.csv no contiene los 9 discriminantes esperados")
+    s_col = "S_sing" if "S_sing" in summ.columns else ("S_Delta" if "S_Delta" in summ.columns else None)
+    if s_col is None:
+        fail("summary_tail_fits.csv no contiene columna S_sing/S_Delta")
     m = tab.merge(
-        summ[["D", "C_base", "C_inf", "se_C_inf", "a", "se_a", "S_sing"]],
+        summ[["D", "C_base", "C_inf", "se_C_inf", "a", "se_a", s_col]].rename(columns={s_col: "S_sing"}),
         on="D",
         how="inner",
     )
@@ -267,9 +277,11 @@ def check_star_outputs(by_d: Dict[int, pd.DataFrame]) -> None:
     summ_star = pd.read_csv(STAR_SUMMARY_CSV).sort_values("D").reset_index(drop=True)
     if sorted(summ_star["D"].tolist()) != EXPECTED_DS:
         fail("summary_tail_fits_star.csv no contiene los 9 discriminantes esperados")
-    req_star = {"D", "C_base", "C_inf", "se_C_inf", "a", "se_a", "S_sing"}
+    req_star = {"D", "C_base", "C_inf", "se_C_inf", "a", "se_a"}
     if not req_star.issubset(set(summ_star.columns)):
         fail("summary_tail_fits_star.csv no tiene todas las columnas requeridas")
+    if "S_sing" not in summ_star.columns and "S_Delta" not in summ_star.columns:
+        fail("summary_tail_fits_star.csv no contiene columna S_sing/S_Delta")
 
     sd_csv = pd.read_csv(STAR_SD_CSV).sort_values("D").reset_index(drop=True)
     req_sd = {"D", "SD_C_sigma_inerte", "SD_C_sigma_star", "ratio_star_over_inerte", "R_tail_min"}
@@ -311,17 +323,16 @@ def check_tail_uncertainty_outputs() -> None:
     unc = pd.read_csv(TAIL_UNCERTAINTY_CSV).sort_values("D").reset_index(drop=True)
     summ = pd.read_csv(SUMMARY_CSV).sort_values("D").reset_index(drop=True)
 
-    req_grid = {
-        "D", "model", "R_tail_min", "C_inf", "se_C_inf", "a", "se_a", "b", "se_b",
-        "n_tail_points", "n_bins", "R_min", "R_max",
-    }
+    req_grid = {"D", "model", "R_tail_min", "C_inf", "se_C_inf", "a", "se_a", "b", "se_b", "n_bins", "R_min", "R_max"}
     if not req_grid.issubset(set(grid.columns)):
         fail("summary_tail_grid_fits.csv no tiene columnas requeridas")
+    if "n_tail_points" not in grid.columns and "n_tail_pts" not in grid.columns:
+        fail("summary_tail_grid_fits.csv no contiene columna n_tail_points/n_tail_pts")
 
     req_unc = {
         "D", "R_tail_ref", "R_tail_grid", "C_inf_linear", "EE_WLS_linear", "EE_systematic_linear",
         "C_inf_quadratic", "EE_WLS_quadratic", "EE_systematic_quadratic", "Delta_model_C_inf",
-        "EE_total_linear", "EE_total_quadratic",
+        "Delta_model_abs_C_inf", "EE_total_linear", "EE_full_linear", "EE_total_quadratic",
     }
     if not req_unc.issubset(set(unc.columns)):
         fail("summary_tail_uncertainty.csv no tiene columnas requeridas")
@@ -371,8 +382,23 @@ def check_tail_uncertainty_outputs() -> None:
             fail(f"D={d}: EE_systematic_quadratic inconsistente con la grilla")
 
         delta_model = float(quad_ref["C_inf"]) - float(lin_ref["C_inf"])
+        delta_model_abs = abs(delta_model)
         if abs(float(row.Delta_model_C_inf) - delta_model) > 2e-9:
             fail(f"D={d}: Delta_model_C_inf inconsistente con la grilla")
+        if abs(float(row.Delta_model_abs_C_inf) - delta_model_abs) > 2e-9:
+            fail(f"D={d}: Delta_model_abs_C_inf inconsistente con la grilla")
+
+        ee_total_lin = math.hypot(float(lin_ref["se_C_inf"]), ee_sys_lin)
+        if abs(float(row.EE_total_linear) - ee_total_lin) > 2e-9:
+            fail(f"D={d}: EE_total_linear inconsistente con (EE_WLS_linear, EE_systematic_linear)")
+
+        ee_full_lin = math.sqrt(float(lin_ref["se_C_inf"])**2 + ee_sys_lin**2 + delta_model_abs**2)
+        if abs(float(row.EE_full_linear) - ee_full_lin) > 2e-9:
+            fail(f"D={d}: EE_full_linear inconsistente con formula completa")
+
+        ee_total_quad = math.hypot(float(quad_ref["se_C_inf"]), ee_sys_quad)
+        if abs(float(row.EE_total_quadratic) - ee_total_quad) > 2e-9:
+            fail(f"D={d}: EE_total_quadratic inconsistente con (EE_WLS_quadratic, EE_systematic_quadratic)")
 
     m = unc.merge(summ[["D", "C_inf", "se_C_inf"]], on="D", how="inner")
     if (m["C_inf_linear"] - m["C_inf"]).abs().max() > 1e-10:

@@ -98,10 +98,17 @@ class ValidationResult:
 
 def validate_csv(path: Path, max_R_check: int) -> ValidationResult:
     df = pd.read_csv(path)
-    req = {"D", "R", "N_R", "H_R", "C_sigma_inerte"}
+    req = {"D", "R", "N_R", "H_R"}
     missing = req - set(df.columns)
     if missing:
         raise ValueError(f"{path.name}: faltan columnas {sorted(missing)}")
+
+    c_col = "C_sigma_inerte"
+    if c_col not in df.columns:
+        if "C_sigma" in df.columns:
+            c_col = "C_sigma"
+        else:
+            raise ValueError(f"{path.name}: falta columna C_sigma_inerte/C_sigma")
 
     Dvals = df["D"].astype(int).unique().tolist()
     if len(Dvals) != 1:
@@ -125,7 +132,7 @@ def validate_csv(path: Path, max_R_check: int) -> ValidationResult:
 
     N = df["N_R"].to_numpy(dtype=np.int64)
     H = df["H_R"].to_numpy(dtype=float)
-    C = df["C_sigma_inerte"].to_numpy(dtype=float)
+    C = df[c_col].to_numpy(dtype=float)
 
     C_re = N.astype(float) * np.log(R.astype(float)) / (H * R.astype(float))
     max_abs_identity = float(np.max(np.abs(C_re - C)))
@@ -152,6 +159,8 @@ def validate_csv(path: Path, max_R_check: int) -> ValidationResult:
 
 def discover_csvs(csv_dir: Path) -> List[Path]:
     files = sorted(csv_dir.glob("csigma_inerte_D*_Rmax*_step*_Rmin*.csv"))
+    if not files:
+        files = sorted(csv_dir.glob("csigma_inerte_D*_Rmax*_step*.csv"))
     if not files:
         raise FileNotFoundError(f"No se encontraron CSVs canonicos en {csv_dir}")
     return files

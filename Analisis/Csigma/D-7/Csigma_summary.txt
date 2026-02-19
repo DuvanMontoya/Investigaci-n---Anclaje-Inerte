@@ -1,0 +1,52 @@
+==================================================================================
+RESUMEN — C_SIGMA^INERTE  (versión 2.1)
+==================================================================================
+Archivo : csigma_inerte_D-7_Rmax10000001_step10.csv
+SHA-256 : 6bf8add8cd36ac747ae6f7e58cf4305e4dffad14b92deb1e6fa28a78a5f094e2
+Δ       : -7
+
+[AUDIT] max|X_reconstruido − X_csv| = 7.6728e-13
+[AUDIT] max|H_recomputed − H_csv|   = 5.0004e-13
+[AUDIT] max|H⋆_recomputed − H⋆_csv| = nan
+
+── Estadísticas globales X(R) ──────────────────────────────────────────
+  n           = 499996
+  media       = 0.465624066962
+  mediana     = 0.525295993812
+  std         = 0.159172883066
+  MAD         = 0.009248339720
+  q05 / q95   = 0.085636417164  /  0.546266678350
+  min / max   = 0.000000000000  /  0.681873183350
+  skew / kurt = -2.041330  /  2.241098
+
+── WLS principal (modelo 1er orden) ────────────────────────────────────
+  weight_mode = n_over_var
+  bloques     = 50 / 50
+  R_center ∈  [100091.0, 9900011.0]
+  C_inf       = 0.426802140605
+  IC 95%      = [0.4254189849, 0.4281852963]
+  a           = 0.584485921215
+  IC 95%(a)   = [0.5637040950, 0.6052677475]
+  R²_w        = 0.98521152
+  DOF         = 48
+
+── Constantes teóricas ─────────────────────────────────────────────────
+  C_univ = C_base(−4) = 0.881938494431
+  C_base(Δ=-7)    = 1.333365673097
+  S_Δ = C_∞/C_base = 0.320093841635
+  K_inerte = C_∞/C_univ = 0.483936400668
+
+── Incertidumbre sistemática (Tabla 2) ────────────────────────────────
+  EE_WLS   = 3.481240e-04  (raíz σ² residual WLS)
+  EE_sist  = 9.069454e-04  (sensibilidad de truncación)
+  |Δmodel| = 1.306244e-02  (1er vs 2do orden en cola)
+
+── Bootstrap C_∞ (n_boot=2000) ────────────────────────
+  sd(C_∞) ≈ 2.372124e-03
+  IC 95%  ≈ [0.423754371203, 0.431152770531]
+
+── Predicción primer orden inertes (Sección 10.1) ─────────────────────
+  ∏_{p≤50, inerte} (p−1)/(p+1) = 0.1955782313
+  C_∞^pred ≈ C_base × ∏         = 0.2607773000
+  C_∞ observado                 = 0.4268021406
+  Diferencia relativa           = 38.8997%
