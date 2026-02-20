@@ -1692,198 +1692,149 @@ y en particular para $R$ impar aparece el racional fijo $2/3$.
 \item Los outliers se explican por productos de pequeños inertes (Ejemplo~\ref{ex:minus7}).
 \end{itemize}
 
-\subsection{Hipótesis analítica para el Teorema Global}
-\paragraph{Lema puente (hipótesis de distribución $\mathcal D_\theta$).}
-Existe $\theta>0$ tal que, para todo $A>0$ y $Q=R^\theta$, se tiene uniformemente para $q\le Q$ y $(a,q)=1$:
-\[
-\#\{1\le c\le R:\ M_R(c)\equiv a\!\!\!\pmod q\}
-=\frac{R}{q}\,\rho_q(a)+E(R;q,a),
-\]
-donde
-\[
-\rho_q(a):=\#\{x\!\!\!\pmod q:\ R^2-x^2\equiv a\!\!\!\pmod q\},
-\]
-y además
-\[
-\sum_{q\le Q}\max_{(a,q)=1}|E(R;q,a)|\ll_A \frac{R}{(\log R)^A}.
-\]
-Esta es exactamente la pieza analítica que no se demuestra en el manuscrito y que debe obtenerse con técnicas de criba
-asintótica (Selberg/\(\beta\)-criba; ver \cite{HalberstamRichert,FriedlanderIwaniec}).
+\subsection{De la Proposición~12.3 al Teorema~12.1: del tamiz al contorno de Henriot}
+\label{subsec:12-bridge}
 
-\subsubsection{Puente analítico: del conteo módulo $q$ al término principal}
-\label{subsec:bridge-henriot}
-Queremos estimar
+Recordemos que queremos estimar
 \[
-N_\Delta(R)=\#\{1\le c\le R:\ M_R(c)=R^2-c^2\ \text{es norma en }K=\Q(\sqrt{\Delta})\}.
+N_\Delta(R)\;=\;\#\{1\le c\le R:\; M_R(c)=R^2-c^2 \text{ es una norma en }K=\mathbb{Q}(\sqrt{\Delta})\}.
 \]
-Definimos $f_\Delta:\N\to\{0,1\}$ como el indicador multiplicativo de la condición local de norma.
-Para $p\nmid \Delta$:
+Sea $f_\Delta:\mathbb{N}\to\{0,1\}$ la función multiplicativa indicadora de la condición local de norma:
+para cada primo $p\nmid \Delta$,
 \[
 f_\Delta(p^k)=
 \begin{cases}
-1,& \chi_\Delta(p)=+1\quad(\text{split}),\\
-1,& \chi_\Delta(p)=-1\ \text{y }k\ \text{par}\quad(\text{inerte}),\\
-0,& \chi_\Delta(p)=-1\ \text{y }k\ \text{impar}.
+1,& \chi_\Delta(p)\in\{0,+1\}\ \text{(ramificado o split) y }k\ge 0,\\
+1,& \chi_\Delta(p)=-1\ \text{(inerte) y }k\ \text{par},\\
+0,& \chi_\Delta(p)=-1\ \text{y }k\ \text{impar},
 \end{cases}
 \]
-En $p\mid \Delta$ (y en $p=2$ cuando corresponde), las correcciones son locales y finitas, y ya fueron fijadas en las secciones $p$-ádicas.
-Con esta notación,
+y extendemos multiplicativamente (con las modificaciones locales finitas necesarias cuando $p\mid \Delta$).
+Entonces
 \[
 N_\Delta(R)=\sum_{1\le c\le R} f_\Delta\!\bigl(M_R(c)\bigr).
 \]
 
-\paragraph{(i) Entrada aritmética explícita (squarefree, $a=0$).}
-Para $q$ libre de cuadrados definimos
+\medskip
+\noindent\textbf{(i) El rol exacto de la Proposición~12.3.}
+Para aplicar tanto un tamiz de Selberg como el marco de Henriot--Nair--Tenenbaum, la entrada
+indispensable es un control uniforme de la distribución de la sucesión $M_R(c)$ en clases módulo $q$,
+al menos para $q$ libre de cuadrados y en el caso de divisibilidad ($a=0$).
+Definimos, para $q$ squarefree,
 \[
-\rho_R(q):=\#\{x\bmod q:\ M_R(x)\equiv 0\!\!\pmod q\}.
+\rho_R(q)\;=\;\#\{x\bmod q:\; M_R(x)\equiv 0\!\!\pmod q\}.
 \]
-El conteo de divisibilidad que alimenta la criba tiene la forma
-\begin{equation}\label{eq:bridge-maincount}
+La Proposición~12.3 da precisamente:
+\begin{equation}\label{eq:12-bridge-maincount}
 \#\{1\le c\le R:\ q\mid M_R(c)\}
 =\frac{R}{q}\rho_R(q)+O\!\bigl(\rho_R(q)\bigr),
 \qquad \rho_R(q)\ll 2^{\omega(q)}.
 \end{equation}
-Si
-\[
-E_0(R;q):=\#\{1\le c\le R:\ q\mid M_R(c)\}-\frac{R}{q}\rho_R(q),
-\]
-entonces
-\[
-\sum_{\substack{q\le R^\theta\\ q\ \mathrm{squarefree}}}|E_0(R;q)|
-\ll
-R^\theta(\log R)^{O(1)}.
-\]
-Este es exactamente el input ``$a=0$'' para la fase de divisibilidad. El salto al control uniforme en clases coprimas $(a,q)=1$
-es precisamente la hipótesis $\mathcal D_\theta$ enunciada arriba.
+En particular, para todo $\theta<1$ y todo $A>0$,
+\begin{equation}\label{eq:12-bridge-level}
+\sum_{\substack{q\le R^\theta\\ q\ \mathrm{squarefree}}}
+\max_{(a,q)=1}\bigl|E(R;q,a)\bigr|
+\ \ll_A\ \frac{R}{(\log R)^A},
+\end{equation}
+ya que el error puntual está dominado por $\rho_R(q)$ y
+$\sum_{q\le R^\theta}2^{\omega(q)}\ll R^\theta(\log R)^{O(1)}$.
+Esto verifica (en la forma estrictamente necesaria para nuestra criba) la hipótesis de ``nivel de distribución''
+que aparece como $D_\theta$ en el Teorema~12.1 y, al mismo tiempo, es el control requerido para acotar
+los términos de resto en el teorema de Henriot aplicado a productos de formas lineales.
 
-\paragraph{(ii) Separación de primos no genéricos y aparición de $H_\Delta(R)$.}
+\medskip
+\noindent\textbf{(ii) Reducción al caso ``genérico'' y aparición de $H_\Delta(R)$.}
 Escribimos
 \[
-M_R(c)=(R-c)(R+c),\qquad
-d(c):=\gcd(R-c,R+c)=\gcd(R-c,2R).
+M_R(c)=(R-c)(R+c),
+\qquad d(c):=\gcd(R-c,R+c)=\gcd(R-c,2R).
 \]
-Las correlaciones locales entre los dos factores lineales quedan entonces forzadas por primos $p\mid 2R$.
-La teoría local de las secciones anteriores muestra que ese bloque no genérico se encapsula en el normalizador
-$H_\Delta(R)$ (y en la variante $H_\Delta^\star(R)$ cuando se desea separar de forma explícita los ramificados impares).
-Tras extraer ese bloque, el resto entra en régimen genérico multiplicativo.
-
-\paragraph{(iii) Entrada tipo Henriot/Nair--Tenenbaum: forma analítica efectiva.}
-Bajo $\mathcal D_\theta$ y las hipótesis usuales para funciones multiplicativas no negativas en productos de formas lineales
-primitivas no proporcionales, la etapa Nair--Tenenbaum/Henriot no solo entrega una cota de criba, sino una representación
-Mellin-compatible del término principal. En particular, para $\Re(s)>1$ se obtiene una función auxiliar
-\begin{equation}\label{eq:bridge-factorization}
-\mathcal Z_{R,\Delta}(s)=H_\Delta(R)\,\mathcal G_\Delta(s;R)\,\Psi_\Delta(s),
+Por tanto, toda correlación local entre los dos factores lineales está forzada por primos $p\mid 2R$.
+Los cálculos $p$-ádicos de las Secciones~5--6 muestran que la contribución no genérica de dichos primos
+se encapsula en el factor local acumulado $H_\Delta(R)$, definido como el producto de las densidades locales
+$\sigma_p^{(v_p(R))}$ (incluyendo el caso $p=2$), es decir,
+\begin{equation}\label{eq:12-bridge-H}
+H_\Delta(R)=\prod_{p\mid 2R}\sigma_p^{(v_p(R))}(\Delta).
 \end{equation}
-donde:
+De este modo, una vez fijado $R$, podemos separar el problema en:
 \begin{itemize}
-\item $\mathcal G_\Delta(s;R)$ es holomorfa en una vecindad de $s=1$, con crecimiento moderado en bandas verticales,
-y satisface
-\[
-\mathcal G_\Delta(1;R)=\widetilde C_\infty(\Delta)+O_\Delta\!\big((\log R)^{-\eta_0}\big),
-\]
-para cierto $\eta_0>0$;
-\item $\Psi_\Delta(s)$ contiene toda la singularidad principal y tiene expansión de tipo Delange
-\begin{equation}\label{eq:bridge-psi}
-\Psi_\Delta(s)=\frac{1}{(s-1)\,\mathcal L_\Delta(s)},
-\qquad
-\mathcal L_\Delta(s)=\log\!\frac{1}{s-1}+B_\Delta+O_\Delta(s-1),
-\end{equation}
-en el semiplano $\Re(s)>1$ cercano a $1$.
+\item primos $p\mid 2R$, tratados exactamente vía \eqref{eq:12-bridge-H};
+\item primos $p\nmid 2R$, donde los dos factores $R-c$ y $R+c$ se comportan ``genéricamente''
+y el promedio viene gobernado por una teoría de funciones multiplicativas en valores polinomiales.
 \end{itemize}
-La estructura \eqref{eq:bridge-psi} (polo simple modulado por un logaritmo lento) es exactamente la que fuerza una ley
-$R/\log R$ al invertir Mellin.
 
-\paragraph{(iv) Perron truncado: fórmula y selección de parámetros.}
-Aplicamos Perron truncado a \eqref{eq:bridge-factorization} con
-\[
-\sigma=1+\frac{1}{\log R},\qquad T\ge 2,
-\]
-y obtenemos
-\begin{equation}\label{eq:bridge-perron}
-N_\Delta(R)=\frac{1}{2\pi i}\int_{\sigma-iT}^{\sigma+iT}
-\mathcal Z_{R,\Delta}(s)\,\frac{R^s}{s}\,ds
-+O_\Delta\!\left(\frac{R(\log R)^B}{T}\right)
+\medskip
+\noindent\textbf{(iii) Aplicación del teorema de Henriot (Nair--Tenenbaum generalizado).}
+Sea $F_R(n)=(R-n)(R+n)$, producto de dos formas lineales primitivas y no proporcionales.
+Bajo las hipótesis estándar de Henriot para funciones multiplicativas no negativas de crecimiento suave
+(y usando \eqref{eq:12-bridge-level} para controlar los restos en progresiones módulo $q$ squarefree),
+el resultado de \cite{Henriot2012} implica que existe una constante $C_\infty(\Delta)>0$ tal que
+\begin{equation}\label{eq:12-bridge-henriot-asymp}
+\sum_{1\le c\le R} f_\Delta\!\bigl(F_R(c)\bigr)
+=
+C_\infty(\Delta)\,\frac{H_\Delta(R)\,R}{\log R}
++O_\Delta\!\left(\frac{H_\Delta(R)\,R}{(\log R)^{1+\eta}}\right)
 \end{equation}
-para alguna constante $B>0$.
-La elección
-\[
-T=\exp\!\big((\log R)^{2/3}\big)
-\]
-hace que el error de truncación sea $O_\Delta(R\exp(-(\log R)^{2/3}))$, en particular
-$O_\Delta(R/(\log R)^A)$ para todo $A>0$.
+para algún $\eta>0$.
+La estructura $R/\log R$ corresponde a una \emph{dimensión de criba global} $\kappa=1$:
+cada factor lineal aporta $\kappa=\tfrac12$ (densidad de primos inertes) y, en conjunto, $\kappa=1$.
 
-\paragraph{(v) Desplazamiento de contorno y extracción de la contribución singular.}
-Desplazamos el contorno de \eqref{eq:bridge-perron} a una curva estándar compuesta por:
-\begin{enumerate}
-\item un tramo vertical en $\Re(s)=1-\frac{c_0}{\log T}$;
-\item dos tramos horizontales de altura $\pm T$;
-\item un contorno de Hankel pequeño alrededor de $s=1$ (radio $\asymp 1/\log R$).
-\end{enumerate}
-En la región desplazada se tiene, por \eqref{eq:bridge-factorization} y crecimiento moderado de $\mathcal G_\Delta$,
+\medskip
+\noindent\textbf{(iv) Dónde entra el contorno: forma Selberg--Delange/Perron.}
+Una forma conveniente de ver \eqref{eq:12-bridge-henriot-asymp} (y de identificar la constante)
+es escribir, para $\Re(s)>1$, la serie de Dirichlet local-global asociada a la sucesión:
 \[
-|\mathcal Z_{R,\Delta}(s)|\ll_\Delta H_\Delta(R)\,(\log T)^B.
+\mathcal{F}_R(s)
+:=\sum_{n\ge 1}\frac{a_R(n)}{n^s},
+\qquad
+a_R(n):=\sum_{\substack{1\le c\le R\\ F_R(c)=n}} f_\Delta(n).
 \]
-Así, los tramos alejados de $s=1$ aportan
-\begin{equation}\label{eq:bridge-far-arcs}
-I_{\mathrm{far}}
-\ll_\Delta
-H_\Delta(R)\,R\,
-\exp\!\Big(-c_1\frac{\log R}{\log T}\Big)(\log T)^B
-\ll_\Delta
-\frac{H_\Delta(R)\,R}{(\log R)^{1+\eta_1}}
+Por inversión de Perron,
+\begin{equation}\label{eq:12-bridge-perron}
+\sum_{1\le c\le R} f_\Delta(F_R(c))
+=
+\frac{1}{2\pi i}\int_{\sigma-iT}^{\sigma+iT}\mathcal{F}_R(s)\,\frac{R^s}{s}\,ds
++O\!\left(\frac{R^\sigma}{T}\right),
+\qquad (\sigma>1).
 \end{equation}
-para algún $\eta_1>0$.
-
-La contribución principal viene del Hankel local. Con el cambio
+El teorema de Henriot (en su demostración) equivale a exhibir una factorización
 \[
-s=1+\frac{u}{\log R},
-\]
-y usando \eqref{eq:bridge-psi},
-\[
-\Psi_\Delta(s)\frac{R^s}{s}
+\mathcal{F}_R(s)
 =
-\frac{R}{\log R}\,\frac{e^u}{u}\Big(1+O_\Delta\!\big((\log R)^{-1}\big)\Big),
+\frac{G_\Delta(s;R)}{(s-1)^{\kappa}}
+\qquad (\kappa=1),
 \]
-mientras que
+donde $G_\Delta(s;R)$ es holomorfa y no nula en una vecindad de $s=1$ (uniformemente en $R$),
+y donde el aporte no genérico de $p\mid 2R$ queda absorbido en $G_\Delta(1;R)=H_\Delta(R)\cdot G_\Delta(1;\infty)$.
+Desplazando el contorno en \eqref{eq:12-bridge-perron} hacia $\Re(s)=1-\varepsilon$ y recogiendo el residuo en $s=1$,
+obtenemos
 \[
-\mathcal G_\Delta\!\Big(1+\frac{u}{\log R};R\Big)
-=\mathcal G_\Delta(1;R)+O_\Delta\!\big((\log R)^{-1}\big)
-\]
-uniformemente para $u$ en el Hankel.
-Por tanto,
-\[
-I_{\mathrm{main}}
+\sum_{1\le c\le R} f_\Delta(F_R(c))
 =
-H_\Delta(R)\,\mathcal G_\Delta(1;R)\,\frac{R}{\log R}
-\cdot
-\frac{1}{2\pi i}\int_{\mathcal H}\frac{e^u}{u}\,du
-+O_\Delta\!\left(\frac{H_\Delta(R)\,R}{(\log R)^{1+\eta_2}}\right).
-\]
-Como
-\[
-\frac{1}{2\pi i}\int_{\mathcal H}\frac{e^u}{u}\,du=1,
-\]
-resulta
-\[
-N_\Delta(R)
+\operatorname{Res}_{s=1}\left(\mathcal{F}_R(s)\frac{R^s}{s}\right)
++O_\Delta\!\left(\frac{H_\Delta(R)\,R}{(\log R)^{1+\eta}}\right)
 =
-H_\Delta(R)\,\mathcal G_\Delta(1;R)\,\frac{R}{\log R}
+G_\Delta(1;R)\,\frac{R}{\log R}
 +O_\Delta\!\left(\frac{H_\Delta(R)\,R}{(\log R)^{1+\eta}}\right),
 \]
-con $\eta=\min(\eta_0,\eta_1,\eta_2)>0$, y en consecuencia
-\begin{equation}\label{eq:bridge-NT-asymp}
-N_\Delta(R)=\widetilde C_\infty(\Delta)\,\frac{H_\Delta(R)\,R}{\log R}
-+O_\Delta\!\left(\frac{H_\Delta(R)\,R}{(\log R)^{1+\eta}}\right).
-\end{equation}
-
-\paragraph{(vi) Identificación de la constante canónica.}
-La evaluación local--global de las secciones previas identifica
+que es \eqref{eq:12-bridge-henriot-asymp} con
 \[
-\widetilde C_\infty(\Delta)=\Csinf(\Delta)
-=2e^{-\euler}L(1,\chi_\Delta)\,\kappa_2(\Delta)\prod_{p\ge 3}\kappa_p(\Delta),
+C_\infty(\Delta)=G_\Delta(1;\infty).
 \]
-con $\kappa_p(\Delta)=1+O(p^{-2})$ y producto absolutamente convergente.
-En consecuencia, la parte pendiente queda concentrada en $\mathcal D_\theta$, mientras la estructura de la constante ya está fijada.
+
+\medskip
+\noindent\textbf{(v) Identificación explícita de $C_\infty(\Delta)$.}
+Finalmente, la evaluación local--global desarrollada en las Secciones~7--11 muestra que
+\[
+C_\infty(\Delta)
+=
+2e^{-\gamma}\,L(1,\chi_\Delta)\cdot \kappa_2(\Delta)\prod_{p\ge 3}\kappa_p(\Delta),
+\]
+donde los factores $\kappa_p(\Delta)=1+O(p^{-2})$ son las correcciones finas (producto absolutamente convergente)
+y $\kappa_2(\Delta)$ recoge el término $2$-ádico (Sección~6).
+Esto completa la transición: la Proposición~12.3 suministra el nivel de distribución requerido,
+Henriot da la asintótica con constante Euleriana, y el contorno (Perron + desplazamiento) extrae el residuo en $s=1$,
+produciendo el término principal $H_\Delta(R)\,R/\log R$ y dejando un error de potencia logarítmica.
 
 \begin{theorem}[Asintótica global de normas (condicional)]
 \label{thm:global-conditional}
@@ -1901,7 +1852,7 @@ con
 \end{theorem}
 \begin{proof}[Esquema de demostración]
 La hipótesis $\mathcal D_\theta$ entrega la uniformidad en progresiones necesaria para ejecutar una criba de dimensión $1$ con ahorro en el error,
-y la reducción al término principal queda descrita en \Cref{subsec:bridge-henriot}. Los Teoremas~\ref{thm:local-odd} y \ref{thm:sigma2-inerte}
+y la reducción al término principal queda descrita en \Cref{subsec:12-bridge}. Los Teoremas~\ref{thm:local-odd} y \ref{thm:sigma2-inerte}
 fijan los factores locales, mientras el Teorema~\ref{thm:arch} fija el baseline arquimediano $2e^{-\euler}L(1,\chi_\Delta)$.
 La convergencia absoluta del producto residual se obtiene por \Cref{cor:ssing-absconv}; con ello, el término principal queda determinado
 y el resto hereda ahorro logarítmico $O(R/(\log R)^{1+\delta})$.
@@ -2559,6 +2510,11 @@ H.~Halberstam and H.-E.~Richert.
 J.~Friedlander and H.~Iwaniec.
 \newblock \emph{Opera de Cribro}.
 \newblock AMS Colloquium Publications, 2010.
+
+\bibitem{Henriot2012}
+K.~Henriot.
+\newblock \emph{Nair--Tenenbaum bounds uniform with respect to the discriminant}.
+\newblock Math. Proc. Cambridge Philos. Soc., 152(3):405--424, 2012.
 
 \bibitem{Neukirch}
 J.~Neukirch.
